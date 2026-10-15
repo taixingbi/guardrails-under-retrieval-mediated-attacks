@@ -1,0 +1,11 @@
+# CoT Phase 1 (B2): LLM-only, frozen direct prompt, same guard budget as B4.
+# Pair with cot_pilot_llm_cot.yaml; only guardrail_reasoning differs.
+extends: main_ablation_llm.yaml
+run_id: cot_pilot_llm_direct
+output_dir: data/runs/cot_pilot_llm_direct
+seed_limit: 20
+http_retries: 8
+guardrails: [G1]
+guardrail_reasoning: direct
+chat:
+  guardrail_max_tokens: 4096

@@ -124,6 +124,15 @@ class GuardrailAudit(BaseModel):
     guardrail_raw_output: str = ""
     parsed_decision: str = "allow"
     sanitized_text: str | None = None
+    # Trace fields (LLM input guard only; empty on rules/legacy audits)
+    rationale: str | None = None
+    attack_signals: list[str] = Field(default_factory=list)
+    evidence_quotes: list[str] = Field(default_factory=list)
+    evidence_found: list[bool] = Field(default_factory=list)
+    native_reasoning: str | None = None
+    parse_ok: bool | None = None
+    truncated: bool | None = None
+    usage: dict[str, Any] = Field(default_factory=dict)
 
 
 class RunRecord(BaseModel):

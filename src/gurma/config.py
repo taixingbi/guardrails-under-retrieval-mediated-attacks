@@ -42,6 +42,10 @@ class AppConfig(BaseModel):
     clean_pass_mode: Literal["both", "either"] = "both"
     models: ModelsConfig = Field(default_factory=ModelsConfig)
     guardrail_prompt_version: str = "v3"
+    # direct = frozen input.txt; cot = input_cot.txt (stepwise rationale + evidence quotes)
+    guardrail_reasoning: Literal["direct", "cot"] = "direct"
+    # Sent as reasoning_effort to the input guard (gpt-oss); None = server default
+    guardrail_reasoning_effort: Literal["low", "medium", "high"] | None = None
     guardrails: list[str] = Field(default_factory=lambda: ["G0", "G1", "G2"])
     attacks: list[str] = Field(
         default_factory=lambda: [

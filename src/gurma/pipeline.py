@@ -163,6 +163,10 @@ def stage_metrics(cfg: AppConfig, records: list[RunRecord] | None = None) -> dic
         bootstrap_n=cfg.bootstrap_n,
         bootstrap_seed=cfg.bootstrap_seed,
     )
+    if any(r.input_audit and r.input_audit.parse_ok is not None for r in records):
+        from gurma.eval.trace_metrics import write_trace_report
+
+        write_trace_report(out_dir, records)
     print(f"[P6] wrote metrics → {out_dir}")
     return metrics
 

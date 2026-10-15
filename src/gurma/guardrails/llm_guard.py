@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from gurma.clients.chat import ChatClient
@@ -22,6 +23,37 @@ def load_prompt(stage: str) -> str:
     if not path.exists():
         raise FileNotFoundError(f"Missing guardrail prompt: {path}")
     return path.read_text().strip()
+
+
+_CHAR_MAP = str.maketrans(
+    {
+        "\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"',
+        "\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2014": "-",
+        "\u00a0": " ", "\u202f": " ",
+    }
+)
+
+
+def _norm(text: str) -> str:
+    text = text.lower().translate(_CHAR_MAP)
+    return re.sub(r"\s+", " ", text).strip(" \"'")
+
+
+def quote_in_text(quote: str, text: str) -> bool:
+    """Verbatim check (whitespace/case-insensitive); '...' splits a quote into fragments."""
+    haystack = _norm(text)
+    # Models often close a clipped sentence with "." that the source continues past
+    parts = [_norm(p).rstrip(". ") for p in re.split(r"\.\.\.|\u2026", quote)]
+    parts = [p for p in parts if p]
+    return bool(parts) and all(p in haystack for p in parts)
+
+
+def _str_list(value: object) -> list[str]:
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    if isinstance(value, list):
+        return [str(v) for v in value if isinstance(v, (str, int, float)) and str(v).strip()]
+    return []
 
 
 def _audit_from_rules(version: str, context: str, *, model_label: str) -> GuardrailAudit:
@@ -76,6 +108,9 @@ class InputGuardrail:
         if self.mode == "moderation":
             self.system = load_prompt("moderation")
             self.version_label = "moderation"
+        elif cfg.guardrail_reasoning == "cot":
+            self.system = load_prompt("input_cot")
+            self.version_label = f"{self.version}-cot"
         else:
             self.system = load_prompt("input")
             self.version_label = self.version
@@ -111,12 +146,14 @@ class InputGuardrail:
             {"role": "user", "content": user},
         ]
         raw = ""
+        result = None
         try:
             result = self.client.complete(
                 messages,
                 temperature=0.0,
                 max_tokens=self.cfg.chat.guardrail_max_tokens,
                 model=self.model,
+                reasoning_effort=self.cfg.guardrail_reasoning_effort,
             )
             raw = result.content
             data = parse_json_object(raw)
@@ -124,13 +161,16 @@ class InputGuardrail:
             raw = str(exc)
             data = {"decision": "allow", "reason": "guardrail_error"}
 
-        decision = str(data.get("decision") or "allow").lower()
-        if decision not in {"allow", "sanitize", "block"}:
-            decision = "allow"
+        raw_decision = str(data.get("decision") or "").lower()
+        parse_ok = result is not None and raw_decision in {"allow", "sanitize", "block"}
+        decision = raw_decision if parse_ok else "allow"
         sanitized = data.get("sanitized_context") or data.get("sanitized_text")
         sanitized_text = str(sanitized).strip() if sanitized else None
         if decision == "sanitize" and not sanitized_text:
             decision = "block"
+        quotes = _str_list(data.get("evidence"))
+        # Direct prompt has no rationale field; its short reason is the stated rationale
+        rationale = data.get("rationale") or data.get("reason")
         return GuardrailAudit(
             guardrail_prompt_version=self.version_label,
             guardrail_model=(
@@ -140,6 +180,14 @@ class InputGuardrail:
             guardrail_raw_output=raw or str(data),
             parsed_decision=decision,
             sanitized_text=sanitized_text,
+            rationale=str(rationale) if rationale else None,
+            attack_signals=_str_list(data.get("attack_signals")),
+            evidence_quotes=quotes,
+            evidence_found=[quote_in_text(q, context) for q in quotes],
+            native_reasoning=(result.reasoning or None) if result else None,
+            parse_ok=parse_ok,
+            truncated=result.truncated if result else None,
+            usage=result.usage if result else {},
         )
 
 

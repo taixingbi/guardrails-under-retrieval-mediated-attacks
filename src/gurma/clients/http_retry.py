@@ -30,7 +30,8 @@ def request_with_retry(
             if status not in _RETRY_STATUS or attempt + 1 >= attempts:
                 raise
             delay = min(max_delay, base_delay * (2**attempt))
-            print(f"[{label}] HTTP {status}; retry {attempt + 1}/{retries} in {delay:.1f}s")
+            body = exc.response.text[:200] if exc.response is not None else ""
+            print(f"[{label}] HTTP {status} {body!r}; retry {attempt + 1}/{retries} in {delay:.1f}s")
             time.sleep(delay)
         except (httpx.TimeoutException, httpx.TransportError) as exc:
             last = exc

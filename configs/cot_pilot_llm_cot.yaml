@@ -1,0 +1,5 @@
+# CoT Phase 1 (B4): LLM-only, input_cot.txt prompt. Paired with cot_pilot_llm_direct.yaml.
+extends: cot_pilot_llm_direct.yaml
+run_id: cot_pilot_llm_cot
+output_dir: data/runs/cot_pilot_llm_cot
+guardrail_reasoning: cot

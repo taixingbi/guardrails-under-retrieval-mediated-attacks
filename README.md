@@ -144,3 +144,19 @@ Prompts live in `prompts/guardrails/{input,output}.txt` (moderation baseline: `m
 Each run stores `guardrail_prompt_version`, `guardrail_model`, `guardrail_raw_output`, `parsed_decision`, `sanitized_text`.
 
 **Do not change** `guardrail_prompt_version` after main starts. See [FREEZE.md](FREEZE.md).
+
+## CoT extension — Phase 1 pilot (B2 vs B4)
+
+Frozen `input.txt` is untouched. `guardrail_reasoning: cot` swaps in `prompts/guardrails/input_cot.txt`
+(stepwise checks + verbatim evidence quotes + rationale); audits are labelled `v3-cot`.
+Both arms reuse main's frozen seeds/attacks (20 seeds, G1, LLM-only) at the same 4096-token guard budget (endpoint max; 768 truncates gpt-oss and fails open).
+
+```bash
+gurma -c configs/cot_pilot_llm_direct.yaml rerun-guardrails   # B2
+gurma -c configs/cot_pilot_llm_cot.yaml rerun-guardrails      # B4
+```
+
+Besides `metrics.md`, P6 writes `6_metrics/trace_metrics.md`: JSON parse-fail and truncation rates,
+evidence citation and verbatim-match rates, signal/decision mismatch, input-guard P95 latency and tokens.
+`guardrail_reasoning_effort` (low/medium/high) is optionally forwarded to gpt-oss; its native reasoning
+is stored as `input_audit.native_reasoning` when the endpoint returns it.

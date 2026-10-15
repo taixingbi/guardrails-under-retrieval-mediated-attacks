@@ -20,6 +20,7 @@ class ChatResult:
     truncated: bool = False
     model: str = ""
     latency_ms: float = 0.0
+    reasoning: str = ""
 
     @property
     def text(self) -> str:
@@ -62,6 +63,29 @@ def extract_message_content(message: dict[str, Any]) -> str:
         text = _as_text(nested).strip()
         if text:
             return text
+    return ""
+
+
+def extract_reasoning(message: dict[str, Any]) -> str:
+    """Native reasoning trace (gpt-oss style), kept separate from the answer content."""
+    for key in ("reasoning_content", "reasoning", "thinking"):
+        value = message.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+        if isinstance(value, dict):
+            text = _as_text(value.get("text") or value.get("content")).strip()
+            if text:
+                return text
+    content = message.get("content")
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, dict) and str(item.get("type") or "") in {"reasoning", "thinking"}:
+                for k in ("text", "reasoning", "thinking", "content"):
+                    if isinstance(item.get(k), str):
+                        parts.append(item[k])
+                        break
+        return "".join(parts).strip()
     return ""
 
 
@@ -118,6 +142,7 @@ class ChatClient:
         temperature: float = 0.0,
         max_tokens: int = 1024,
         model: str | None = None,
+        reasoning_effort: str | None = None,
     ) -> ChatResult:
         url = f"{self.base_url}/v1/chat/completions".replace("//v1/", "/v1/")
         used_model = model or self.model
@@ -127,6 +152,8 @@ class ChatClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
+        if reasoning_effort:
+            payload["reasoning_effort"] = reasoning_effort
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
@@ -166,6 +193,7 @@ class ChatClient:
             truncated=truncated,
             model=used_model,
             latency_ms=latency_ms,
+            reasoning=extract_reasoning(message),
         )
 
     def chat(
