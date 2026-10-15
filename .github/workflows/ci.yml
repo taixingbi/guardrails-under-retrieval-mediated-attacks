@@ -23,19 +23,19 @@ jobs:
       - run: pytest -q
 
   api-smoke:
-    # Secrets are unavailable to fork PRs; only hit the live endpoint from this repo
+    # Secrets/variables are unavailable to fork PRs; only hit the live endpoint from this repo
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      GURMA_INFERENCE_URL: ${{ secrets.GURMA_INFERENCE_URL }}
-      GURMA_INFERENCE_API_KEY: ${{ vars.GURMA_INFERENCE_API_KEY }}
+      GURMA_INFERENCE_URL: ${{ vars.GURMA_INFERENCE_URL }}
+      GURMA_INFERENCE_API_KEY: ${{ secrets.GURMA_INFERENCE_API_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Require endpoint secret
+      - name: Require endpoint variable
         run: |
           if [ -z "$GURMA_INFERENCE_URL" ]; then
-            echo "::error::Set repository secret GURMA_INFERENCE_URL"
+            echo "::error::Set repository variable GURMA_INFERENCE_URL"
             exit 1
           fi
       - run: scripts/smoke_api.sh
