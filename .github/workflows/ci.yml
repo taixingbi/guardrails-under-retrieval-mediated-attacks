@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Daily, to catch endpoint redeploys / URL changes before a long run does
+    - cron: "17 13 * * *"
+
+jobs:
+  tests:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  api-smoke:
+    # Secrets are unavailable to fork PRs; only hit the live endpoint from this repo
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GURMA_INFERENCE_URL: ${{ secrets.GURMA_INFERENCE_URL }}
+      GURMA_INFERENCE_API_KEY: ${{ secrets.GURMA_INFERENCE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require endpoint secret
+        run: |
+          if [ -z "$GURMA_INFERENCE_URL" ]; then
+            echo "::error::Set repository secret GURMA_INFERENCE_URL"
+            exit 1
+          fi
+      - run: scripts/smoke_api.sh

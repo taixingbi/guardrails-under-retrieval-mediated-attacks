@@ -1,9 +1,14 @@
-FUNCTION_URL=$(aws cloudformation describe-stacks \
+# Automated check of every model below (also runs in GitHub Actions):
+#   scripts/smoke_api.sh
+#
+# The CloudFormation stack is gone; resolve the URL from the Lambda directly.
+FUNCTION_URL=$(aws lambda get-function-url-config \
   --region us-east-1 \
-  --stack-name bedrock-inference-mvp \
-  --query "Stacks[0].Outputs[?OutputKey=='InferenceFunctionUrl'].OutputValue" \
+  --function-name bedrock-inference-mvp \
+  --query FunctionUrl \
   --output text)
 INFERENCE_API_KEY=1234
+# max_tokens is capped at 4096 by the endpoint (400 above that).
 
 # Non-stream responses are JSON → pipe to jq.
 # Stream responses are SSE (text/event-stream) → use curl -N, do NOT pipe to jq.
