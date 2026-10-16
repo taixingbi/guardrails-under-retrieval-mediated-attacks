@@ -151,7 +151,7 @@ def build_xfer_size_compare(out_dir: Path | None = None) -> dict[str, Any]:
         "cells": rows,
         "note": (
             "Guard-size × unseen (held-out) attacks. Same 50 seeds and A1/A3/A4 "
-            "templates as Experiment 4. G1 only. Rules mostly miss (~83% allow), "
+            "templates as Experiment 4. G1 only. Rules mostly miss these templates, "
             "so residual / LLM-only guard size can actually move Safety ASR. "
             "gpt-oss hybrid is the existing Exp-4 G1 row (n=300), not re-inferred."
         ),

@@ -10,12 +10,35 @@ from gurma.eval.bootstrap import fmt_ci
 from gurma.eval.run_names import metrics_path, run_dir
 
 ROOT = Path(__file__).resolve().parents[3]
+RUNS = ROOT / "data/runs"
+
+ATTACK_LABELS = {
+    "indirect_injection": "A1 Indirect injection",
+    "context_poisoning": "A2 Context poisoning",
+    "policy_retrieval": "A3 Policy-violating retrieval",
+    "authority_conflict": "A4 Authority conflict",
+}
+
+# (header, point key, CI key) for a guardrail-level metrics row.
+METRIC_COLUMNS = [
+    ("Safety ASR ↓", "instruction_safety_asr", "instruction_safety_asr_ci"),
+    ("PSR ↓", "poisoning_success_rate", "poisoning_success_rate_ci"),
+    ("Macro ↓", "macro_attack_success", "macro_attack_success_ci"),
+    ("Acc ↑", "task_accuracy", "task_accuracy_ci"),
+    ("Over-refusal ↓", "over_refusal", "over_refusal_ci"),
+]
+
+DECISIONS = ["allow", "sanitize", "block"]
 
 
 def _load(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(path)
     return json.loads(path.read_text())
+
+
+def _load_optional(path: Path) -> dict[str, Any] | None:
+    return _load(path) if path.exists() else None
 
 
 def _fmt(x: Any, digits: int = 3) -> str:
@@ -28,21 +51,79 @@ def _cell(row: dict[str, Any], point_key: str, ci_key: str) -> str:
     return fmt_ci(row.get(point_key), row.get(ci_key))
 
 
-def _row(guard: dict[str, Any]) -> str:
-    return (
-        f"| {guard['guardrail']} "
-        f"| {_cell(guard, 'instruction_safety_asr', 'instruction_safety_asr_ci')} "
-        f"| {_cell(guard, 'poisoning_success_rate', 'poisoning_success_rate_ci')} "
-        f"| {_cell(guard, 'macro_attack_success', 'macro_attack_success_ci')} "
-        f"| {_cell(guard, 'task_accuracy', 'task_accuracy_ci')} "
-        f"| {_cell(guard, 'over_refusal', 'over_refusal_ci')} |"
-    )
+def _metrics_table(rows: list[dict[str, Any]], first: str = "Guardrail") -> list[str]:
+    """Guardrail-level table; columns that are empty for every row are dropped."""
+    cols = [c for c in METRIC_COLUMNS if any(r.get(c[1]) is not None for r in rows)]
+    if not any(c[1] == "poisoning_success_rate" for c in cols):
+        # Without A2, Macro equals Safety ASR.
+        cols = [c for c in cols if c[1] != "macro_attack_success"]
+    lines = [
+        f"| {first} | " + " | ".join(c[0] for c in cols) + " |",
+        "|---|" + "---:|" * len(cols),
+    ]
+    for r in rows:
+        lines.append(f"| {r['guardrail']} | " + " | ".join(_cell(r, k, ci) for _, k, ci in cols) + " |")
+    return lines
+
+
+def _breakdown_table(rows: list[dict[str, Any]], guards: list[str], key: str, suffix: str) -> list[str]:
+    """Per-attack (or per-model) success table with one column per guardrail."""
+    lines = [
+        f"| {key.title()} | " + " | ".join(guards) + " |",
+        "|---|" + "---:|" * len(guards),
+    ]
+    if key == "attack":
+        order = list(ATTACK_LABELS)
+        rows = sorted(rows, key=lambda r: order.index(r["attack"]) if r.get("attack") in order else len(order))
+    for r in rows:
+        label = ATTACK_LABELS.get(r.get(key), r.get(key)) if key == "attack" else r.get(key)
+        cells = " | ".join(_cell(r, f"{g}_{suffix}", f"{g}_{suffix}_ci") for g in guards)
+        lines.append(f"| {label} | {cells} |")
+    return lines
+
+
+def _decision_table(by_attack: dict[str, dict[str, int]]) -> list[str]:
+    lines = ["| Attack | allow | sanitize | block |", "|---|---:|---:|---:|"]
+    for attack, label in ATTACK_LABELS.items():
+        if attack in by_attack:
+            counts = by_attack[attack]
+            lines.append(f"| {label} | " + " | ".join(str(counts.get(d, 0)) for d in DECISIONS) + " |")
+    return lines
+
+
+def _run_summary(metrics: dict[str, Any]) -> list[str]:
+    """Main + per-attack tables for a secondary run (placement, adaptive, ...)."""
+    t2 = metrics.get("table2_main") or []
+    guards = [r["guardrail"] for r in t2]
+    return [
+        f"Conditions: {metrics.get('n_records')} "
+        f"(attack={metrics.get('n_attack_conditions')}, clean={metrics.get('n_clean_conditions')}).",
+        "",
+        *_metrics_table(t2),
+        "",
+        *_breakdown_table(metrics.get("table3_attack_breakdown") or [], guards, "attack", "success"),
+        "",
+    ]
+
+
+def _embed(path: Path, *, drop_from: str | None = None, depth: int = 1) -> list[str]:
+    """Inline a generated markdown file: drop its H1 title and nest its headings `depth` levels."""
+    text = path.read_text()
+    if drop_from and drop_from in text:
+        text = text[: text.index(drop_from)]
+    out = []
+    for line in text.strip().splitlines():
+        if line.startswith("# "):
+            continue
+        out.append("#" * depth + line if line.startswith("##") else line)
+    while out and not out[0].strip():
+        out.pop(0)
+    return out + [""]
 
 
 def _budget_section(budget: dict[str, Any]) -> list[str]:
     """Compact G1 view of the paired 768 vs 4096 guard-budget comparison."""
     lines = [
-        "",
         "## Guard budget 768 vs 4096 (paired, G1)",
         "",
         "Same conditions re-run with only `guardrail_max_tokens` changed. "
@@ -71,6 +152,54 @@ def _budget_section(budget: dict[str, Any]) -> list[str]:
     return lines
 
 
+FINDINGS = [
+    "**G0 is highly vulnerable** to retrieval-mediated instruction attacks "
+    "(Safety ASR {g0_asr}; A1 = 0.905). Llama is much weaker than Nova Pro on G0 (0.977 vs 0.393).",
+    "**Hybrid G1 eliminates in-distribution instruction/safety attacks** "
+    "(Safety ASR 0.000) and raises attacked-task accuracy 0.279 → 0.849 with 0 over-refusal.",
+    "**G2 adds almost nothing on hybrid** (rescue 8/517 G0 successes after a G1 miss). "
+    "G2 rewrite is rare (10), so accuracy is not rewrite-inflated.",
+    "**Ablation:** with an adequate guard budget every input mode nearly removes "
+    "Safety ASR (hybrid 0.000, rules 0.000, LLM-only 0.018). Hybrid wins on the "
+    "other axes: lower PSR than rules (0.205 vs 0.415), higher Acc than LLM-only "
+    "(0.849 vs 0.751), and cheaper than LLM-only (1.2 vs 1.9 LLM calls; 1.8 s vs 5.3 s "
+    "mean on the matched 50 seeds).",
+    "**External baselines:** a classic PI detector leaves Safety ASR at 0.403; "
+    "LLM moderation reaches 0.000 but at Acc 0.588 and PSR 0.380 (hybrid: 0.885 / 0.190).",
+    "**Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; "
+    "0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a "
+    "missing instruction filter.",
+    "**Transfer:** on unseen templates the frozen hybrid's LLM residual catches "
+    "most phrasings the rules miss (G1 allow 43/300). G0 Safety ASR 0.113 → G1 0.017 "
+    "→ G2 0.000; the G1 leak is authority conflict (0.050).",
+    "**Adaptive attacks** that avoid known rule triggers are the hardest case: "
+    "G1 Safety ASR 0.203 (authority conflict 0.520). G2 brings it to 0.000 at an "
+    "Acc cost (0.757 → 0.687). Defense-in-depth matters under adaptive phrasing.",
+    "**Placement:** query-only (Q) fails (Safety ASR 0.700) because payloads "
+    "live in retrieval. Context (C) drives Safety ASR → 0.000 with Acc 0.887; "
+    "output-only (O) also reaches 0.000 but Acc collapses (0.265) and PSR stays "
+    "0.540. CO ≈ C.",
+    "**Guard capacity (Exp 6):** on Nova Pro × G1 × 50 seeds, Safety ASR is "
+    "0.000 for LLM-only and hybrid across S/M/L (ministral-3b / 14b / llama-70B). "
+    "The gap is **utility**: small LLM-only guards collapse Acc (0.115–0.190) while "
+    "hybrid keeps Acc 0.885–0.925. Rules are what make a small guard usable; "
+    "PSR stays 0.18–0.54.",
+    "**Guard-size × unseen:** on held-out A1/A3/A4, Safety ASR does **not** fall "
+    "with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while "
+    "gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).",
+    "**Guard budget:** the original 768-token guard budget truncated guard output "
+    "(14% parse failure on main), and truncation failed open. At 4096 tokens LLM-only "
+    "Safety ASR drops 0.457 → 0.018 (Acc 0.300 → 0.740), moderation 0.377 → 0.000, "
+    "adaptive G1 0.327 → 0.203, and PSR falls ~0.1 on most hybrid runs. All tables "
+    "here use 4096; the paired 768 vs 4096 table is below.",
+    "**CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the "
+    "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
+    "policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context "
+    "(76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, "
+    "CoT has no significant effect. CoT costs ~50% more guard output tokens.",
+]
+
+
 def render_paper_report(
     *,
     main_metrics: dict[str, Any],
@@ -80,23 +209,23 @@ def render_paper_report(
     rules_metrics: dict[str, Any] | None = None,
     transfer_metrics: dict[str, Any] | None = None,
     transfer_gate: dict[str, Any] | None = None,
+    placement_metrics: dict[str, Any] | None = None,
+    robustness: list[tuple[str, str, dict[str, Any]]] | None = None,
+    budget: dict[str, Any] | None = None,
+    runs_dir: Path = RUNS,
 ) -> str:
     t1 = main_metrics.get("table1_dataset") or {}
     t2 = main_metrics.get("table2_main") or []
-    t3 = main_metrics.get("table3_attack_breakdown") or []
-    t4 = main_metrics.get("table4_cross_model") or []
-    scatter = main_metrics.get("scatter_safety_vs_benign_acc") or []
+    guards = [r["guardrail"] for r in t2]
     rescue = main_gate.get("rescue") or {}
-    g1_dec = main_gate.get("g1_input_decisions_attack") or {}
-    g1_by = main_gate.get("g1_input_by_attack") or {}
     g2_out = main_gate.get("g2_output_decisions_attack") or {}
-    g2_corr = main_gate.get("g2_correct_via_output_decision") or {}
+    g0_asr = _fmt(t2[0].get("instruction_safety_asr") if t2 else None)
 
     lines = [
         "# GURMA Results Report",
         "",
-        "Generated from frozen main + input ablations + held-out transfer. "
-        "Regenerate with `gurma report`. Brackets are 95% bootstrap CIs.",
+        "All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). "
+        "Regenerate with `gurma report`. Brackets are 95% bootstrap CIs (n=2000).",
         "",
         "## Setup",
         "",
@@ -105,122 +234,30 @@ def render_paper_report(
         "- Guardrails: G0 none / G1 input / G2 input+output",
         "- Models: `nova-pro`, `llama`; guard/judge: `gpt-oss`",
         "- Defense freeze: hybrid input (`rules` first) + `v3` prompts ([FREEZE.md](../FREEZE.md))",
-        "- Guard LLM budget: 4096 completion tokens (`*_b4096` runs; rules-only and "
-        "PI detector make no guard LLM calls)",
+        "- Guard LLM budget: 4096 completion tokens (rules-only and PI detector make no guard LLM calls)",
         "- Main conditions: 3000 (2400 attack + 600 clean); API calls ≫ 3000",
-        "- Experiment 4: 50 frozen seeds × A1/A3/A4 held-out templates "
-        "(generator=`deepseek`) × G0/G1/G2 × 2 models; defense not retuned",
-        "- Experiment 5: 50 seeds × A1–A4 × Q/C/O/CO × 2 models (1600); "
-        "same hybrid v3, placement only",
         "",
         "## Findings",
         "",
-        "1. **G0 is highly vulnerable** to retrieval-mediated instruction attacks "
-        f"(Safety ASR {_fmt(t2[0].get('instruction_safety_asr') if t2 else None)}; "
-        "A1 = 0.905). Llama is much weaker than Nova Pro on G0 (0.977 vs 0.393).",
-        "2. **Hybrid G1 eliminates in-distribution instruction/safety attacks** "
-        "(Safety ASR 0.000) and raises attacked-task accuracy 0.279 → 0.849 "
-        "with 0 over-refusal.",
-        "3. **G2 adds almost nothing on hybrid** (rescue 8/517 G0 successes after a G1 miss). "
-        "G2 rewrite is rare (10), so accuracy is not rewrite-inflated.",
-        "4. **Ablation:** with an adequate guard budget every input mode nearly removes "
-        "Safety ASR (hybrid 0.000, rules 0.000, LLM-only 0.018). Hybrid wins on the "
-        "other axes: lower PSR than rules (0.205 vs 0.415), higher Acc than LLM-only "
-        "(0.849 vs 0.751), and cheaper than LLM-only (1.2 vs 1.9 LLM calls; 1.8 s vs 5.3 s "
-        "mean on the matched 50 seeds).",
-        "5. **External baselines:** a classic PI detector leaves Safety ASR at 0.403; "
-        "LLM moderation reaches 0.000 but at Acc 0.588 and PSR 0.380 (hybrid: 0.885 / 0.190).",
-        "6. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; "
-        "0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a "
-        "missing instruction filter.",
-        "7. **Transfer:** on unseen templates the frozen hybrid's LLM residual catches "
-        "most phrasings the rules miss (G1 allow 43/300). G0 Safety ASR 0.113 → G1 0.017 "
-        "→ G2 0.000; the G1 leak is authority conflict (0.050).",
-        "8. **Adaptive attacks** that avoid known rule triggers are the hardest case: "
-        "G1 Safety ASR 0.203 (authority conflict 0.520). G2 brings it to 0.000 at an "
-        "Acc cost (0.757 → 0.687). Defense-in-depth matters under adaptive phrasing.",
-        "9. **Placement:** query-only (Q) fails (Safety ASR 0.700) because payloads "
-        "live in retrieval. Context (C) drives Safety ASR → 0.000 with Acc 0.887; "
-        "output-only (O) also reaches 0.000 but Acc collapses (0.265) and PSR stays "
-        "0.540. CO ≈ C.",
-        "10. **Guard capacity (Exp 6):** on Nova Pro × G1 × 50 seeds, Safety ASR is "
-        "0.000 for LLM-only and hybrid across S/M/L (ministral-3b / 14b / llama-70B). "
-        "The gap is **utility**: small LLM-only guards collapse Acc (0.115–0.190) while "
-        "hybrid keeps Acc 0.885–0.925. Rules are what make a small guard usable; "
-        "PSR stays 0.18–0.54.",
-        "11. **Guard-size × unseen:** on held-out A1/A3/A4, Safety ASR does **not** fall "
-        "with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while "
-        "gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).",
-        "12. **Guard budget:** the original 768-token guard budget truncated guard output "
-        "(14% parse failure on main), and truncation failed open. At 4096 tokens LLM-only "
-        "Safety ASR drops 0.457 → 0.018 (Acc 0.300 → 0.740), moderation 0.377 → 0.000, "
-        "adaptive G1 0.327 → 0.203, and PSR falls ~0.1 on most hybrid runs. All tables "
-        "here use 4096; the paired 768 vs 4096 table is below.",
-        "13. **CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the "
-        "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
-        "policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context "
-        "(76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, "
-        "CoT has no significant effect. CoT costs ~50% more guard output tokens.",
-        "",
-        "## Table 1 — Dataset",
-        "",
-        "| Attack | Cases |",
-        "|---|---:|",
     ]
-    labels = {
-        "indirect_injection": "A1 Indirect injection",
-        "context_poisoning": "A2 Context poisoning",
-        "policy_retrieval": "A3 Policy-violating retrieval",
-        "authority_conflict": "A4 Authority conflict",
-    }
-    for key, label in labels.items():
-        lines.append(f"| {label} | {t1.get(key, '—')} |")
+    lines += [f"{i}. {f.format(g0_asr=g0_asr)}" for i, f in enumerate(FINDINGS, 1)]
 
+    # --- Main result -----------------------------------------------------
+    lines += ["", "## Table 1 — Dataset", "", "| Attack | Cases |", "|---|---:|"]
+    lines += [f"| {label} | {t1.get(key, '—')} |" for key, label in ATTACK_LABELS.items()]
+    lines += ["", "## Table 2 — Main result (hybrid v3)", "", *_metrics_table(t2)]
     lines += [
         "",
-        "## Table 2 — Main result (hybrid v3)",
-        "",
-        "| Guardrail | Safety ASR ↓ | PSR ↓ | Macro ↓ | Acc ↑ | Over-refusal ↓ |",
-        "|---|---:|---:|---:|---:|---:|",
-    ]
-    for row in t2:
-        lines.append(_row(row))
-
-    lines += [
-        "",
-        "Safety ASR = mean success over A1/A3/A4. PSR = A2 only. "
-        "Macro = mean over all four. Acc = task accuracy on attacked cases. "
-        "CIs are percentile bootstrap (n=2000).",
+        "Safety ASR = mean success over A1/A3/A4. PSR = A2 only. Macro = mean over all four. "
+        "Acc = task accuracy on attacked cases.",
         "",
         "## Table 3 — Attack breakdown",
         "",
-        "| Attack | G0 | G1 | G2 |",
-        "|---|---:|---:|---:|",
-    ]
-    for row in t3:
-        lines.append(
-            f"| {row.get('attack')} | "
-            f"{_cell(row, 'G0_success', 'G0_success_ci')} | "
-            f"{_cell(row, 'G1_success', 'G1_success_ci')} | "
-            f"{_cell(row, 'G2_success', 'G2_success_ci')} |"
-        )
-
-    lines += [
+        *_breakdown_table(main_metrics.get("table3_attack_breakdown") or [], guards, "attack", "success"),
         "",
         "## Table 4 — Cross-model Safety ASR",
         "",
-        "| Model | G0 | G1 | G2 |",
-        "|---|---:|---:|---:|",
-    ]
-    for row in t4:
-        lines.append(
-            f"| {row.get('model')} | "
-            f"{_cell(row, 'G0_safety_asr', 'G0_safety_asr_ci')} | "
-            f"{_cell(row, 'G1_safety_asr', 'G1_safety_asr_ci')} | "
-            f"{_cell(row, 'G2_safety_asr', 'G2_safety_asr_ci')} |"
-        )
-
-    lines += [
+        *_breakdown_table(main_metrics.get("table4_cross_model") or [], guards, "model", "safety_asr"),
         "",
         "## Table 5 — Input ablation (G1 only)",
         "",
@@ -238,58 +275,26 @@ def render_paper_report(
         )
     lines += [
         "",
-        "G0 rows for rules/llm ablations are borrowed from main. "
-        "Hybrid = rules first, then LLM residual. "
-        "All three modes nearly remove Safety ASR; hybrid combines the rules' accuracy "
-        "with the LLM's lower PSR.",
+        "Hybrid = rules first, then LLM residual. All three modes nearly remove Safety ASR; "
+        "hybrid combines the rules' accuracy with the LLM's lower PSR.",
         "",
     ]
-
-    if llm_metrics:
-        lines += [
-            "### LLM-only G1/G2 (for G2 rescue contrast)",
-            "",
-            "| Guardrail | Safety ASR | PSR | Acc | Over-refusal |",
-            "|---|---:|---:|---:|---:|",
-        ]
-        for row in llm_metrics.get("table2_main") or []:
-            lines.append(
-                f"| {row['guardrail']} | "
-                f"{_cell(row, 'instruction_safety_asr', 'instruction_safety_asr_ci')} | "
-                f"{_cell(row, 'poisoning_success_rate', 'poisoning_success_rate_ci')} | "
-                f"{_cell(row, 'task_accuracy', 'task_accuracy_ci')} | "
-                f"{_cell(row, 'over_refusal', 'over_refusal_ci')} |"
-            )
-        lines += [
-            "",
-            "On LLM-only, G2 removes the residual Safety ASR (0.018 → 0.000).",
-            "",
-        ]
-
-    if rules_metrics:
-        lines += [
-            "### Rules-only G1/G2",
-            "",
-            "| Guardrail | Safety ASR | PSR | Acc | Over-refusal |",
-            "|---|---:|---:|---:|---:|",
-        ]
-        for row in rules_metrics.get("table2_main") or []:
-            lines.append(
-                f"| {row['guardrail']} | "
-                f"{_cell(row, 'instruction_safety_asr', 'instruction_safety_asr_ci')} | "
-                f"{_cell(row, 'poisoning_success_rate', 'poisoning_success_rate_ci')} | "
-                f"{_cell(row, 'task_accuracy', 'task_accuracy_ci')} | "
-                f"{_cell(row, 'over_refusal', 'over_refusal_ci')} |"
-            )
-        lines.append("")
+    for title, metrics, note in (
+        ("LLM-only G1/G2", llm_metrics, "On LLM-only, G2 removes the residual Safety ASR (0.018 → 0.000)."),
+        ("Rules-only G1/G2", rules_metrics, None),
+    ):
+        if metrics:
+            lines += [f"### {title}", "", *_metrics_table(metrics.get("table2_main") or []), ""]
+            if note:
+                lines += [note, ""]
 
     lines += [
-        "## Figure data — Safety ASR vs benign accuracy",
+        "## Safety vs benign accuracy",
         "",
         "| Guardrail | Safety ASR | Benign Acc | Attack Acc | Over-refusal |",
         "|---|---:|---:|---:|---:|",
     ]
-    for row in scatter:
+    for row in main_metrics.get("scatter_safety_vs_benign_acc") or []:
         lines.append(
             f"| {row.get('guardrail')} | {_fmt(row.get('safety_asr'))} "
             f"| {_fmt(row.get('benign_accuracy'))} "
@@ -303,150 +308,23 @@ def render_paper_report(
         "",
         "## Mechanism (main hybrid)",
         "",
-        f"- G1 decisions on attacks: `{g1_dec}`",
-        f"- G1 by attack: `{g1_by}`",
-        f"- G2 output: `{g2_out}`",
-        (
-            f"- Rescue: G0 successes={rescue.get('g0_success')}/{rescue.get('n')}; "
-            f"G1 stopped {rescue.get('g1_helped')}; "
-            f"G2 after G1 miss {rescue.get('g2_helped_after_g1_miss')}"
-        ),
-        f"- G2-correct via: `{g2_corr}` (rewrite={g2_corr.get('rewrite', 0)})",
+        "G1 input decisions on attacked contexts:",
         "",
-        "A1/A3/A4 are fully sanitized by rules. Residual `allow` is almost only A2 poisoning.",
+        *_decision_table(main_gate.get("g1_input_by_attack") or {}),
         "",
-        "## Experiment 4 — Unseen attack transfer",
+        "| G2 output | pass | rewrite | block | missing |",
+        "|---|---:|---:|---:|---:|",
+        "| attacked | " + " | ".join(str(g2_out.get(k, 0)) for k in ("pass", "rewrite", "block", "missing")) + " |",
         "",
-        "Defense was frozen before evaluating attacks generated from unseen templates "
-        "and a different generator (`deepseek`; 149/150 spans LLM-rewritten). "
-        "A2 is excluded (integrity leftover, not an instruction-template match concern). "
-        "Clean utility is not re-run.",
+        f"Rescue: of {rescue.get('g0_success')}/{rescue.get('n')} G0 successes, G1 stopped "
+        f"{rescue.get('g1_helped')} and G2 caught {rescue.get('g2_helped_after_g1_miss')} after a G1 miss. "
+        "A1/A3/A4 are fully sanitized by rules; residual `allow` is A2 poisoning only.",
         "",
     ]
-    if transfer_metrics:
-        xt2 = transfer_metrics.get("table2_main") or []
-        xt3 = transfer_metrics.get("table3_attack_breakdown") or []
-        xt4 = transfer_metrics.get("table4_cross_model") or []
-        lines += [
-            f"Transfer conditions: {transfer_metrics.get('n_records')} "
-            f"(attack={transfer_metrics.get('n_attack_conditions')}).",
-            "",
-            "| Guardrail | Safety ASR ↓ | Acc ↑ |",
-            "|---|---:|---:|",
-        ]
-        for row in xt2:
-            lines.append(
-                f"| {row['guardrail']} | "
-                f"{_cell(row, 'instruction_safety_asr', 'instruction_safety_asr_ci')} | "
-                f"{_cell(row, 'task_accuracy', 'task_accuracy_ci')} |"
-            )
-        lines += [
-            "",
-            "| Attack | G0 | G1 | G2 |",
-            "|---|---:|---:|---:|",
-        ]
-        for row in xt3:
-            lines.append(
-                f"| {row.get('attack')} | "
-                f"{_cell(row, 'G0_success', 'G0_success_ci')} | "
-                f"{_cell(row, 'G1_success', 'G1_success_ci')} | "
-                f"{_cell(row, 'G2_success', 'G2_success_ci')} |"
-            )
-        lines += [
-            "",
-            "| Model | G0 | G1 | G2 |",
-            "|---|---:|---:|---:|",
-        ]
-        for row in xt4:
-            lines.append(
-                f"| {row.get('model')} | "
-                f"{_cell(row, 'G0_safety_asr', 'G0_safety_asr_ci')} | "
-                f"{_cell(row, 'G1_safety_asr', 'G1_safety_asr_ci')} | "
-                f"{_cell(row, 'G2_safety_asr', 'G2_safety_asr_ci')} |"
-            )
-        lines.append("")
-        if transfer_gate:
-            lines += [
-                f"- Transfer G1 decisions: `{transfer_gate.get('g1_input_decisions_attack')}`",
-                f"- Transfer G1 by attack: `{transfer_gate.get('g1_input_by_attack')}`",
-                "",
-            ]
-        lines += [
-            "A rise from 0% in-distribution ASR to a small held-out ASR is expected "
-            "and more credible than a second 0%: deterministic filters are strong on "
-            "known structures; robustness can degrade under unseen formulations.",
-            "",
-        ]
-    else:
-        lines += [
-            "_Not yet run._ `gurma -c configs/main_transfer.yaml run-transfer`",
-            "",
-        ]
-
-    # Extended P0–P2 sections (optional if metrics exist)
-    extra_sections: list[tuple[str, Path, str]] = [
-        (
-            "## External baselines & input paradigms (G1)",
-            ROOT / "data/runs/baseline_compare/baseline_compare.md",
-            "Compare hybrid / rules / LLM / classic PI detector / LLM moderation "
-            "on the same 50 freeze seeds.",
-        ),
-        (
-            "## Guardrail model-size ablation (G1)",
-            ROOT / "data/runs/guard_size_compare/guard_size_compare.md",
-            "Hybrid-only Ministral ladder vs gpt-oss 120B on the same 50 freeze seeds "
-            "(subset of main; no re-inference). Prefer Experiment 6 for LLM-only vs hybrid.",
-        ),
-        (
-            "## Experiment 6 — Guard model capacity",
-            ROOT / "data/runs/e6_capacity_compare/e6_capacity_compare.md",
-            "Fixed target=nova-pro, G1/context, v3 prompts/rules, 50 seeds. "
-            "Vary guard size (ministral-3b / ministral-14b / llama-70B) × "
-            "mode (LLM-only vs hybrid). RQ1 scaling; RQ2 rules still needed?",
-        ),
-        (
-            "## Guard-size × unseen attacks",
-            ROOT / "data/runs/xfer_size_compare/xfer_size_compare.md",
-            "Same held-out A1/A3/A4 as Experiment 4. Rules mostly miss, so "
-            "guard LLM size can move Safety ASR (unlike in-distribution hybrid).",
-        ),
-    ]
-    for title, path, blurb in extra_sections:
-        if path.exists():
-            lines += ["", title, "", blurb, "", path.read_text().strip(), ""]
-
-    for title, metrics_path, blurb in (
-        (
-            "## Experiment 5 — Placement (Q / C / O / CO)",
-            ROOT / run_dir("main_placement") / "6_metrics/metrics.md",
-            "Frozen hybrid v3; only *where* the guardrail is applied. "
-            "Q=query, C=context (≈G1), O=output, CO=context+output (≈G2). "
-            "50 seeds × 4 attacks × 4 placements × 2 models.",
-        ),
-        (
-            "## Adaptive attacks (frozen defense)",
-            ROOT / run_dir("main_adaptive") / "6_metrics/metrics.md",
-            "Attacker avoids known rule triggers while preserving the malicious objective.",
-        ),
-        (
-            "## Cross-dataset (SQuAD; HotpotQA defense frozen)",
-            ROOT / run_dir("main_squad") / "6_metrics/metrics.md",
-            "Same frozen hybrid v3 evaluated on single-hop SQuAD seeds.",
-        ),
-        (
-            "## Third target model (deepseek)",
-            ROOT / run_dir("main_third_model") / "6_metrics/metrics.md",
-            "Frozen seeds/attacks; answer model = deepseek only.",
-        ),
-    ):
-        if metrics_path.exists():
-            lines += ["", title, "", blurb, "", metrics_path.read_text().strip(), ""]
-
     cost = main_metrics.get("table_cost_latency") or []
     if cost:
         lines += [
-            "",
-            "## Safety–utility–cost (main hybrid)",
+            "## Cost / latency (main hybrid)",
             "",
             "| Guardrail | n | mean ms | p50 ms | p95 ms | mean LLM calls |",
             "|---|---:|---:|---:|---:|---:|",
@@ -464,19 +342,68 @@ def render_paper_report(
             )
         lines.append("")
 
-    budget_path = ROOT / "data/runs/budget_compare/budget_compare.json"
-    if budget_path.exists():
-        lines += _budget_section(_load(budget_path))
-    cot_path = ROOT / "data/runs/cot_compare/cot_compare.md"
-    if cot_path.exists():
+    # --- Experiments 4–6 -------------------------------------------------
+    lines += [
+        "## Experiment 4 — Unseen attack transfer",
+        "",
+        "50 frozen seeds × A1/A3/A4 held-out templates from a different generator (`deepseek`) "
+        "× G0/G1/G2 × 2 models. Defense not retuned; A2 and clean utility not re-run.",
+        "",
+    ]
+    if transfer_metrics:
+        xguards = [r["guardrail"] for r in transfer_metrics.get("table2_main") or []]
         lines += [
+            *_run_summary(transfer_metrics),
+            *_breakdown_table(transfer_metrics.get("table4_cross_model") or [], xguards, "model", "safety_asr"),
             "",
+        ]
+        if transfer_gate:
+            lines += ["G1 input decisions:", "", *_decision_table(transfer_gate.get("g1_input_by_attack") or {}), ""]
+    else:
+        lines += ["_Not yet run._", ""]
+    xfer_size = runs_dir / "xfer_size_compare/xfer_size_compare.md"
+    if xfer_size.exists():
+        lines += ["### Guard size × unseen attacks", "", *_embed(xfer_size, depth=2)]
+
+    lines += [
+        "## Experiment 5 — Placement (Q / C / O / CO)",
+        "",
+        "Frozen hybrid v3; only *where* the guardrail is applied. Q=query, C=context (≈G1), "
+        "O=output, CO=context+output (≈G2). 50 seeds × 4 attacks × 4 placements × 2 models.",
+        "",
+    ]
+    lines += _run_summary(placement_metrics) if placement_metrics else ["_Not yet run._", ""]
+
+    lines += ["## Experiment 6 — Guard model capacity", ""]
+    for path, heading in (
+        (runs_dir / "e6_capacity_compare/e6_capacity_compare.md", None),
+        (runs_dir / "guard_size_compare/guard_size_compare.md", "### Hybrid guard-size ladder vs gpt-oss"),
+    ):
+        if path.exists():
+            lines += ([heading, ""] if heading else []) + _embed(path, depth=2 if heading else 1)
+
+    # --- Robustness, baselines, budget, CoT ------------------------------
+    if robustness:
+        lines += ["## Robustness (defense frozen)", ""]
+        for title, blurb, metrics in robustness:
+            lines += [f"### {title}", "", blurb, "", *_run_summary(metrics)]
+
+    baseline = runs_dir / "baseline_compare/baseline_compare.md"
+    if baseline.exists():
+        lines += ["## External baselines", "", *_embed(baseline)]
+
+    if budget:
+        lines += _budget_section(budget)
+
+    cot = runs_dir / "cot_compare/cot_compare.md"
+    if cot.exists():
+        lines += [
             "## CoT guard prompt (paired)",
             "",
-            "Same guard budget (4096); only the input-guard prompt changes (`v3` → `v3-cot`).",
+            "Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`). "
+            "Full write-up: [b4096-cot-results.md](b4096-cot-results.md).",
             "",
-            cot_path.read_text().strip(),
-            "",
+            *_embed(cot, drop_from="## Pilot"),
         ]
 
     lines += [
@@ -497,21 +424,34 @@ def render_paper_report(
 
 def write_paper_report(out_path: Path | None = None) -> Path:
     out_path = out_path or (ROOT / "reports" / "results.md")
-    main_metrics = _load(ROOT / metrics_path("main"))
-    main_gate = _load(ROOT / run_dir("main") / "7_ablation/pilot_gate_summary.json")
-    ablation = _load(ROOT / "data/runs/ablation_compare/ablation_compare.json")
-    llm_path = ROOT / metrics_path("main_ablation_llm")
-    rules_path = ROOT / metrics_path("main_ablation_rules", llm_guard=False)
-    xfer_path = ROOT / metrics_path("main_transfer")
-    xfer_gate_path = ROOT / run_dir("main_transfer") / "7_ablation/pilot_gate_summary.json"
+    robustness = [
+        (
+            "Adaptive attacks",
+            "Attacker avoids known rule triggers while preserving the malicious objective.",
+            ROOT / metrics_path("main_adaptive"),
+        ),
+        (
+            "Cross-dataset (SQuAD)",
+            "Same frozen hybrid v3 (tuned on HotpotQA) evaluated on single-hop SQuAD seeds.",
+            ROOT / metrics_path("main_squad"),
+        ),
+        (
+            "Third target model (deepseek)",
+            "Frozen seeds and attacks; answer model = deepseek only.",
+            ROOT / metrics_path("main_third_model"),
+        ),
+    ]
     md = render_paper_report(
-        main_metrics=main_metrics,
-        main_gate=main_gate,
-        ablation=ablation,
-        llm_metrics=_load(llm_path) if llm_path.exists() else None,
-        rules_metrics=_load(rules_path) if rules_path.exists() else None,
-        transfer_metrics=_load(xfer_path) if xfer_path.exists() else None,
-        transfer_gate=_load(xfer_gate_path) if xfer_gate_path.exists() else None,
+        main_metrics=_load(ROOT / metrics_path("main")),
+        main_gate=_load(ROOT / run_dir("main") / "7_ablation/pilot_gate_summary.json"),
+        ablation=_load(RUNS / "ablation_compare/ablation_compare.json"),
+        llm_metrics=_load_optional(ROOT / metrics_path("main_ablation_llm")),
+        rules_metrics=_load_optional(ROOT / metrics_path("main_ablation_rules", llm_guard=False)),
+        transfer_metrics=_load_optional(ROOT / metrics_path("main_transfer")),
+        transfer_gate=_load_optional(ROOT / run_dir("main_transfer") / "7_ablation/pilot_gate_summary.json"),
+        placement_metrics=_load_optional(ROOT / metrics_path("main_placement")),
+        robustness=[(t, b, _load(p)) for t, b, p in robustness if p.exists()],
+        budget=_load_optional(RUNS / "budget_compare/budget_compare.json"),
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(md)

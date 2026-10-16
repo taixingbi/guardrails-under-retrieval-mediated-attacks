@@ -1,6 +1,6 @@
 # Guard-size × unseen attacks (G1)
 
-Guard-size × unseen (held-out) attacks. Same 50 seeds and A1/A3/A4 templates as Experiment 4. G1 only. Rules mostly miss (~83% allow), so residual / LLM-only guard size can actually move Safety ASR. gpt-oss hybrid is the existing Exp-4 G1 row (n=300), not re-inferred.
+Guard-size × unseen (held-out) attacks. Same 50 seeds and A1/A3/A4 templates as Experiment 4. G1 only. Rules mostly miss these templates, so residual / LLM-only guard size can actually move Safety ASR. gpt-oss hybrid is the existing Exp-4 G1 row (n=300), not re-inferred.
 
 | Mode | Size | Guard LLM | Safety ASR | Acc | mean ms | LLM calls | n |
 |---|---|---|---:|---:|---:|---:|---:|

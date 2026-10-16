@@ -1,6 +1,8 @@
 # Guard Budget (768 → 4096) and CoT Results
 
-Results of the `*_b4096` reruns and the full CoT experiments (commit `384054a`). Tables in [results.md](results.md) already use the 4096 runs; this note records why the numbers changed, what the CoT experiments show, and which parts of the paper must be updated.
+Snapshot as of 2026-10-16 (commit `384054a`); numbers are copied by hand, not regenerated.
+
+Results of the `*_b4096` reruns and the full CoT experiments. Tables in [results.md](results.md) already use the 4096 runs; this note records why the numbers changed, what the CoT experiments show, and which parts of the paper must be updated.
 
 ## 1. The 768-token guard budget failed open
 
