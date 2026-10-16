@@ -1,0 +1,18 @@
+# Gate Review
+
+## Verdict signals
+
+- G1 input decisions on attacks: `{'sanitize': 287, 'block': 36, 'allow': 77}`
+- G2 output decisions on attacks: `{}`
+- G2 input→output: `{}`
+- Rescue: G0 successes=0/0; G1 stopped 0; G2 rescued after G1 miss 0
+- G2 correct by output decision: `{}`
+- Clean G1 input: `{'allow': 95, 'sanitize': 5}`; Clean G2 output: `{}`
+
+## Interpretation
+
+1. **G1 active**: 323/400 (80.8%) attacked contexts were sanitize/block; allow=77 (19.2%).
+2. **G2 mechanism**: block=0, rewrite=0, pass=0. Rewrite is rare — Acc gains are not primarily rewrite-inflated.
+3. Compare against ablations (rules-only / LLM-only / hybrid) before claiming which input component drives Safety ASR reductions.
+
+Samples: `pilot_gate_samples.jsonl`

@@ -232,7 +232,10 @@ FINDINGS = [
     "LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 "
     "0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap "
     "(LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); "
-    "only an adequate budget keeps both (0.018 / 0.751).",
+    "only an adequate budget keeps both (0.018 / 0.751). A budget sweep (LLM-only G1, "
+    "50 seeds) shows a threshold, not a gradual trend: parse failure stays at 44% through "
+    "1024 tokens, then falls to 31% (1536), 8% (2048) and 0% (4096), and Safety ASR follows "
+    "(0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output.",
     # E7
     "**E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the "
     "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
@@ -500,6 +503,9 @@ def render_paper_report(
     lines += ["## E6 — Guard budget and failure handling", ""]
     if budget:
         lines += _budget_section(budget)
+    sweep = runs_dir / "budget_sweep/budget_sweep.md"
+    if sweep.exists():
+        lines += ["### Budget sweep (LLM-only G1)", "", *_embed(sweep, depth=2)]
     failure = runs_dir / "failure_policy/failure_policy.md"
     if failure.exists():
         lines += ["### Failure policy at 768", "", *_embed(failure, depth=2)]

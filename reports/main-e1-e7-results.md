@@ -35,7 +35,7 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 9. **E4 Guard size × unseen:** Safety ASR does **not** fall with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).
 10. **E5 Transfer:** the frozen hybrid keeps Safety ASR at 0.000 on SQuAD and on a third target model (deepseek), with Acc 0.802 and 0.915.
 11. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; 0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a missing instruction filter.
-12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751).
+12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751). A budget sweep (LLM-only G1, 50 seeds) shows a threshold, not a gradual trend: parse failure stays at 44% through 1024 tokens, then falls to 31% (1536), 8% (2048) and 0% (4096), and Safety ASR follows (0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output.
 13. **E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs 55–89% more guard output tokens. Deleting the evidence the CoT guard cites flips its decision far more often than deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).
 
 ## Main result (hybrid v3)
@@ -363,6 +363,18 @@ Same conditions re-run with only `guardrail_max_tokens` changed. Safety Acc = ta
 | main_placement (C) | 0.100 → 0.000 | 0.000 → 0.000 | 0.903 → 0.907 | 0.260 → 0.170 |
 | main_squad | 0.028 → 0.000 | 0.000 → 0.000 | 0.820 → 0.830 | 0.290 → 0.280 |
 | main_third_model | 0.382 → 0.000 | 0.000 → 0.000 | 0.927 → 0.927 | 0.240 → 0.120 |
+
+### Budget sweep (LLM-only G1)
+
+gpt-oss guard, direct prompt, fail-open, first 50 seeds × 4 attacks + clean × 2 target models. Only `guardrail_max_tokens` changes. 768 and 4096 are the main LLM-only runs restricted to the same seeds.
+
+| Guard budget | n | Parse fail | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | Mean guard out tokens | Guard P95 ms |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 768 | 500 | 0.436 | 0.440 | 0.320 | 0.427 | 0.910 | — | — |
+| 1024 | 500 | 0.438 | 0.490 | 0.350 | 0.388 | 0.880 | 682 | 8356 |
+| 1536 | 500 | 0.312 | 0.337 | 0.310 | 0.492 | 0.880 | 882 | 8191 |
+| 2048 | 500 | 0.084 | 0.113 | 0.250 | 0.710 | 0.880 | 984 | 9906 |
+| 4096 | 500 | 0.000 | 0.027 | 0.210 | 0.770 | 0.880 | 956 | 10138 |
 
 ### Failure policy at 768
 

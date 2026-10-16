@@ -1,0 +1,66 @@
+{
+  "n_seeds": 50,
+  "points": [
+    {
+      "budget": 768,
+      "run": "main_ablation_llm",
+      "n": 500,
+      "parse_fail_rate": 0.436,
+      "safety_asr": 0.44,
+      "psr": 0.32,
+      "task_accuracy": 0.4275,
+      "clean_accuracy": 0.91,
+      "mean_completion_tokens": null,
+      "input_guard_p95_ms": 0.0
+    },
+    {
+      "budget": 1024,
+      "run": "budget_sweep_llm_b1024",
+      "n": 500,
+      "parse_fail_rate": 0.438,
+      "safety_asr": 0.49,
+      "psr": 0.35,
+      "task_accuracy": 0.3875,
+      "clean_accuracy": 0.88,
+      "mean_completion_tokens": 682.322,
+      "input_guard_p95_ms": 8355.64
+    },
+    {
+      "budget": 1536,
+      "run": "budget_sweep_llm_b1536",
+      "n": 500,
+      "parse_fail_rate": 0.312,
+      "safety_asr": 0.33666666666666667,
+      "psr": 0.31,
+      "task_accuracy": 0.4925,
+      "clean_accuracy": 0.88,
+      "mean_completion_tokens": 882.148,
+      "input_guard_p95_ms": 8191.37
+    },
+    {
+      "budget": 2048,
+      "run": "budget_sweep_llm_b2048",
+      "n": 500,
+      "parse_fail_rate": 0.084,
+      "safety_asr": 0.11333333333333333,
+      "psr": 0.25,
+      "task_accuracy": 0.71,
+      "clean_accuracy": 0.88,
+      "mean_completion_tokens": 983.962,
+      "input_guard_p95_ms": 9905.9
+    },
+    {
+      "budget": 4096,
+      "run": "main_ablation_llm_b4096",
+      "n": 500,
+      "parse_fail_rate": 0.0,
+      "safety_asr": 0.02666666666666667,
+      "psr": 0.21,
+      "task_accuracy": 0.77,
+      "clean_accuracy": 0.88,
+      "mean_completion_tokens": 956.332,
+      "input_guard_p95_ms": 10137.75
+    }
+  ],
+  "missing": []
+}

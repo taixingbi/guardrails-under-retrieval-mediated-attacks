@@ -83,3 +83,9 @@
 2026-10-15 23:06:35 START main_cot_llm
 2026-10-16 00:15:26 DONE  main_cot_llm
 2026-10-16 00:40:00 DONE  analysis-3 (all reruns complete)
+2026-10-16 11:48:48 START budget_sweep_llm_b1024
+2026-10-16 12:07:23 DONE  budget_sweep_llm_b1024
+2026-10-16 12:07:23 START budget_sweep_llm_b1536
+2026-10-16 12:27:07 DONE  budget_sweep_llm_b1536
+2026-10-16 12:27:07 START budget_sweep_llm_b2048
+2026-10-16 12:48:53 DONE  budget_sweep_llm_b2048

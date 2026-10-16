@@ -6,6 +6,7 @@ from pathlib import Path
 from gurma.config import load_config
 from gurma.eval.ablation_report import build_ablation_report
 from gurma.eval.baseline_compare import build_baseline_compare
+from gurma.eval.budget_sweep import build_budget_sweep
 from gurma.eval.capacity_compare import build_capacity_compare, build_xfer_size_compare
 from gurma.eval.failure_policy import build_failure_policy
 from gurma.eval.guard_size_compare import build_guard_size_compare
@@ -97,6 +98,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Paired 768 vs 4096 guard budget for every *_b4096 rerun into data/runs/budget_compare/",
     )
     sub.add_parser(
+        "budget-sweep",
+        help="E6: LLM-only G1 across 768/1024/1536/2048/4096 guard budgets into data/runs/budget_sweep/",
+    )
+    sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
     )
@@ -134,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
             "cot-compare",
             "budget-compare",
             "failure-policy",
+            "budget-sweep",
             "annotate-export",
             "annotate-score",
         }
@@ -170,6 +176,8 @@ def main(argv: list[str] | None = None) -> int:
         build_budget_compare()
     elif args.cmd == "failure-policy":
         build_failure_policy()
+    elif args.cmd == "budget-sweep":
+        build_budget_sweep()
     elif args.cmd == "annotate-export":
         from gurma.eval.trace_annotation import export_annotation_sample
 
