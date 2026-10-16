@@ -10,22 +10,22 @@
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.31,
+      "psr": 0.19,
       "psr_ci": {
-        "low": 0.22,
-        "high": 0.4,
+        "low": 0.11,
+        "high": 0.27,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.85,
+      "task_accuracy": 0.885,
       "task_accuracy_ci": {
-        "low": 0.815,
-        "high": 0.8825,
+        "low": 0.8525,
+        "high": 0.915,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": null,
-      "mean_llm_calls": null,
+      "mean_latency_ms": 1844.97888,
+      "mean_llm_calls": 1.206,
       "n_attack": 400
     },
     {
@@ -57,29 +57,29 @@
     },
     {
       "defense": "llm",
-      "safety_asr": 0.44,
+      "safety_asr": 0.02666666666666667,
       "safety_asr_ci": {
-        "low": 0.38333333333333336,
-        "high": 0.49333333333333335,
+        "low": 0.01,
+        "high": 0.04666666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.32,
+      "psr": 0.21,
       "psr_ci": {
-        "low": 0.23,
-        "high": 0.42,
+        "low": 0.13,
+        "high": 0.29,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.4275,
+      "task_accuracy": 0.77,
       "task_accuracy_ci": {
-        "low": 0.3825,
-        "high": 0.48,
+        "low": 0.73,
+        "high": 0.81,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": null,
-      "mean_llm_calls": null,
+      "mean_latency_ms": 5288.39322,
+      "mean_llm_calls": 1.91,
       "n_attack": 400
     },
     {
@@ -111,29 +111,29 @@
     },
     {
       "defense": "moderation",
-      "safety_asr": 0.37666666666666665,
+      "safety_asr": 0.0,
       "safety_asr_ci": {
-        "low": 0.32,
-        "high": 0.43333333333333335,
+        "low": 0.0,
+        "high": 0.0,
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.48,
+      "psr": 0.38,
       "psr_ci": {
-        "low": 0.38,
-        "high": 0.58,
+        "low": 0.29,
+        "high": 0.48,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.225,
+      "task_accuracy": 0.5875,
       "task_accuracy_ci": {
-        "low": 0.185,
-        "high": 0.2675,
+        "low": 0.54,
+        "high": 0.635,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": 4461.147825,
-      "mean_llm_calls": 1.6475,
+      "mean_latency_ms": 6092.2809,
+      "mean_llm_calls": 1.71,
       "n_attack": 400
     }
   ],

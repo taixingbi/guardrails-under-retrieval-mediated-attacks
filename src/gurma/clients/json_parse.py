@@ -8,6 +8,7 @@ from typing import Any
 
 
 def parse_json_object(text: str) -> dict[str, Any]:
+    # strict=False: Ministral emits raw newlines inside strings (e.g. sanitized_context)
     s = (text or "").strip()
     if not s:
         return {}
@@ -15,14 +16,14 @@ def parse_json_object(text: str) -> dict[str, Any]:
         s = re.sub(r"^```(?:json)?\s*", "", s)
         s = re.sub(r"\s*```$", "", s)
     try:
-        data = json.loads(s)
+        data = json.loads(s, strict=False)
         return data if isinstance(data, dict) else {}
     except json.JSONDecodeError:
         match = re.search(r"\{.*\}", s, flags=re.DOTALL)
         if not match:
             return {}
         try:
-            data = json.loads(match.group(0))
+            data = json.loads(match.group(0), strict=False)
             return data if isinstance(data, dict) else {}
         except json.JSONDecodeError:
             return {}

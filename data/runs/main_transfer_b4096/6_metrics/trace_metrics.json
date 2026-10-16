@@ -1,0 +1,79 @@
+{
+  "guardrail_prompt_versions": [
+    "v3"
+  ],
+  "overall": {
+    "n_llm_guard_calls": 600,
+    "json_parse_fail_rate": 0.008333333333333333,
+    "truncation_rate": 0.008333333333333333,
+    "evidence_cited_rate": 0.0,
+    "evidence_verbatim_rate": null,
+    "signal_decision_mismatch_rate": 0.01680672268907563,
+    "native_reasoning_rate": 0.0,
+    "decisions": {
+      "allow": 76,
+      "sanitize": 494,
+      "block": 25
+    },
+    "input_guard_p50_ms": 6310.04,
+    "input_guard_p95_ms": 14617.33,
+    "mean_prompt_tokens": 1636.6133333333332,
+    "mean_completion_tokens": 1310.2416666666666
+  },
+  "by_attack": {
+    "authority_conflict": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 0.005,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "sanitize": 134,
+        "allow": 60,
+        "block": 6
+      },
+      "input_guard_p50_ms": 4876.95,
+      "input_guard_p95_ms": 13916.86,
+      "mean_prompt_tokens": 1624.78,
+      "mean_completion_tokens": 1106.015
+    },
+    "indirect_injection": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.005,
+      "truncation_rate": 0.005,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 0.035175879396984924,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "allow": 11,
+        "sanitize": 178,
+        "block": 10
+      },
+      "input_guard_p50_ms": 6882.73,
+      "input_guard_p95_ms": 16234.86,
+      "mean_prompt_tokens": 1636.6,
+      "mean_completion_tokens": 1438.965
+    },
+    "policy_retrieval": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.02,
+      "truncation_rate": 0.02,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 0.01020408163265306,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "sanitize": 182,
+        "block": 9,
+        "allow": 5
+      },
+      "input_guard_p50_ms": 6589.55,
+      "input_guard_p95_ms": 14807.5,
+      "mean_prompt_tokens": 1648.46,
+      "mean_completion_tokens": 1385.745
+    }
+  }
+}

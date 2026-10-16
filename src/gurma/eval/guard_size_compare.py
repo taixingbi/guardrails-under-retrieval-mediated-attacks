@@ -7,16 +7,17 @@ from pathlib import Path
 from typing import Any
 
 from gurma.eval.bootstrap import fmt_ci
+from gurma.eval.run_names import metrics_path, records_path, run_dir
 from gurma.eval.matched_subset import write_seed_subset_metrics
 from gurma.eval.metrics_io import cost_g1, fmt_calls, fmt_ms, g1_row
 
 # Ministral size ladder + gpt-oss (120B) on the *same* 50-seed subset.
 # Aliases from https://github.com/taixingbi/mvp-bedrock/blob/main/example.md
-MATCHED_GPTOSS_DIR = Path("data/runs/main_guard_gptoss_matched50")
+MATCHED_GPTOSS_DIR = run_dir("main_guard_gptoss_matched50")
 DEFAULT_RUNS = {
-    "ministral-3b": Path("data/runs/main_guard_ministral_3b/6_metrics/metrics.json"),
-    "ministral-8b": Path("data/runs/main_guard_ministral_8b/6_metrics/metrics.json"),
-    "ministral-14b": Path("data/runs/main_guard_ministral_14b/6_metrics/metrics.json"),
+    "ministral-3b": metrics_path("main_guard_ministral_3b"),
+    "ministral-8b": metrics_path("main_guard_ministral_8b"),
+    "ministral-14b": metrics_path("main_guard_ministral_14b"),
     "gpt-oss (120B, matched 50)": MATCHED_GPTOSS_DIR / "6_metrics" / "metrics.json",
 }
 
@@ -26,7 +27,7 @@ def build_guard_size_compare(
     out_dir: Path | None = None,
 ) -> dict[str, Any]:
     write_seed_subset_metrics(
-        Path("data/runs/main/5_runs/run_records.jsonl"),
+        records_path("main"),
         MATCHED_GPTOSS_DIR,
         label="gpt-oss hybrid",
     )

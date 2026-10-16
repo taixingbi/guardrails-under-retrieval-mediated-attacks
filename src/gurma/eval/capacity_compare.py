@@ -7,27 +7,28 @@ from pathlib import Path
 from typing import Any
 
 from gurma.eval.bootstrap import fmt_ci
+from gurma.eval.run_names import metrics_path
 from gurma.eval.metrics_io import cost_g1, fmt_calls, fmt_ms, g1_row
 
 Cell = tuple[str, str, str, Path]
 
 E6_CELLS: list[Cell] = [
-    ("llm", "S", "ministral-3b (~3B)", Path("data/runs/main_e6_llm_s/6_metrics/metrics.json")),
-    ("llm", "M", "ministral-14b (~14B)", Path("data/runs/main_e6_llm_m/6_metrics/metrics.json")),
-    ("llm", "L", "llama (~70B)", Path("data/runs/main_e6_llm_l/6_metrics/metrics.json")),
-    ("hybrid", "S", "ministral-3b (~3B)", Path("data/runs/main_e6_hybrid_s/6_metrics/metrics.json")),
-    ("hybrid", "M", "ministral-14b (~14B)", Path("data/runs/main_e6_hybrid_m/6_metrics/metrics.json")),
-    ("hybrid", "L", "llama (~70B)", Path("data/runs/main_e6_hybrid_l/6_metrics/metrics.json")),
+    ("llm", "S", "ministral-3b (~3B)", metrics_path("main_e6_llm_s")),
+    ("llm", "M", "ministral-14b (~14B)", metrics_path("main_e6_llm_m")),
+    ("llm", "L", "llama (~70B)", metrics_path("main_e6_llm_l")),
+    ("hybrid", "S", "ministral-3b (~3B)", metrics_path("main_e6_hybrid_s")),
+    ("hybrid", "M", "ministral-14b (~14B)", metrics_path("main_e6_hybrid_m")),
+    ("hybrid", "L", "llama (~70B)", metrics_path("main_e6_hybrid_l")),
 ]
 
 XFER_CELLS: list[Cell] = [
-    ("llm", "S", "ministral-3b (~3B)", Path("data/runs/main_xfer_llm_s/6_metrics/metrics.json")),
-    ("llm", "M", "ministral-14b (~14B)", Path("data/runs/main_xfer_llm_m/6_metrics/metrics.json")),
-    ("llm", "L", "llama (~70B)", Path("data/runs/main_xfer_llm_l/6_metrics/metrics.json")),
-    ("hybrid", "S", "ministral-3b (~3B)", Path("data/runs/main_xfer_hybrid_s/6_metrics/metrics.json")),
-    ("hybrid", "M", "ministral-14b (~14B)", Path("data/runs/main_xfer_hybrid_m/6_metrics/metrics.json")),
-    ("hybrid", "L", "llama (~70B)", Path("data/runs/main_xfer_hybrid_l/6_metrics/metrics.json")),
-    ("hybrid", "120B", "gpt-oss (~120B, Exp 4)", Path("data/runs/main_transfer/6_metrics/metrics.json")),
+    ("llm", "S", "ministral-3b (~3B)", metrics_path("main_xfer_llm_s")),
+    ("llm", "M", "ministral-14b (~14B)", metrics_path("main_xfer_llm_m")),
+    ("llm", "L", "llama (~70B)", metrics_path("main_xfer_llm_l")),
+    ("hybrid", "S", "ministral-3b (~3B)", metrics_path("main_xfer_hybrid_s")),
+    ("hybrid", "M", "ministral-14b (~14B)", metrics_path("main_xfer_hybrid_m")),
+    ("hybrid", "L", "llama (~70B)", metrics_path("main_xfer_hybrid_l")),
+    ("hybrid", "120B", "gpt-oss (~120B, Exp 4)", metrics_path("main_transfer")),
 ]
 
 

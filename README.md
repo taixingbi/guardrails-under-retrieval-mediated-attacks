@@ -147,6 +147,9 @@ Each run stores `guardrail_prompt_version`, `guardrail_model`, `guardrail_raw_ou
 
 ## CoT extension — Phase 1 pilot (B2 vs B4)
 
+> Superseded by Phase 2 (`main_cot_llm`, 100 seeds). The pilot predates the JSON `strict=False` fix
+> (1 of 200 CoT guard calls affected) and is kept only as the Phase 1 record.
+
 Frozen `input.txt` is untouched. `guardrail_reasoning: cot` swaps in `prompts/guardrails/input_cot.txt`
 (stepwise checks + verbatim evidence quotes + rationale); audits are labelled `v3-cot`.
 Both arms reuse main's frozen seeds/attacks (20 seeds, G1, LLM-only) at the same 4096-token guard budget (endpoint max; 768 truncates gpt-oss and fails open).
@@ -160,3 +163,21 @@ Besides `metrics.md`, P6 writes `6_metrics/trace_metrics.md`: JSON parse-fail an
 evidence citation and verbatim-match rates, signal/decision mismatch, input-guard P95 latency and tokens.
 `guardrail_reasoning_effort` (low/medium/high) is optionally forwarded to gpt-oss; its native reasoning
 is stored as `input_audit.native_reasoning` when the endpoint returns it.
+
+## Guard-budget correction and CoT Phases 2–3
+
+At `guardrail_max_tokens: 768` the LLM input guard often truncates (gpt-oss hidden reasoning, Ministral
+sanitize echoes), the JSON fails to parse and the guard fails open (`allow`). Every experiment has a
+`configs/<run>_b4096.yaml` twin that reuses `<run>`'s frozen P1–P4 and re-runs P5–P7 at 4096 (endpoint max).
+
+```bash
+scripts/run_queue.sh main_b4096 main_ablation_llm_b4096 main_cot_llm main_cot_hybrid ...  # sequential; status in data/runs/queue_status.txt
+gurma budget-compare      # data/runs/budget_compare/: every run, 768 vs 4096, paired
+gurma cot-compare         # data/runs/cot_compare/: B2 vs B4 (LLM-only), B3 vs B5 (hybrid), paired G1
+gurma annotate-export     # data/runs/cot_annotation/annotation_sample.csv (stratified, failures oversampled)
+gurma annotate-score a.csv b.csv          # category frequencies + Cohen's kappa
+gurma -c configs/main_cot_llm.yaml faithfulness --limit 120   # <run>/8_faithfulness/
+```
+
+Annotation labels (1/0 per row): `evidence_error`, `instruction_confusion`,
+`reasoning_decision_mismatch`, `correct_decision_flawed_rationale`.

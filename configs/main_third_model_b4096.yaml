@@ -1,0 +1,11 @@
+# main_third_model rerun with a 4096-token guard budget (768 truncated the guard and failed open).
+# Reuses main_third_model's frozen P1-P4; only P5-P7 re-run.
+extends: main_third_model.yaml
+run_id: main_third_model_b4096
+output_dir: data/runs/main_third_model_b4096
+reuse_from: data/runs/main_third_model
+baseline_g0_from: data/runs/main_third_model/5_runs/run_records.jsonl  # G0 has no guard
+guardrails: [G1, G2]
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096

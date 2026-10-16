@@ -1,0 +1,6 @@
+# CoT Phase 2 (B4): LLM-only input guard with input_cot.txt. Paired with B2 = main_ablation_llm_b4096 (G1).
+extends: main_ablation_llm_b4096.yaml
+run_id: main_cot_llm
+output_dir: data/runs/main_cot_llm
+guardrails: [G1]
+guardrail_reasoning: cot

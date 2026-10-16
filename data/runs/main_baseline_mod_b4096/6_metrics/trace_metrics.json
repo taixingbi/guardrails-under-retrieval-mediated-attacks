@@ -1,0 +1,93 @@
+{
+  "guardrail_prompt_versions": [
+    "moderation"
+  ],
+  "overall": {
+    "n_llm_guard_calls": 800,
+    "json_parse_fail_rate": 0.0,
+    "truncation_rate": 0.0,
+    "evidence_cited_rate": 0.0,
+    "evidence_verbatim_rate": null,
+    "signal_decision_mismatch_rate": 0.8,
+    "native_reasoning_rate": 0.0,
+    "decisions": {
+      "sanitize": 399,
+      "allow": 160,
+      "block": 241
+    },
+    "input_guard_p50_ms": 5781.48,
+    "input_guard_p95_ms": 11885.8,
+    "mean_prompt_tokens": 1596.7,
+    "mean_completion_tokens": 1059.87375
+  },
+  "by_attack": {
+    "authority_conflict": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 1.0,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "block": 120,
+        "sanitize": 80
+      },
+      "input_guard_p50_ms": 2254.41,
+      "input_guard_p95_ms": 8846.52,
+      "mean_prompt_tokens": 1594.18,
+      "mean_completion_tokens": 653.02
+    },
+    "context_poisoning": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 0.2,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "allow": 160,
+        "sanitize": 40
+      },
+      "input_guard_p50_ms": 6513.52,
+      "input_guard_p95_ms": 13944.78,
+      "mean_prompt_tokens": 1605.26,
+      "mean_completion_tokens": 1315.025
+    },
+    "indirect_injection": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 1.0,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "sanitize": 197,
+        "block": 3
+      },
+      "input_guard_p50_ms": 7063.69,
+      "input_guard_p95_ms": 13015.33,
+      "mean_prompt_tokens": 1583.18,
+      "mean_completion_tokens": 1491.435
+    },
+    "policy_retrieval": {
+      "n_llm_guard_calls": 200,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 1.0,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "block": 118,
+        "sanitize": 82
+      },
+      "input_guard_p50_ms": 2466.52,
+      "input_guard_p95_ms": 10098.34,
+      "mean_prompt_tokens": 1604.18,
+      "mean_completion_tokens": 780.015
+    }
+  }
+}

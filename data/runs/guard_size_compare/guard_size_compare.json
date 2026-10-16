@@ -10,22 +10,22 @@
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.34,
+      "psr": 0.27,
       "psr_ci": {
-        "low": 0.25,
-        "high": 0.43,
+        "low": 0.19,
+        "high": 0.36,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.8475,
+      "task_accuracy": 0.8675,
       "task_accuracy_ci": {
-        "low": 0.81,
-        "high": 0.8825,
+        "low": 0.8325,
+        "high": 0.9,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": 8534.972725,
-      "mean_llm_calls": 1.0775,
+      "mean_latency_ms": 1639.6567000000002,
+      "mean_llm_calls": 1.0125,
       "n_attack": 400
     },
     {
@@ -37,22 +37,22 @@
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.41,
+      "psr": 0.36,
       "psr_ci": {
-        "low": 0.32,
-        "high": 0.51,
+        "low": 0.27,
+        "high": 0.45,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.8275,
+      "task_accuracy": 0.8425,
       "task_accuracy_ci": {
-        "low": 0.79,
-        "high": 0.86,
+        "low": 0.8075,
+        "high": 0.875,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": 9973.440849999999,
-      "mean_llm_calls": 0.98,
+      "mean_latency_ms": 1636.0520499999998,
+      "mean_llm_calls": 0.9525,
       "n_attack": 400
     },
     {
@@ -64,22 +64,22 @@
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.58,
+      "psr": 0.38,
       "psr_ci": {
-        "low": 0.48,
-        "high": 0.67,
+        "low": 0.29,
+        "high": 0.47,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.78,
+      "task_accuracy": 0.83,
       "task_accuracy_ci": {
-        "low": 0.74,
-        "high": 0.8175,
+        "low": 0.7925,
+        "high": 0.865,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": 9396.6059,
-      "mean_llm_calls": 0.985,
+      "mean_latency_ms": 1486.718925,
+      "mean_llm_calls": 0.9175,
       "n_attack": 400
     },
     {
@@ -91,22 +91,22 @@
         "n": 300,
         "n_boot": 2000
       },
-      "psr": 0.31,
+      "psr": 0.19,
       "psr_ci": {
-        "low": 0.22,
-        "high": 0.4,
+        "low": 0.11,
+        "high": 0.27,
         "n": 100,
         "n_boot": 2000
       },
-      "task_accuracy": 0.85,
+      "task_accuracy": 0.885,
       "task_accuracy_ci": {
-        "low": 0.815,
-        "high": 0.8825,
+        "low": 0.8525,
+        "high": 0.915,
         "n": 400,
         "n_boot": 2000
       },
-      "mean_latency_ms": null,
-      "mean_llm_calls": null,
+      "mean_latency_ms": 1844.97888,
+      "mean_llm_calls": 1.206,
       "n_attack": 400
     }
   ],

@@ -1,0 +1,6 @@
+# CoT Phase 2 (B5): hybrid (rules + LLM residual) with input_cot.txt. Paired with B3 = main_b4096 (G1).
+extends: main_b4096.yaml
+run_id: main_cot_hybrid
+output_dir: data/runs/main_cot_hybrid
+guardrails: [G1]
+guardrail_reasoning: cot

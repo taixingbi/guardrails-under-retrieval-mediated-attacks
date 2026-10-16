@@ -5,44 +5,58 @@
       "mode": "llm",
       "size": "S",
       "guard_model": "ministral-3b (~3B)",
-      "safety_asr": 0.06,
+      "safety_asr": 0.02666666666666667,
       "safety_asr_ci": {
-        "low": 0.03333333333333333,
-        "high": 0.08666666666666667,
+        "low": 0.01,
+        "high": 0.04666666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.5133333333333333,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.5233333333333333,
       "task_accuracy_ci": {
-        "low": 0.45666666666666667,
-        "high": 0.5666666666666667,
+        "low": 0.4666666666666667,
+        "high": 0.58,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1309.9844,
-      "mean_llm_calls": 1.7,
+      "mean_latency_ms": 1699.1500333333333,
+      "mean_llm_calls": 1.73,
       "n_attack": 300
     },
     {
       "mode": "llm",
       "size": "M",
       "guard_model": "ministral-14b (~14B)",
-      "safety_asr": 0.08333333333333333,
+      "safety_asr": 0.056666666666666664,
       "safety_asr_ci": {
-        "low": 0.05333333333333334,
-        "high": 0.11333333333333333,
+        "low": 0.03,
+        "high": 0.08333333333333333,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.5766666666666667,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6066666666666667,
       "task_accuracy_ci": {
-        "low": 0.52,
-        "high": 0.63,
+        "low": 0.5533333333333333,
+        "high": 0.66,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1701.5267000000001,
-      "mean_llm_calls": 1.6866666666666668,
+      "mean_latency_ms": 2204.9471333333336,
+      "mean_llm_calls": 1.7,
       "n_attack": 300
     },
     {
@@ -56,14 +70,21 @@
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.6166666666666667,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6133333333333333,
       "task_accuracy_ci": {
-        "low": 0.5633333333333334,
-        "high": 0.67,
+        "low": 0.5566666666666666,
+        "high": 0.6666666666666666,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1739.1682,
+      "mean_latency_ms": 1665.0676666666666,
       "mean_llm_calls": 1.7533333333333334,
       "n_attack": 300
     },
@@ -71,88 +92,116 @@
       "mode": "hybrid",
       "size": "S",
       "guard_model": "ministral-3b (~3B)",
-      "safety_asr": 0.04666666666666667,
+      "safety_asr": 0.02666666666666667,
       "safety_asr_ci": {
-        "low": 0.023333333333333334,
-        "high": 0.07,
+        "low": 0.01,
+        "high": 0.04666666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.54,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.52,
       "task_accuracy_ci": {
-        "low": 0.48333333333333334,
-        "high": 0.5966666666666667,
+        "low": 0.4633333333333333,
+        "high": 0.5766666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1722.3771,
-      "mean_llm_calls": 1.1033333333333333,
+      "mean_latency_ms": 1357.3163,
+      "mean_llm_calls": 0.7433333333333333,
       "n_attack": 300
     },
     {
       "mode": "hybrid",
       "size": "M",
       "guard_model": "ministral-14b (~14B)",
-      "safety_asr": 0.1,
+      "safety_asr": 0.06,
       "safety_asr_ci": {
-        "low": 0.06666666666666667,
-        "high": 0.13666666666666666,
+        "low": 0.03333333333333333,
+        "high": 0.08666666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.56,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6,
       "task_accuracy_ci": {
-        "low": 0.5033333333333333,
-        "high": 0.6166666666666667,
+        "low": 0.5466666666666666,
+        "high": 0.6533333333333333,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1803.1547333333335,
-      "mean_llm_calls": 1.3666666666666667,
+      "mean_latency_ms": 1989.1691333333333,
+      "mean_llm_calls": 1.1066666666666667,
       "n_attack": 300
     },
     {
       "mode": "hybrid",
       "size": "L",
       "guard_model": "llama (~70B)",
-      "safety_asr": 0.10333333333333333,
+      "safety_asr": 0.11,
       "safety_asr_ci": {
-        "low": 0.07333333333333333,
-        "high": 0.14,
+        "low": 0.07666666666666666,
+        "high": 0.14666666666666667,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.6233333333333333,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6133333333333333,
       "task_accuracy_ci": {
-        "low": 0.57,
-        "high": 0.6766666666666666,
+        "low": 0.5566666666666666,
+        "high": 0.6666666666666666,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": 1670.8846666666668,
-      "mean_llm_calls": 1.4966666666666666,
+      "mean_latency_ms": 1679.8246,
+      "mean_llm_calls": 1.5133333333333334,
       "n_attack": 300
     },
     {
       "mode": "hybrid",
       "size": "120B",
       "guard_model": "gpt-oss (~120B, Exp 4)",
-      "safety_asr": 0.09333333333333334,
+      "safety_asr": 0.016666666666666666,
       "safety_asr_ci": {
-        "low": 0.06333333333333334,
-        "high": 0.12666666666666668,
+        "low": 0.0033333333333333335,
+        "high": 0.03333333333333333,
         "n": 300,
         "n_boot": 2000
       },
-      "task_accuracy": 0.83,
+      "psr": null,
+      "psr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.8433333333333334,
       "task_accuracy_ci": {
-        "low": 0.7866666666666666,
-        "high": 0.8733333333333333,
+        "low": 0.8,
+        "high": 0.8833333333333333,
         "n": 300,
         "n_boot": 2000
       },
-      "mean_latency_ms": null,
-      "mean_llm_calls": null,
+      "mean_latency_ms": 7222.879466666666,
+      "mean_llm_calls": 1.0966666666666667,
       "n_attack": 300
     }
   ],

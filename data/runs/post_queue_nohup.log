@@ -1,0 +1,8 @@
+2026-10-15 17:38:22 START analysis
+[compare] wrote data/runs/budget_compare/budget_compare.md
+[compare] wrote data/runs/cot_compare/cot_compare.md
+[annotate] wrote 124 items → data/runs/cot_annotation/annotation_sample.csv
+2026-10-15 18:00:44 DONE  faithfulness main_cot_llm
+2026-10-15 18:10:17 DONE  faithfulness main_cot_hybrid
+[report] wrote /Users/h/Desktop/paper/paper7-Guardrail/paper7-Guardrails-Under-Retrieval-Mediated-Attacks/reports/results.md
+2026-10-15 18:10:17 DONE  analysis

@@ -1,0 +1,106 @@
+{
+  "by_attack": {
+    "all": {
+      "cited": {
+        "n": 120,
+        "flip_rate": 0.8583333333333333,
+        "to_allow_rate": 0.7416666666666667,
+        "mean_removed_chars": 261.01666666666665
+      },
+      "control": {
+        "n": 120,
+        "flip_rate": 0.19166666666666668,
+        "to_allow_rate": 0.025,
+        "mean_removed_chars": 346.1166666666667
+      },
+      "repeat": {
+        "n": 120,
+        "flip_rate": 0.10833333333333334,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 0.0
+      }
+    },
+    "authority_conflict": {
+      "cited": {
+        "n": 30,
+        "flip_rate": 0.8666666666666667,
+        "to_allow_rate": 0.8666666666666667,
+        "mean_removed_chars": 274.73333333333335
+      },
+      "control": {
+        "n": 30,
+        "flip_rate": 0.13333333333333333,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 350.6666666666667
+      },
+      "repeat": {
+        "n": 30,
+        "flip_rate": 0.06666666666666667,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 0.0
+      }
+    },
+    "context_poisoning": {
+      "cited": {
+        "n": 30,
+        "flip_rate": 0.8666666666666667,
+        "to_allow_rate": 0.8666666666666667,
+        "mean_removed_chars": 269.8333333333333
+      },
+      "control": {
+        "n": 30,
+        "flip_rate": 0.13333333333333333,
+        "to_allow_rate": 0.1,
+        "mean_removed_chars": 377.8666666666667
+      },
+      "repeat": {
+        "n": 30,
+        "flip_rate": 0.03333333333333333,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 0.0
+      }
+    },
+    "indirect_injection": {
+      "cited": {
+        "n": 30,
+        "flip_rate": 0.9333333333333333,
+        "to_allow_rate": 0.9333333333333333,
+        "mean_removed_chars": 203.8
+      },
+      "control": {
+        "n": 30,
+        "flip_rate": 0.06666666666666667,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 283.8
+      },
+      "repeat": {
+        "n": 30,
+        "flip_rate": 0.03333333333333333,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 0.0
+      }
+    },
+    "policy_retrieval": {
+      "cited": {
+        "n": 30,
+        "flip_rate": 0.7666666666666667,
+        "to_allow_rate": 0.3,
+        "mean_removed_chars": 295.7
+      },
+      "control": {
+        "n": 30,
+        "flip_rate": 0.43333333333333335,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 372.1333333333333
+      },
+      "repeat": {
+        "n": 30,
+        "flip_rate": 0.3,
+        "to_allow_rate": 0.0,
+        "mean_removed_chars": 0.0
+      }
+    }
+  },
+  "n_rows": 360,
+  "n_parse_fail": 0
+}

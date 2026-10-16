@@ -7,30 +7,31 @@ from pathlib import Path
 from typing import Any
 
 from gurma.eval.bootstrap import fmt_ci
+from gurma.eval.run_names import metrics_path, records_path, run_dir
 from gurma.eval.matched_subset import write_seed_subset_metrics
 from gurma.eval.metrics_io import cost_g1, fmt_calls, fmt_ms, g1_row
 
 MATCHED = {
     "hybrid": (
-        Path("data/runs/main/5_runs/run_records.jsonl"),
-        Path("data/runs/main_hybrid_matched50"),
+        records_path("main"),
+        run_dir("main_hybrid_matched50"),
     ),
     "rules": (
-        Path("data/runs/main_ablation_rules/5_runs/run_records.jsonl"),
-        Path("data/runs/main_ablation_rules_matched50"),
+        records_path("main_ablation_rules", llm_guard=False),
+        run_dir("main_ablation_rules_matched50", llm_guard=False),
     ),
     "llm": (
-        Path("data/runs/main_ablation_llm/5_runs/run_records.jsonl"),
-        Path("data/runs/main_ablation_llm_matched50"),
+        records_path("main_ablation_llm"),
+        run_dir("main_ablation_llm_matched50"),
     ),
 }
 
 DEFAULT_RUNS = {
-    "hybrid": Path("data/runs/main_hybrid_matched50/6_metrics/metrics.json"),
-    "rules": Path("data/runs/main_ablation_rules_matched50/6_metrics/metrics.json"),
-    "llm": Path("data/runs/main_ablation_llm_matched50/6_metrics/metrics.json"),
-    "pi_detector": Path("data/runs/main_baseline_pi/6_metrics/metrics.json"),
-    "moderation": Path("data/runs/main_baseline_mod/6_metrics/metrics.json"),
+    "hybrid": metrics_path("main_hybrid_matched50"),
+    "rules": metrics_path("main_ablation_rules_matched50", llm_guard=False),
+    "llm": metrics_path("main_ablation_llm_matched50"),
+    "pi_detector": metrics_path("main_baseline_pi", llm_guard=False),
+    "moderation": metrics_path("main_baseline_mod"),
 }
 
 

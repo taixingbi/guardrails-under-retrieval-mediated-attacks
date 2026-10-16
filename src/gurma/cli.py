@@ -8,6 +8,7 @@ from gurma.eval.ablation_report import build_ablation_report
 from gurma.eval.baseline_compare import build_baseline_compare
 from gurma.eval.capacity_compare import build_capacity_compare, build_xfer_size_compare
 from gurma.eval.guard_size_compare import build_guard_size_compare
+from gurma.eval.paired_compare import build_budget_compare, build_cot_compare
 from gurma.eval.paper_report import write_paper_report
 from gurma.eval.pilot_gate import stage_pilot_gate
 from gurma.pipeline import rebuild_report, rerun_guardrails, run_pipeline, run_transfer
@@ -86,6 +87,33 @@ def main(argv: list[str] | None = None) -> int:
         "xfer-size-compare",
         help="Guard size × (LLM-only|hybrid) on held-out unseen attacks",
     )
+    sub.add_parser(
+        "cot-compare",
+        help="Paired CoT effect: B2 vs B4 and B3 vs B5 (G1) into data/runs/cot_compare/",
+    )
+    sub.add_parser(
+        "budget-compare",
+        help="Paired 768 vs 4096 guard budget for every *_b4096 rerun into data/runs/budget_compare/",
+    )
+    p_ann = sub.add_parser(
+        "annotate-export",
+        help="Stratified sample of CoT guard rationales → CSV for human annotation",
+    )
+    p_ann.add_argument("--runs", nargs="+", default=["main_cot_llm", "main_cot_hybrid"])
+    p_ann.add_argument("--out", default="data/runs/cot_annotation/annotation_sample.csv")
+    p_ann.add_argument("--per-stratum", type=int, default=10)
+    p_ann.add_argument("--failure-per-stratum", type=int, default=30)
+    p_score = sub.add_parser(
+        "annotate-score",
+        help="Score filled annotation CSV(s); two files adds Cohen's kappa",
+    )
+    p_score.add_argument("sheets", nargs="+")
+    p_score.add_argument("--out-dir", default="data/runs/cot_annotation")
+    p_faith = sub.add_parser(
+        "faithfulness",
+        help="Delete cited vs control evidence and re-query the guard (uses -c CoT run config)",
+    )
+    p_faith.add_argument("--limit", type=int, default=120)
 
     args = parser.parse_args(argv)
     cfg = (
@@ -98,6 +126,10 @@ def main(argv: list[str] | None = None) -> int:
             "guard-size-compare",
             "capacity-compare",
             "xfer-size-compare",
+            "cot-compare",
+            "budget-compare",
+            "annotate-export",
+            "annotate-score",
         }
         else None
     )
@@ -126,6 +158,28 @@ def main(argv: list[str] | None = None) -> int:
         build_capacity_compare()
     elif args.cmd == "xfer-size-compare":
         build_xfer_size_compare()
+    elif args.cmd == "cot-compare":
+        build_cot_compare()
+    elif args.cmd == "budget-compare":
+        build_budget_compare()
+    elif args.cmd == "annotate-export":
+        from gurma.eval.trace_annotation import export_annotation_sample
+
+        export_annotation_sample(
+            [Path("data/runs") / r for r in args.runs],
+            Path(args.out),
+            per_stratum=args.per_stratum,
+            failure_per_stratum=args.failure_per_stratum,
+        )
+    elif args.cmd == "annotate-score":
+        from gurma.eval.trace_annotation import score_annotations
+
+        score_annotations([Path(p) for p in args.sheets], Path(args.out_dir))
+    elif args.cmd == "faithfulness":
+        assert cfg is not None
+        from gurma.eval.faithfulness import run_faithfulness
+
+        run_faithfulness(cfg, limit=args.limit)
     elif args.cmd == "report":
         write_paper_report()
     elif args.cmd == "run-transfer":

@@ -1,0 +1,26 @@
+2026-10-15 20:26:52 START main_guard_ministral_3b_b4096
+2026-10-15 20:42:01 DONE  main_guard_ministral_3b_b4096
+2026-10-15 20:42:01 START main_guard_ministral_8b_b4096
+2026-10-15 20:57:15 DONE  main_guard_ministral_8b_b4096
+2026-10-15 20:57:15 START main_guard_ministral_14b_b4096
+2026-10-15 21:11:52 DONE  main_guard_ministral_14b_b4096
+2026-10-15 21:11:52 START main_e6_llm_s_b4096
+2026-10-15 21:14:11 DONE  main_e6_llm_s_b4096
+2026-10-15 21:14:11 START main_e6_llm_m_b4096
+2026-10-15 21:16:17 DONE  main_e6_llm_m_b4096
+2026-10-15 21:16:17 START main_e6_hybrid_s_b4096
+2026-10-15 21:23:23 DONE  main_e6_hybrid_s_b4096
+2026-10-15 21:23:23 START main_e6_hybrid_m_b4096
+2026-10-15 21:30:41 DONE  main_e6_hybrid_m_b4096
+2026-10-15 21:30:41 START main_xfer_llm_s_b4096
+2026-10-15 21:34:57 DONE  main_xfer_llm_s_b4096
+2026-10-15 21:34:57 START main_xfer_llm_m_b4096
+2026-10-15 21:40:28 DONE  main_xfer_llm_m_b4096
+2026-10-15 21:40:28 START main_xfer_hybrid_s_b4096
+2026-10-15 21:43:55 DONE  main_xfer_hybrid_s_b4096
+2026-10-15 21:43:55 START main_xfer_hybrid_m_b4096
+2026-10-15 21:48:55 DONE  main_xfer_hybrid_m_b4096
+2026-10-15 21:48:55 START main_baseline_mod_b4096
+2026-10-15 22:31:51 DONE  main_baseline_mod_b4096
+[compare] wrote data/runs/budget_compare/budget_compare.md
+[report] wrote /Users/h/Desktop/paper/paper7-Guardrail/paper7-Guardrails-Under-Retrieval-Mediated-Attacks/reports/results.md

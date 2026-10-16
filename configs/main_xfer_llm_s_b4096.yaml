@@ -1,0 +1,9 @@
+# main_xfer_llm_s rerun with a 4096-token guard budget (768 truncated the guard and failed open).
+# Reuses main_xfer_llm_s's frozen P1-P4; only P5-P7 re-run.
+extends: main_xfer_llm_s.yaml
+run_id: main_xfer_llm_s_b4096
+output_dir: data/runs/main_xfer_llm_s_b4096
+reuse_from: data/runs/main_xfer_llm_s
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096

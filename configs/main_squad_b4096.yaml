@@ -1,0 +1,11 @@
+# main_squad rerun with a 4096-token guard budget (768 truncated the guard and failed open).
+# Reuses main_squad's frozen P1-P4; only P5-P7 re-run.
+extends: main_squad.yaml
+run_id: main_squad_b4096
+output_dir: data/runs/main_squad_b4096
+reuse_from: data/runs/main_squad
+baseline_g0_from: data/runs/main_squad/5_runs/run_records.jsonl  # G0 has no guard
+guardrails: [G1, G2]
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096

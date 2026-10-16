@@ -1,0 +1,9 @@
+# main_guard_ministral_3b rerun with a 4096-token guard budget (768 truncated the guard and failed open).
+# Reuses main_guard_ministral_3b's frozen P1-P4; only P5-P7 re-run.
+extends: main_guard_ministral_3b.yaml
+run_id: main_guard_ministral_3b_b4096
+output_dir: data/runs/main_guard_ministral_3b_b4096
+reuse_from: data/runs/main_guard_ministral_3b
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096

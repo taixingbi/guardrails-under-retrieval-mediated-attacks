@@ -7,13 +7,14 @@ from pathlib import Path
 from typing import Any
 
 from gurma.eval.bootstrap import fmt_ci
+from gurma.eval.run_names import metrics_path
 from gurma.eval.metrics_io import g1_row
 
 
 DEFAULT_RUNS = {
-    "hybrid": Path("data/runs/main/6_metrics/metrics.json"),
-    "rules": Path("data/runs/main_ablation_rules/6_metrics/metrics.json"),
-    "llm": Path("data/runs/main_ablation_llm/6_metrics/metrics.json"),
+    "hybrid": metrics_path("main"),
+    "rules": metrics_path("main_ablation_rules", llm_guard=False),
+    "llm": metrics_path("main_ablation_llm"),
 }
 
 

@@ -1,0 +1,9 @@
+# main_e6_llm_m rerun with a 4096-token guard budget (768 truncated the guard and failed open).
+# Reuses main_e6_llm_m's frozen P1-P4; only P5-P7 re-run.
+extends: main_e6_llm_m.yaml
+run_id: main_e6_llm_m_b4096
+output_dir: data/runs/main_e6_llm_m_b4096
+reuse_from: data/runs/main_e6_llm_m
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096
