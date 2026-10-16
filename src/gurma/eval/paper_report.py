@@ -154,6 +154,38 @@ def _budget_section(budget: dict[str, Any]) -> list[str]:
 
 
 
+def _attribution_section(runs: list[tuple[str, dict[str, Any]]]) -> list[str]:
+    """Evidence-deletion test on the CoT guards (`gurma faithfulness`)."""
+    lines = [
+        "### Evidence attribution and decision sensitivity",
+        "",
+        "The CoT guard is re-queried after deleting (a) the evidence it cited, (b) non-cited "
+        "sentences of similar length (control), or (c) nothing (repeat = nondeterminism floor). "
+        "Flip = decision differs from the original. Decisions are evidence-sensitive when "
+        "cited ≫ control ≈ repeat. This shows the decision depends on the cited text, not that "
+        "the rationale reflects the model's internal reasoning; the cited span is usually the "
+        "attack payload, so deleting it is expected to move the decision toward allow. "
+        "Hybrid covers A2 only: rules sanitize A1/A3/A4 before the LLM guard runs.",
+        "",
+        "| Guard | Attack | n | Flip repeat | Flip cited | Flip control | →allow cited | →allow control |",
+        "|---|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for label, data in runs:
+        by_attack = data.get("by_attack") or {}
+        for attack in ["all", *ATTACK_LABELS]:
+            cell = by_attack.get(attack)
+            if not cell:
+                continue
+            rep, cit, ctl = cell["repeat"], cell["cited"], cell["control"]
+            name = "All" if attack == "all" else ATTACK_LABELS[attack]
+            lines.append(
+                f"| {label if attack == 'all' else ''} | {name} | {cit['n']} | "
+                f"{_fmt(rep['flip_rate'], 2)} | {_fmt(cit['flip_rate'], 2)} | {_fmt(ctl['flip_rate'], 2)} | "
+                f"{_fmt(cit['to_allow_rate'], 2)} | {_fmt(ctl['to_allow_rate'], 2)} |"
+            )
+    return lines + [""]
+
+
 FINDINGS = [
     # Main result
     "**G0 is highly vulnerable** to retrieval-mediated instruction attacks "
@@ -206,7 +238,9 @@ FINDINGS = [
     "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
     "policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context "
     "(76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, "
-    "CoT has no significant effect. CoT costs 55–89% more guard output tokens.",
+    "CoT has no significant effect. CoT costs 55–89% more guard output tokens. "
+    "Deleting the evidence the CoT guard cites flips its decision far more often than "
+    "deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).",
 ]
 
 
@@ -481,6 +515,16 @@ def render_paper_report(
             "",
             *_embed(cot, drop_from="## Pilot"),
         ]
+    attribution = [
+        (label, _load(path))
+        for label, path in (
+            ("LLM-only + CoT", runs_dir / "main_cot_llm/8_faithfulness/faithfulness.json"),
+            ("Hybrid + CoT", runs_dir / "main_cot_hybrid/8_faithfulness/faithfulness.json"),
+        )
+        if path.exists()
+    ]
+    if attribution:
+        lines += _attribution_section(attribution)
 
     lines += [
         "## Caveats",

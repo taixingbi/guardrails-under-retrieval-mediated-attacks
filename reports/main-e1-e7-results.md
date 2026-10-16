@@ -36,7 +36,7 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 10. **E5 Transfer:** the frozen hybrid keeps Safety ASR at 0.000 on SQuAD and on a third target model (deepseek), with Acc 0.802 and 0.915.
 11. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; 0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a missing instruction filter.
 12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751).
-13. **E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs 55–89% more guard output tokens.
+13. **E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs 55–89% more guard output tokens. Deleting the evidence the CoT guard cites flips its decision far more often than deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).
 
 ## Main result (hybrid v3)
 
@@ -446,6 +446,20 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 |---|---:|---:|---:|---:|
 | A | 346 | 0.000 | 9167 | 473 |
 | B | 346 | 0.003 | 13916 | 895 |
+
+### Evidence attribution and decision sensitivity
+
+The CoT guard is re-queried after deleting (a) the evidence it cited, (b) non-cited sentences of similar length (control), or (c) nothing (repeat = nondeterminism floor). Flip = decision differs from the original. Decisions are evidence-sensitive when cited ≫ control ≈ repeat. This shows the decision depends on the cited text, not that the rationale reflects the model's internal reasoning; the cited span is usually the attack payload, so deleting it is expected to move the decision toward allow. Hybrid covers A2 only: rules sanitize A1/A3/A4 before the LLM guard runs.
+
+| Guard | Attack | n | Flip repeat | Flip cited | Flip control | →allow cited | →allow control |
+|---|---|---:|---:|---:|---:|---:|---:|
+| LLM-only + CoT | All | 120 | 0.11 | 0.86 | 0.19 | 0.74 | 0.03 |
+|  | A1 Indirect injection | 30 | 0.03 | 0.93 | 0.07 | 0.93 | 0.00 |
+|  | A2 Context poisoning | 30 | 0.03 | 0.87 | 0.13 | 0.87 | 0.10 |
+|  | A3 Policy-violating retrieval | 30 | 0.30 | 0.77 | 0.43 | 0.30 | 0.00 |
+|  | A4 Authority conflict | 30 | 0.07 | 0.87 | 0.13 | 0.87 | 0.00 |
+| Hybrid + CoT | All | 55 | 0.09 | 0.80 | 0.07 | 0.80 | 0.07 |
+|  | A2 Context poisoning | 55 | 0.09 | 0.80 | 0.07 | 0.80 | 0.07 |
 
 ## Caveats
 

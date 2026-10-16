@@ -22,7 +22,7 @@ The 768-token originals (`data/runs/<run>/`) are kept only for the paired budget
 | E4 Distribution shift | Known vs unseen vs adaptive attacks | `main_b4096`, `main_transfer_b4096`, `main_adaptive_b4096`, `xfer_size_compare/` |
 | E5 Transfer | Other dataset and target model | `main_squad_b4096`, `main_third_model_b4096` |
 | E6 Guard budget and failure handling | 768 vs 4096; fail-open vs fail-closed | `budget_compare/`, `failure_policy/` |
-| E7 CoT guard prompt | Does explicit reasoning help? | `cot_compare/` |
+| E7 CoT guard prompt | Does explicit reasoning help? Are decisions sensitive to cited evidence? | `cot_compare/`, `main_cot_*/8_faithfulness/` |
 
 Some folder names predate the E1–E7 numbering: `e6_capacity_compare/` and the `main_e6_*` runs belong to E3, and `main_transfer` holds the E4 unseen-template run.
 
