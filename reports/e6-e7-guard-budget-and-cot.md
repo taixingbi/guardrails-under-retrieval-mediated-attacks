@@ -1,8 +1,8 @@
 # E6 Guard Budget and E7 CoT: Write-up
 
-Snapshot as of 2026-10-16 (commit `384054a`); numbers are copied by hand, not regenerated.
+Snapshot as of 2026-10-16 (results through commit `de10162`, including the budget sweep); numbers are copied by hand, not regenerated.
 
-Background for E6 (guard budget and failure handling) and E7 (CoT guard prompt) in [main-e1-e7-results.md](main-e1-e7-results.md). Tables there already use the 4096 runs and are regenerated; this note records why the numbers changed, what the CoT experiments show, and which parts of the paper must be updated. The fail-closed counterfactual, the E3 gpt-oss cells and the E4 shift table were added later and live only in main-e1-e7-results.md.
+Background for E6 (guard budget and failure handling) and E7 (CoT guard prompt) in [main-e1-e7-results.md](main-e1-e7-results.md). Tables there already use the 4096 runs and are regenerated; this note records why the numbers changed, what the CoT experiments show, and which parts of the paper must be updated. The E3 gpt-oss cells and the E4 shift table live only in main-e1-e7-results.md.
 
 ## 1. E6: the 768-token guard budget failed open
 
@@ -18,6 +18,20 @@ Direct evidence from `main_ablation_llm` (768, LLM-only, G1, 800 attacked contex
 | … of which came from an unparseable guard output | **299** (88%) |
 
 The 0.457 LLM-only Safety ASR was mostly a truncation artifact, not a weakness of LLM guards.
+
+**Budget sweep.** To locate the threshold, LLM-only G1 was re-run at 1024, 1536 and 2048 tokens (first 50 seeds, both target models, attacks + clean); 768 and 4096 are the main runs restricted to the same seeds. Only `guardrail_max_tokens` changes. Table: [budget_sweep.md](../data/runs/budget_sweep/budget_sweep.md).
+
+| Guard budget | Parse fail | Safety ASR | PSR | Acc | Mean guard out tokens |
+|---:|---:|---:|---:|---:|---:|
+| 768 | 0.436 | 0.440 | 0.320 | 0.427 | — |
+| 1024 | 0.438 | 0.490 | 0.350 | 0.388 | 682 |
+| 1536 | 0.312 | 0.337 | 0.310 | 0.492 | 882 |
+| 2048 | 0.084 | 0.113 | 0.250 | 0.710 | 984 |
+| 4096 | 0.000 | 0.027 | 0.210 | 0.770 | 956 |
+
+The effect is a threshold, not a gradual trend: 1024 is no better than 768, and failures reach 0 only at 4096. Untruncated verdicts average ~956 tokens with a long tail, so any budget below ~2048 cuts off a large share of them.
+
+The sweep runs record a `truncated` flag that the 768 runs lacked, which gives direct evidence: every parse failure is a truncated output (219 / 500 at 1024, 156 at 1536, 42 at 2048; no unparseable output was untruncated).
 
 ## 2. E6: what changed at 4096
 
@@ -35,7 +49,25 @@ Every run with an LLM guard was re-run with only `guardrail_max_tokens` changed;
 
 Truncation affected every LLM-guarded run, not only LLM-only. Safety ASR that was already 0.000 stays 0.000, but **PSR and accuracy move in most runs**, because fail-open also lets poisoned context through.
 
-## 3. E7: CoT guard prompt
+## 3. E6: fail-open vs fail-closed
+
+Would blocking on a failed parse have been enough? The 768 records were re-scored with every unparseable guard output treated as `block` (attack fails, answer counts as wrong). No LLM calls. Table: [failure_policy.md](../data/runs/failure_policy/failure_policy.md). G1:
+
+| Run | Policy | Safety ASR | PSR | Acc |
+|---|---|---:|---:|---:|
+| LLM-only ablation | fail-open (768, as run) | 0.457 | 0.335 | 0.393 |
+| | fail-closed (768, counterfactual) | 0.020 | 0.150 | 0.289 |
+| | 4096 (as run) | 0.018 | 0.215 | 0.751 |
+| Transfer (unseen) | fail-open (768, as run) | 0.093 | — | 0.830 |
+| | fail-closed (768, counterfactual) | 0.007 | — | 0.227 |
+| | 4096 (as run) | 0.017 | — | 0.843 |
+| Main (hybrid) | fail-open (768, as run) | 0.000 | 0.300 | 0.820 |
+| | fail-closed (768, counterfactual) | 0.000 | 0.180 | 0.802 |
+| | 4096 (as run) | 0.000 | 0.205 | 0.849 |
+
+Fail-closed recovers safety but turns every truncation into a lost answer (unseen Acc 0.830 → 0.227). Only an adequate budget gives both safety and utility. Fail-closed safety is slightly optimistic, since a real block is occasionally still judged an attack success.
+
+## 4. E7: CoT guard prompt
 
 Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`: four reasoning steps, verbatim evidence, rationale). 100 seeds × 4 attacks × 2 models; paired on identical conditions, McNemar p. Full table: [cot_compare.md](../data/runs/cot_compare/cot_compare.md).
 
@@ -68,7 +100,7 @@ Decisions are causally sensitive to the evidence cited in the rationale. This do
 
 **Conclusion.** With an adequate budget, CoT does not materially improve defense. It removes the last 1.8% of LLM-only Safety ASR, has no effect on hybrid, costs 55% (LLM-only) to 89% (hybrid) more guard output tokens, and over-blocks removable harmful spans. Its value is auditability: decisions track the evidence the guard cites. The 20-seed pilot (`cot_pilot_llm_*`) is superseded by these runs.
 
-## 4. Paper changes required
+## 5. Paper changes required
 
 | Paper item | Old (768) | New (4096) | Change |
 |---|---|---|---|
@@ -79,6 +111,7 @@ Decisions are causally sensitive to the evidence cited in the rationale. This do
 | Moderation baseline | 0.377 | 0.000 (Acc 0.588) | Replace |
 | Adaptive attacks | 0.327 | 0.203 | Replace |
 | Hybrid / placement Safety ASR | 0.000 | 0.000 | Unchanged |
-| CoT | not reported | §3 above | Optional new subsection |
+| Guard budget | not stated | 4096; sweep §1; failure policy §3 | State the budget; report the threshold and the fail-open risk |
+| CoT | not reported | §4 above | Optional new subsection |
 
 The README states that 768 truncates gpt-oss and fails open, so a reviewer reading the repository can find the issue. The paper should state the guard budget and use the 4096 numbers throughout.
