@@ -66,7 +66,7 @@ gurma -c configs/main.yaml run
 gurma report
 ```
 
-Writes [reports/results.md](reports/results.md) from saved `metrics.json` (no LLM).
+Writes [reports/main-e1-e7-results.md](reports/main-e1-e7-results.md) from saved `metrics.json` (no LLM).
 
 ## Experiment 4 — unseen attack transfer
 

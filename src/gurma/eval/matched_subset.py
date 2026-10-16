@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -31,12 +32,17 @@ def write_seed_subset_metrics(
     bootstrap_n: int = 2000,
     bootstrap_seed: int = 0,
     label: str = "subset",
+    keep_record: Callable[[RunRecord], bool] | None = None,
 ) -> dict[str, Any]:
     if not records_path.exists():
         print(f"[matched] skip {label} (missing {records_path})")
         return {}
     keep = set(matched_seed_ids())
-    records = [r for r in load_models(records_path, RunRecord) if r.seed_id in keep]
+    records = [
+        r
+        for r in load_models(records_path, RunRecord)
+        if r.seed_id in keep and (keep_record is None or keep_record(r))
+    ]
     metrics_dir = out_dir / "6_metrics"
     metrics_dir.mkdir(parents=True, exist_ok=True)
     metrics = write_metrics_report(

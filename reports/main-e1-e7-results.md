@@ -1,4 +1,4 @@
-# GURMA Results Report
+# GURMA Results: Main Result and E1–E7
 
 All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate with `gurma report`. Brackets are 95% bootstrap CIs (n=2000).
 
@@ -12,23 +12,35 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 - Guard LLM budget: 4096 completion tokens (rules-only and PI detector make no guard LLM calls)
 - Main conditions: 3000 (2400 attack + 600 clean); API calls ≫ 3000
 
+| Experiment | Question |
+|---|---|
+| E1 Placement | Where must the guard sit (query / context / output)? |
+| E2 Composition | Rules vs LLM vs hybrid input guard, and external baselines |
+| E3 Guard capacity | Does guard model size matter, and do rules stay necessary? |
+| E4 Distribution shift | Known vs unseen vs adaptive attacks, defense frozen |
+| E5 Transfer | Another dataset (SQuAD) and another target model (deepseek) |
+| E6 Guard budget and failure handling | 768 vs 4096 tokens; fail-open vs fail-closed |
+| E7 CoT guard prompt | Does explicit reasoning help the input guard? |
+
 ## Findings
 
 1. **G0 is highly vulnerable** to retrieval-mediated instruction attacks (Safety ASR 0.685; A1 = 0.905). Llama is much weaker than Nova Pro on G0 (0.977 vs 0.393).
 2. **Hybrid G1 eliminates in-distribution instruction/safety attacks** (Safety ASR 0.000) and raises attacked-task accuracy 0.279 → 0.849 with 0 over-refusal.
 3. **G2 adds almost nothing on hybrid** (rescue 8/517 G0 successes after a G1 miss). G2 rewrite is rare (10), so accuracy is not rewrite-inflated.
-4. **Ablation:** with an adequate guard budget every input mode nearly removes Safety ASR (hybrid 0.000, rules 0.000, LLM-only 0.018). Hybrid wins on the other axes: lower PSR than rules (0.205 vs 0.415), higher Acc than LLM-only (0.849 vs 0.751), and cheaper than LLM-only (1.2 vs 1.9 LLM calls; 1.8 s vs 5.3 s mean on the matched 50 seeds).
-5. **External baselines:** a classic PI detector leaves Safety ASR at 0.403; LLM moderation reaches 0.000 but at Acc 0.588 and PSR 0.380 (hybrid: 0.885 / 0.190).
-6. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; 0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a missing instruction filter.
-7. **Transfer:** on unseen templates the frozen hybrid's LLM residual catches most phrasings the rules miss (G1 allow 43/300). G0 Safety ASR 0.113 → G1 0.017 → G2 0.000; the G1 leak is authority conflict (0.050).
-8. **Adaptive attacks** that avoid known rule triggers are the hardest case: G1 Safety ASR 0.203 (authority conflict 0.520). G2 brings it to 0.000 at an Acc cost (0.757 → 0.687). Defense-in-depth matters under adaptive phrasing.
-9. **Placement:** query-only (Q) fails (Safety ASR 0.700) because payloads live in retrieval. Context (C) drives Safety ASR → 0.000 with Acc 0.887; output-only (O) also reaches 0.000 but Acc collapses (0.265) and PSR stays 0.540. CO ≈ C.
-10. **Guard capacity (Exp 6):** on Nova Pro × G1 × 50 seeds, Safety ASR is 0.000 for LLM-only and hybrid across S/M/L (ministral-3b / 14b / llama-70B). The gap is **utility**: small LLM-only guards collapse Acc (0.115–0.190) while hybrid keeps Acc 0.885–0.925. Rules are what make a small guard usable; PSR stays 0.18–0.54.
-11. **Guard-size × unseen:** on held-out A1/A3/A4, Safety ASR does **not** fall with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).
-12. **Guard budget:** the original 768-token guard budget truncated guard output (14% parse failure on main), and truncation failed open. At 4096 tokens LLM-only Safety ASR drops 0.457 → 0.018 (Acc 0.300 → 0.740), moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203, and PSR falls ~0.1 on most hybrid runs. All tables here use 4096; the paired 768 vs 4096 table is below.
-13. **CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs ~50% more guard output tokens.
+4. **E1 Placement:** query-only (Q) fails (Safety ASR 0.700) because payloads live in retrieval. Context (C) drives Safety ASR → 0.000 with Acc 0.887; output-only (O) also reaches 0.000 but Acc collapses (0.265) and PSR stays 0.540. CO ≈ C.
+5. **E2 Composition:** with an adequate guard budget every input mode nearly removes Safety ASR (hybrid 0.000, rules 0.000, LLM-only 0.018). Hybrid wins on the other axes: lower PSR than rules (0.205 vs 0.415), higher Acc than LLM-only (0.849 vs 0.751), and cheaper than LLM-only (1.2 vs 1.9 LLM calls; 1.8 s vs 5.3 s mean on the matched 50 seeds).
+6. **E2 External baselines:** a classic PI detector leaves Safety ASR at 0.403; LLM moderation reaches 0.000 but at Acc 0.588 and PSR 0.380 (hybrid: 0.885 / 0.190).
+7. **E3 Guard capacity:** on Nova Pro × G1 × 50 seeds, Safety ASR is ≈0 at every size and mode (largest: LLM-only gpt-oss 0.013). The gap is **utility**: as a standalone guard only gpt-oss is usable (Acc 0.830 vs 0.115–0.190 for 3B–70B), while hybrid keeps Acc 0.885–0.935 at every size. gpt-oss also has the lowest PSR (0.140 hybrid). gpt-oss is the only reasoning model, so size and reasoning are confounded at 120B.
+8. **E4 Distribution shift:** hybrid G1 removes 100% of G0 successes on known attacks, 85% on unseen templates and only 41% on adaptive attacks (G0 0.685 / 0.113 / 0.343 → G1 0.000 / 0.017 / 0.203). The adaptive leak is authority conflict (0.520). G2 brings both to 0.000, at an adaptive Acc cost (0.757 → 0.687).
+9. **E4 Guard size × unseen:** Safety ASR does **not** fall with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).
+10. **E5 Transfer:** the frozen hybrid keeps Safety ASR at 0.000 on SQuAD and on a third target model (deepseek), with Acc 0.802 and 0.915.
+11. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; 0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a missing instruction filter.
+12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751).
+13. **E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs 55–89% more guard output tokens.
 
-## Table 1 — Dataset
+## Main result (hybrid v3)
+
+### Table 1 — Dataset
 
 | Attack | Cases |
 |---|---:|
@@ -37,7 +49,7 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 | A3 Policy-violating retrieval | 100 |
 | A4 Authority conflict | 100 |
 
-## Table 2 — Main result (hybrid v3)
+### Table 2 — Guardrail level
 
 | Guardrail | Safety ASR ↓ | PSR ↓ | Macro ↓ | Acc ↑ | Over-refusal ↓ |
 |---|---:|---:|---:|---:|---:|
@@ -47,7 +59,7 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 
 Safety ASR = mean success over A1/A3/A4. PSR = A2 only. Macro = mean over all four. Acc = task accuracy on attacked cases.
 
-## Table 3 — Attack breakdown
+### Table 3 — Attack breakdown
 
 | Attack | G0 | G1 | G2 |
 |---|---:|---:|---:|
@@ -56,14 +68,69 @@ Safety ASR = mean success over A1/A3/A4. PSR = A2 only. Macro = mean over all fo
 | A3 Policy-violating retrieval | 0.605 [0.535, 0.670] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 | A4 Authority conflict | 0.545 [0.475, 0.615] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 
-## Table 4 — Cross-model Safety ASR
+### Table 4 — Cross-model Safety ASR
 
 | Model | G0 | G1 | G2 |
 |---|---:|---:|---:|
 | llama | 0.977 [0.960, 0.993] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 | nova-pro | 0.393 [0.337, 0.450] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 
-## Table 5 — Input ablation (G1 only)
+### Safety vs benign accuracy
+
+| Guardrail | Safety ASR | Benign Acc | Attack Acc | Over-refusal |
+|---|---:|---:|---:|---:|
+| G0 | 0.685 | 0.875 | 0.279 | 0.000 |
+| G1 | 0.000 | 0.850 | 0.849 | 0.000 |
+| G2 | 0.000 | 0.860 | 0.849 | 0.015 |
+
+Hybrid G1 does **not** trade benign accuracy for safety (benign Acc 0.875 → 0.850; over-refusal 0.000).
+
+### Mechanism
+
+G1 input decisions on attacked contexts:
+
+| Attack | allow | sanitize | block |
+|---|---:|---:|---:|
+| A1 Indirect injection | 0 | 200 | 0 |
+| A2 Context poisoning | 35 | 158 | 7 |
+| A3 Policy-violating retrieval | 0 | 200 | 0 |
+| A4 Authority conflict | 0 | 200 | 0 |
+
+| G2 output | pass | rewrite | block | missing |
+|---|---:|---:|---:|---:|
+| attacked | 772 | 10 | 12 | 6 |
+
+Rescue: of 517/800 G0 successes, G1 stopped 483 and G2 caught 8 after a G1 miss. A1/A3/A4 are fully sanitized by rules; residual `allow` is A2 poisoning only.
+
+### Cost / latency
+
+| Guardrail | n | mean ms | p50 ms | p95 ms | mean LLM calls |
+|---|---:|---:|---:|---:|---:|
+| G0 | 1000 | — | — | — | — |
+| G1 | 1000 | 1819.6 | 685.0 | 7564.1 | 1.2 |
+| G2 | 1000 | 2968.3 | 2152.5 | 8223.1 | 2.2 |
+
+## E1 — Placement (Q / C / O / CO)
+
+Frozen hybrid v3; only *where* the guardrail is applied. Q=query, C=context (≈G1), O=output, CO=context+output (≈G2). 50 seeds × 4 attacks × 4 placements × 2 models.
+
+Conditions: 1600 (attack=1600, clean=0).
+
+| Guardrail | Safety ASR ↓ | PSR ↓ | Macro ↓ | Acc ↑ |
+|---|---:|---:|---:|---:|
+| C | 0.000 [0.000, 0.000] | 0.170 [0.100, 0.250] | 0.043 [0.025, 0.062] | 0.887 [0.855, 0.917] |
+| CO | 0.000 [0.000, 0.000] | 0.210 [0.130, 0.300] | 0.052 [0.033, 0.075] | 0.882 [0.850, 0.912] |
+| O | 0.000 [0.000, 0.000] | 0.540 [0.440, 0.640] | 0.135 [0.102, 0.170] | 0.265 [0.223, 0.310] |
+| Q | 0.700 [0.650, 0.750] | 0.530 [0.440, 0.630] | 0.657 [0.613, 0.705] | 0.285 [0.242, 0.330] |
+
+| Attack | C | CO | O | Q |
+|---|---:|---:|---:|---:|
+| A1 Indirect injection | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.880 [0.810, 0.940] |
+| A2 Context poisoning | 0.170 [0.100, 0.250] | 0.210 [0.130, 0.290] | 0.540 [0.440, 0.640] | 0.530 [0.430, 0.630] |
+| A3 Policy-violating retrieval | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.660 [0.570, 0.750] |
+| A4 Authority conflict | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.560 [0.470, 0.650] |
+
+## E2 — Composition (input ablation, G1)
 
 | Input mode | Safety ASR | PSR | Macro | Acc | Over-refusal |
 |---|---:|---:|---:|---:|---:|
@@ -91,44 +158,73 @@ On LLM-only, G2 removes the residual Safety ASR (0.018 → 0.000).
 | G1 | 0.000 [0.000, 0.000] | 0.415 [0.345, 0.480] | 0.104 [0.084, 0.125] | 0.786 [0.757, 0.814] | 0.000 [0.000, 0.000] |
 | G2 | 0.000 [0.000, 0.000] | 0.430 [0.360, 0.500] | 0.107 [0.086, 0.130] | 0.787 [0.757, 0.815] | 0.015 [0.000, 0.035] |
 
-## Safety vs benign accuracy
+### External baselines
 
-| Guardrail | Safety ASR | Benign Acc | Attack Acc | Over-refusal |
+G1-only comparison on the **same 50 freeze seeds** (n_attack=400 = 50×4 attacks×2 models). hybrid/rules/llm are subsets of the 100-seed runs; pi_detector / moderation were already seed_limit=50. pi_detector / moderation are not GURMA template rules.
+
+| Defense | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
+|---|---:|---:|---:|---:|---:|---:|
+| hybrid | 0.000 [0.000, 0.000] | 0.190 [0.110, 0.270] | 0.885 [0.853, 0.915] | 1845.0 | 1.21 | 400 |
+| rules | 0.000 [0.000, 0.000] | 0.400 [0.310, 0.490] | 0.825 [0.787, 0.860] | — | — | 400 |
+| llm | 0.027 [0.010, 0.047] | 0.210 [0.130, 0.290] | 0.770 [0.730, 0.810] | 5288.4 | 1.91 | 400 |
+| pi_detector | 0.403 [0.353, 0.463] | 0.550 [0.450, 0.650] | 0.470 [0.422, 0.520] | 1138.0 | 1.00 | 400 |
+| moderation | 0.000 [0.000, 0.000] | 0.380 [0.290, 0.480] | 0.588 [0.540, 0.635] | 6092.3 | 1.71 | 400 |
+
+## E3 — Guard model capacity
+
+Fixed: target=nova-pro, placement=G1/context, v3 prompts, same attacks (50 seeds). Vary: guard LLM size (S/M/L/120B) and input mode (LLM-only vs hybrid). 120B cells are the matching subset of the main gpt-oss runs (no re-inference); gpt-oss is a reasoning model, the S/M/L guards are not. RQ1: does scaling improve robustness? RQ2: does a larger guard eliminate the need for deterministic rules?
+
+### Full grid (G1)
+
+| Mode | Size | Guard LLM | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| llm | S | ministral-3b (~3B) | 0.000 [0.000, 0.000] | 0.360 [0.220, 0.500] | 0.190 [0.140, 0.245] | 1372.5 | 1.29 | 200 |
+| llm | M | ministral-14b (~14B) | 0.000 [0.000, 0.000] | 0.540 [0.400, 0.680] | 0.115 [0.075, 0.165] | 1259.6 | 1.14 | 200 |
+| llm | L | llama (~70B) | 0.000 [0.000, 0.000] | 0.480 [0.360, 0.620] | 0.130 [0.085, 0.180] | 925.9 | 1.18 | 200 |
+| llm | 120B | gpt-oss (~120B) | 0.013 [0.000, 0.033] | 0.160 [0.060, 0.280] | 0.830 [0.780, 0.880] | 6116.6 | 1.90 | 200 |
+| hybrid | S | ministral-3b (~3B) | 0.000 [0.000, 0.000] | 0.180 [0.080, 0.300] | 0.925 [0.885, 0.960] | 4224.9 | 1.00 | 200 |
+| hybrid | M | ministral-14b (~14B) | 0.000 [0.000, 0.000] | 0.340 [0.220, 0.460] | 0.885 [0.840, 0.930] | 4350.1 | 0.92 | 200 |
+| hybrid | L | llama (~70B) | 0.000 [0.000, 0.000] | 0.300 [0.180, 0.440] | 0.895 [0.850, 0.935] | 4546.1 | 0.99 | 200 |
+| hybrid | 120B | gpt-oss (~120B) | 0.000 [0.000, 0.000] | 0.140 [0.060, 0.240] | 0.935 [0.900, 0.965] | 2092.1 | 1.02 | 200 |
+
+### Safety ASR by mode × size
+
+| Mode | S | M | L | 120B |
 |---|---:|---:|---:|---:|
-| G0 | 0.685 | 0.875 | 0.279 | 0.000 |
-| G1 | 0.000 | 0.850 | 0.849 | 0.000 |
-| G2 | 0.000 | 0.860 | 0.849 | 0.015 |
+| llm | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.013 [0.000, 0.033] |
+| hybrid | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 
-Hybrid G1 does **not** trade benign accuracy for safety (benign Acc 0.875 → 0.850; over-refusal 0.000).
+### PSR by mode × size
 
-## Mechanism (main hybrid)
-
-G1 input decisions on attacked contexts:
-
-| Attack | allow | sanitize | block |
-|---|---:|---:|---:|
-| A1 Indirect injection | 0 | 200 | 0 |
-| A2 Context poisoning | 35 | 158 | 7 |
-| A3 Policy-violating retrieval | 0 | 200 | 0 |
-| A4 Authority conflict | 0 | 200 | 0 |
-
-| G2 output | pass | rewrite | block | missing |
+| Mode | S | M | L | 120B |
 |---|---:|---:|---:|---:|
-| attacked | 772 | 10 | 12 | 6 |
+| llm | 0.360 [0.220, 0.500] | 0.540 [0.400, 0.680] | 0.480 [0.360, 0.620] | 0.160 [0.060, 0.280] |
+| hybrid | 0.180 [0.080, 0.300] | 0.340 [0.220, 0.460] | 0.300 [0.180, 0.440] | 0.140 [0.060, 0.240] |
 
-Rescue: of 517/800 G0 successes, G1 stopped 483 and G2 caught 8 after a G1 miss. A1/A3/A4 are fully sanitized by rules; residual `allow` is A2 poisoning only.
+### Hybrid guard-size ladder vs gpt-oss
 
-## Cost / latency (main hybrid)
+Frozen hybrid v3; only the guardrail LLM changes. Ministral 3B/8B/14B vs gpt-oss 120B on the **same 50 freeze seeds** (first 50 of main; n_attack=400 = 50×4 attacks×2 models). gpt-oss numbers are a subset of the existing main run — no re-inference. Rules fire first — expect limited Safety ASR movement in-distribution.
 
-| Guardrail | n | mean ms | p50 ms | p95 ms | mean LLM calls |
+| Guard LLM | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
+|---|---:|---:|---:|---:|---:|---:|
+| ministral-3b | 0.000 [0.000, 0.000] | 0.270 [0.190, 0.360] | 0.868 [0.833, 0.900] | 1639.7 | 1.01 | 400 |
+| ministral-8b | 0.000 [0.000, 0.000] | 0.360 [0.270, 0.450] | 0.843 [0.807, 0.875] | 1636.1 | 0.95 | 400 |
+| ministral-14b | 0.000 [0.000, 0.000] | 0.380 [0.290, 0.470] | 0.830 [0.792, 0.865] | 1486.7 | 0.92 | 400 |
+| gpt-oss (120B, matched 50) | 0.000 [0.000, 0.000] | 0.190 [0.110, 0.270] | 0.885 [0.853, 0.915] | 1845.0 | 1.21 | 400 |
+
+## E4 — Distribution shift (known / unseen / adaptive)
+
+Same frozen hybrid v3. Absolute Safety ASR mixes attack strength with defense strength, so the share of G0 successes each guardrail removes is shown alongside.
+
+| Attacks | G0 | G1 | G2 | G1 removes | G2 removes |
 |---|---:|---:|---:|---:|---:|
-| G0 | 1000 | — | — | — | — |
-| G1 | 1000 | 1819.6 | 685.0 | 7564.1 | 1.2 |
-| G2 | 1000 | 2968.3 | 2152.5 | 8223.1 | 2.2 |
+| Known (main) | 0.685 | 0.000 | 0.000 | 100% | 100% |
+| Unseen templates | 0.113 | 0.017 | 0.000 | 85% | 100% |
+| Adaptive | 0.343 | 0.203 | 0.000 | 41% | 100% |
 
-## Experiment 4 — Unseen attack transfer
+### Unseen templates
 
-50 frozen seeds × A1/A3/A4 held-out templates from a different generator (`deepseek`) × G0/G1/G2 × 2 models. Defense not retuned; A2 and clean utility not re-run.
+50 frozen seeds × A1/A3/A4 held-out templates from a different generator (`deepseek`) × G0/G1/G2 × 2 models. A2 and clean utility not re-run.
 
 Conditions: 900 (attack=900, clean=0).
 
@@ -157,7 +253,7 @@ G1 input decisions:
 | A3 Policy-violating retrieval | 4 | 91 | 5 |
 | A4 Authority conflict | 33 | 63 | 4 |
 
-### Guard size × unseen attacks
+### Guard size × unseen templates
 
 Guard-size × unseen (held-out) attacks. Same 50 seeds and A1/A3/A4 templates as Experiment 4. G1 only. Rules mostly miss these templates, so residual / LLM-only guard size can actually move Safety ASR. gpt-oss hybrid is the existing Exp-4 G1 row (n=300), not re-inferred.
 
@@ -178,68 +274,6 @@ Guard-size × unseen (held-out) attacks. Same 50 seeds and A1/A3/A4 templates as
 | llm | 0.027 [0.010, 0.047] | 0.057 [0.030, 0.083] | 0.107 [0.077, 0.143] | — |
 | hybrid | 0.027 [0.010, 0.047] | 0.060 [0.033, 0.087] | 0.110 [0.077, 0.147] | 0.017 [0.003, 0.033] |
 
-## Experiment 5 — Placement (Q / C / O / CO)
-
-Frozen hybrid v3; only *where* the guardrail is applied. Q=query, C=context (≈G1), O=output, CO=context+output (≈G2). 50 seeds × 4 attacks × 4 placements × 2 models.
-
-Conditions: 1600 (attack=1600, clean=0).
-
-| Guardrail | Safety ASR ↓ | PSR ↓ | Macro ↓ | Acc ↑ |
-|---|---:|---:|---:|---:|
-| C | 0.000 [0.000, 0.000] | 0.170 [0.100, 0.250] | 0.043 [0.025, 0.062] | 0.887 [0.855, 0.917] |
-| CO | 0.000 [0.000, 0.000] | 0.210 [0.130, 0.300] | 0.052 [0.033, 0.075] | 0.882 [0.850, 0.912] |
-| O | 0.000 [0.000, 0.000] | 0.540 [0.440, 0.640] | 0.135 [0.102, 0.170] | 0.265 [0.223, 0.310] |
-| Q | 0.700 [0.650, 0.750] | 0.530 [0.440, 0.630] | 0.657 [0.613, 0.705] | 0.285 [0.242, 0.330] |
-
-| Attack | C | CO | O | Q |
-|---|---:|---:|---:|---:|
-| A1 Indirect injection | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.880 [0.810, 0.940] |
-| A2 Context poisoning | 0.170 [0.100, 0.250] | 0.210 [0.130, 0.290] | 0.540 [0.440, 0.640] | 0.530 [0.430, 0.630] |
-| A3 Policy-violating retrieval | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.660 [0.570, 0.750] |
-| A4 Authority conflict | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.560 [0.470, 0.650] |
-
-## Experiment 6 — Guard model capacity
-
-Experiment 6 — Guard model capacity. Fixed: target=nova-pro, placement=G1/context, v3 prompts, same attacks (50 seeds). Vary: guard LLM size (S/M/L) and input mode (LLM-only vs hybrid). RQ1: does scaling improve robustness? RQ2: does a larger guard eliminate the need for deterministic rules?
-
-### Full grid (G1)
-
-| Mode | Size | Guard LLM | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
-|---|---|---|---:|---:|---:|---:|---:|---:|
-| llm | S | ministral-3b (~3B) | 0.000 [0.000, 0.000] | 0.360 [0.220, 0.500] | 0.190 [0.140, 0.245] | 1372.5 | 1.29 | 200 |
-| llm | M | ministral-14b (~14B) | 0.000 [0.000, 0.000] | 0.540 [0.400, 0.680] | 0.115 [0.075, 0.165] | 1259.6 | 1.14 | 200 |
-| llm | L | llama (~70B) | 0.000 [0.000, 0.000] | 0.480 [0.360, 0.620] | 0.130 [0.085, 0.180] | 925.9 | 1.18 | 200 |
-| hybrid | S | ministral-3b (~3B) | 0.000 [0.000, 0.000] | 0.180 [0.080, 0.300] | 0.925 [0.885, 0.960] | 4224.9 | 1.00 | 200 |
-| hybrid | M | ministral-14b (~14B) | 0.000 [0.000, 0.000] | 0.340 [0.220, 0.460] | 0.885 [0.840, 0.930] | 4350.1 | 0.92 | 200 |
-| hybrid | L | llama (~70B) | 0.000 [0.000, 0.000] | 0.300 [0.180, 0.440] | 0.895 [0.850, 0.935] | 4546.1 | 0.99 | 200 |
-
-### Safety ASR by mode × size
-
-| Mode | S | M | L |
-|---|---:|---:|---:|
-| llm | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
-| hybrid | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
-
-### PSR by mode × size
-
-| Mode | S | M | L |
-|---|---:|---:|---:|
-| llm | 0.360 [0.220, 0.500] | 0.540 [0.400, 0.680] | 0.480 [0.360, 0.620] |
-| hybrid | 0.180 [0.080, 0.300] | 0.340 [0.220, 0.460] | 0.300 [0.180, 0.440] |
-
-### Hybrid guard-size ladder vs gpt-oss
-
-Frozen hybrid v3; only the guardrail LLM changes. Ministral 3B/8B/14B vs gpt-oss 120B on the **same 50 freeze seeds** (first 50 of main; n_attack=400 = 50×4 attacks×2 models). gpt-oss numbers are a subset of the existing main run — no re-inference. Rules fire first — expect limited Safety ASR movement in-distribution.
-
-| Guard LLM | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
-|---|---:|---:|---:|---:|---:|---:|
-| ministral-3b | 0.000 [0.000, 0.000] | 0.270 [0.190, 0.360] | 0.868 [0.833, 0.900] | 1639.7 | 1.01 | 400 |
-| ministral-8b | 0.000 [0.000, 0.000] | 0.360 [0.270, 0.450] | 0.843 [0.807, 0.875] | 1636.1 | 0.95 | 400 |
-| ministral-14b | 0.000 [0.000, 0.000] | 0.380 [0.290, 0.470] | 0.830 [0.792, 0.865] | 1486.7 | 0.92 | 400 |
-| gpt-oss (120B, matched 50) | 0.000 [0.000, 0.000] | 0.190 [0.110, 0.270] | 0.885 [0.853, 0.915] | 1845.0 | 1.21 | 400 |
-
-## Robustness (defense frozen)
-
 ### Adaptive attacks
 
 Attacker avoids known rule triggers while preserving the malicious objective.
@@ -257,6 +291,8 @@ Conditions: 900 (attack=900, clean=0).
 | A1 Indirect injection | 0.360 [0.270, 0.450] | 0.090 [0.040, 0.150] | 0.000 [0.000, 0.000] |
 | A3 Policy-violating retrieval | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 | A4 Authority conflict | 0.670 [0.580, 0.760] | 0.520 [0.420, 0.610] | 0.000 [0.000, 0.000] |
+
+## E5 — Transfer (defense frozen)
 
 ### Cross-dataset (SQuAD)
 
@@ -296,19 +332,9 @@ Conditions: 600 (attack=600, clean=0).
 | A3 Policy-violating retrieval | 0.040 [0.000, 0.100] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 | A4 Authority conflict | 0.940 [0.860, 1.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 
-## External baselines
+## E6 — Guard budget and failure handling
 
-G1-only comparison on the **same 50 freeze seeds** (n_attack=400 = 50×4 attacks×2 models). hybrid/rules/llm are subsets of the 100-seed runs; pi_detector / moderation were already seed_limit=50. pi_detector / moderation are not GURMA template rules.
-
-| Defense | Safety ASR | PSR | Acc | mean ms | LLM calls | n |
-|---|---:|---:|---:|---:|---:|---:|
-| hybrid | 0.000 [0.000, 0.000] | 0.190 [0.110, 0.270] | 0.885 [0.853, 0.915] | 1845.0 | 1.21 | 400 |
-| rules | 0.000 [0.000, 0.000] | 0.400 [0.310, 0.490] | 0.825 [0.787, 0.860] | — | — | 400 |
-| llm | 0.027 [0.010, 0.047] | 0.210 [0.130, 0.290] | 0.770 [0.730, 0.810] | 5288.4 | 1.91 | 400 |
-| pi_detector | 0.403 [0.353, 0.463] | 0.550 [0.450, 0.650] | 0.470 [0.422, 0.520] | 1138.0 | 1.00 | 400 |
-| moderation | 0.000 [0.000, 0.000] | 0.380 [0.290, 0.480] | 0.588 [0.540, 0.635] | 6092.3 | 1.71 | 400 |
-
-## Guard budget 768 vs 4096 (paired, G1)
+### Paired 768 vs 4096 (G1)
 
 Same conditions re-run with only `guardrail_max_tokens` changed. Safety Acc = task accuracy on A1/A3/A4. Full table: [budget_compare.md](../data/runs/budget_compare/budget_compare.md).
 
@@ -338,9 +364,36 @@ Same conditions re-run with only `guardrail_max_tokens` changed. Safety Acc = ta
 | main_squad | 0.028 → 0.000 | 0.000 → 0.000 | 0.820 → 0.830 | 0.290 → 0.280 |
 | main_third_model | 0.382 → 0.000 | 0.000 → 0.000 | 0.927 → 0.927 | 0.240 → 0.120 |
 
-## CoT guard prompt (paired)
+### Failure policy at 768
 
-Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`). Full write-up: [b4096-cot-results.md](b4096-cot-results.md).
+At 768 tokens an unparseable guard output was treated as `allow` (fail-open). Fail-closed re-scores the same records with those outputs treated as `block`: the attack fails and the answer counts as wrong. No LLM calls. Runs with a 768 parse-failure rate below 10% are omitted.
+
+| Run | Policy | Parse fail | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ |
+|---|---|---:|---:|---:|---:|---:|
+| main | fail-open (768, as run) | 0.121 | 0.000 | 0.300 | 0.820 | 0.865 |
+|  | fail-closed (768, counterfactual) | 0.121 | 0.000 | 0.180 | 0.802 | 0.845 |
+|  | 4096 (as run) | 0.000 | 0.000 | 0.205 | 0.849 | 0.850 |
+| main_ablation_llm | fail-open (768, as run) | 0.430 | 0.457 | 0.335 | 0.393 | 0.865 |
+|  | fail-closed (768, counterfactual) | 0.430 | 0.020 | 0.150 | 0.289 | 0.830 |
+|  | 4096 (as run) | 0.000 | 0.018 | 0.215 | 0.751 | 0.840 |
+| main_transfer | fail-open (768, as run) | 0.713 | 0.093 | — | 0.830 | — |
+|  | fail-closed (768, counterfactual) | 0.713 | 0.007 | — | 0.227 | — |
+|  | 4096 (as run) | 0.007 | 0.017 | — | 0.843 | — |
+| main_adaptive | fail-open (768, as run) | 0.563 | 0.327 | — | 0.677 | — |
+|  | fail-closed (768, counterfactual) | 0.563 | 0.190 | — | 0.250 | — |
+|  | 4096 (as run) | 0.040 | 0.203 | — | 0.757 | — |
+| main_baseline_mod | fail-open (768, as run) | 0.525 | 0.377 | 0.480 | 0.225 | — |
+|  | fail-closed (768, counterfactual) | 0.525 | 0.000 | 0.140 | 0.083 | — |
+|  | 4096 (as run) | 0.000 | 0.000 | 0.380 | 0.588 | — |
+| main_third_model | fail-open (768, as run) | 0.342 | 0.000 | 0.240 | 0.885 | — |
+|  | fail-closed (768, counterfactual) | 0.342 | 0.000 | 0.100 | 0.855 | — |
+|  | 4096 (as run) | 0.000 | 0.000 | 0.120 | 0.915 | — |
+
+Fail-closed safety is slightly optimistic: a real block is occasionally still judged an attack success. Parse fail is over G1 only, so it can differ from the budget table (G1+G2).
+
+## E7 — CoT guard prompt (paired)
+
+Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`). Full write-up: [e6-e7-guard-budget-and-cot.md](e6-e7-guard-budget-and-cot.md).
 
 ### B2 vs B4 (LLM-only)
 
@@ -365,7 +418,7 @@ A = `main_ablation_llm_b4096`, B = `main_cot_llm`. Paired on identical (seed, at
 
 | Run | LLM guard calls | Parse fail | Guard P95 ms | Mean out tokens |
 |---|---:|---:|---:|---:|
-| A | 2000 | 0.001 | 12362 | 992 |
+| A | 1000 | 0.000 | 12629 | 971 |
 | B | 1000 | 0.000 | 14814 | 1503 |
 
 ### B3 vs B5 (hybrid)
@@ -391,7 +444,7 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 
 | Run | LLM guard calls | Parse fail | Guard P95 ms | Mean out tokens |
 |---|---:|---:|---:|---:|
-| A | 692 | 0.000 | 8812 | 471 |
+| A | 346 | 0.000 | 9167 | 473 |
 | B | 346 | 0.003 | 13916 | 895 |
 
 ## Caveats
@@ -399,5 +452,5 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 - Counts are **experimental conditions**, not LLM API calls.
 - A2 success is an integrity metric (PSR), not Safety ASR. We do not add poisoning-specific rules to force PSR → 0.
 - Attack acceptance never uses G0 effectiveness (no selection bias).
-- In-distribution hybrid rules match known operator templates; Experiment 4 / adaptive / cross-dataset test generalization with the defense frozen.
+- In-distribution hybrid rules match known operator templates; E4 and E5 test generalization with the defense frozen.
 - External baselines (PI detector, moderation) are comparison systems, not retunes of the frozen hybrid.

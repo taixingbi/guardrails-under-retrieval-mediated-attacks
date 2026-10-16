@@ -7,6 +7,7 @@ from gurma.config import load_config
 from gurma.eval.ablation_report import build_ablation_report
 from gurma.eval.baseline_compare import build_baseline_compare
 from gurma.eval.capacity_compare import build_capacity_compare, build_xfer_size_compare
+from gurma.eval.failure_policy import build_failure_policy
 from gurma.eval.guard_size_compare import build_guard_size_compare
 from gurma.eval.paired_compare import build_budget_compare, build_cot_compare
 from gurma.eval.paper_report import write_paper_report
@@ -57,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     sub.add_parser(
         "report",
-        help="Generate reports/results.md from saved metrics JSON (no LLM)",
+        help="Generate reports/main-e1-e7-results.md from saved metrics JSON (no LLM)",
     )
     p_xfer = sub.add_parser(
         "run-transfer",
@@ -81,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     sub.add_parser(
         "capacity-compare",
-        help="Experiment 6: guard size × (LLM-only|hybrid) G1 grid",
+        help="E3: guard size × (LLM-only|hybrid) G1 grid",
     )
     sub.add_parser(
         "xfer-size-compare",
@@ -94,6 +95,10 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "budget-compare",
         help="Paired 768 vs 4096 guard budget for every *_b4096 rerun into data/runs/budget_compare/",
+    )
+    sub.add_parser(
+        "failure-policy",
+        help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
     )
     p_ann = sub.add_parser(
         "annotate-export",
@@ -128,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
             "xfer-size-compare",
             "cot-compare",
             "budget-compare",
+            "failure-policy",
             "annotate-export",
             "annotate-score",
         }
@@ -162,6 +168,8 @@ def main(argv: list[str] | None = None) -> int:
         build_cot_compare()
     elif args.cmd == "budget-compare":
         build_budget_compare()
+    elif args.cmd == "failure-policy":
+        build_failure_policy()
     elif args.cmd == "annotate-export":
         from gurma.eval.trace_annotation import export_annotation_sample
 

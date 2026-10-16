@@ -23,7 +23,7 @@ A = `main_ablation_llm_b4096`, B = `main_cot_llm`. Paired on identical (seed, at
 
 | Run | LLM guard calls | Parse fail | Guard P95 ms | Mean out tokens |
 |---|---:|---:|---:|---:|
-| A | 2000 | 0.001 | 12362 | 992 |
+| A | 1000 | 0.000 | 12629 | 971 |
 | B | 1000 | 0.000 | 14814 | 1503 |
 
 ## B3 vs B5 (hybrid)
@@ -49,7 +49,7 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 
 | Run | LLM guard calls | Parse fail | Guard P95 ms | Mean out tokens |
 |---|---:|---:|---:|---:|
-| A | 692 | 0.000 | 8812 | 471 |
+| A | 346 | 0.000 | 9167 | 473 |
 | B | 346 | 0.003 | 13916 | 895 |
 
 ## Pilot B2 vs B4 (20 seeds)

@@ -226,7 +226,11 @@ def _build(
             report["missing"].append(label)
             continue
         rows = paired_table(a, b, guardrails=guardrails)
-        ha, hb = guard_health(a), guard_health(b)
+        # Health over the compared guardrails only: CoT runs have G1 only, baselines G1+G2.
+        def in_scope(records: list[RunRecord]) -> list[RunRecord]:
+            return [r for r in records if guardrails is None or r.guardrail in guardrails]
+
+        ha, hb = guard_health(in_scope(a)), guard_health(in_scope(b))
         report["pairs"].append({"label": label, "a": a_name, "b": b_name, "rows": rows, "health_a": ha, "health_b": hb})
         lines += _pair_markdown(label, a_name, b_name, rows, ha, hb)
     if report["missing"]:
