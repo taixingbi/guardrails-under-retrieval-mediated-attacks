@@ -1,0 +1,45 @@
+{
+  "n_records": 600,
+  "g1_input_decisions_attack": {
+    "sanitize": 179,
+    "allow": 21
+  },
+  "g1_input_by_attack": {
+    "context_poisoning": {
+      "sanitize": 179,
+      "allow": 21
+    }
+  },
+  "g2_input_decisions_attack": {
+    "allow": 25,
+    "sanitize": 174,
+    "block": 1
+  },
+  "g2_output_decisions_attack": {
+    "pass": 190,
+    "block": 8,
+    "missing": 1,
+    "rewrite": 1
+  },
+  "g2_input_to_output": {
+    "sanitize->pass": 172,
+    "allow->pass": 18,
+    "allow->block": 6,
+    "sanitize->block": 2,
+    "block->?": 1,
+    "allow->rewrite": 1
+  },
+  "rescue": {
+    "g1_helped": 80,
+    "g2_helped_after_g1_miss": 4,
+    "g0_success": 109,
+    "n": 200
+  },
+  "g2_correct_via_output_decision": {
+    "pass": 158,
+    "rewrite": 1
+  },
+  "clean_g1_input": {},
+  "clean_g2_output": {},
+  "over_refusal_clean": 0.0
+}

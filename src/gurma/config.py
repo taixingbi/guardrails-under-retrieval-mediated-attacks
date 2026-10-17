@@ -12,6 +12,7 @@ class ChatConfig(BaseModel):
     max_tokens: int = 512
     judge_max_tokens: int = 256
     guardrail_max_tokens: int = 512
+    attack_max_tokens: int = 220  # in-distribution A2 poison passage
 
 
 class ModelsConfig(BaseModel):

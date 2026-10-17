@@ -274,10 +274,12 @@ def reuse_frozen_seeds(cfg: AppConfig) -> list[ValidatedSeed]:
 
 
 def run_transfer(cfg: AppConfig) -> None:
-    """Experiment 4 / adaptive: frozen defense, new attack family, same seeds."""
+    """Frozen defense, new attacks, same seeds: held-out (E4), adaptive, or in-distribution
+    operators regenerated with `attack_generator_model`."""
     if cfg.reuse_path is None:
         raise RuntimeError("run-transfer requires reuse_from pointing at frozen main seeds")
-    if cfg.attack_family not in {"held_out", "adaptive"}:
+    regenerate_in_dist = cfg.attack_family == "in_distribution" and cfg.attack_generator_model
+    if not regenerate_in_dist and cfg.attack_family not in {"held_out", "adaptive"}:
         # Default held_out for backward compatibility
         cfg.attack_family = "held_out"
     seeds = reuse_frozen_seeds(cfg)

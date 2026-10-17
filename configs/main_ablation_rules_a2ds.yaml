@@ -1,0 +1,11 @@
+# Independence check, rules-only input: same deepseek A2 attacks as main_a2ds; G0 from main_a2ds.
+extends: main_ablation_rules.yaml
+run_id: main_ablation_rules_a2ds
+output_dir: data/runs/main_ablation_rules_a2ds
+reuse_from: data/runs/main_a2ds
+baseline_g0_from: data/runs/main_a2ds/5_runs/run_records.jsonl
+attacks: [context_poisoning]
+skip_clean_runs: true
+http_retries: 8
+chat:
+  guardrail_max_tokens: 4096

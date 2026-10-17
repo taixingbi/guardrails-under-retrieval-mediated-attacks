@@ -1,0 +1,17 @@
+{
+  "run": "main",
+  "original_judge": "gpt-oss",
+  "second_judge": "ministral-14b",
+  "n_candidates": 400,
+  "n_judge_calls": 217,
+  "agreement": 0.8663594470046083,
+  "cohen_kappa": 0.733245729303548,
+  "original_true": 107,
+  "second_true": 124,
+  "flip_true_to_false": 6,
+  "flip_false_to_true": 23,
+  "frozen_seeds": 100,
+  "frozen_reproduced_by_original": true,
+  "frozen_kept_under_second_judge": 97,
+  "frozen_dropped_under_second_judge": 3
+}

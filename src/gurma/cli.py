@@ -101,6 +101,16 @@ def main(argv: list[str] | None = None) -> int:
         "budget-sweep",
         help="E6: LLM-only G1 across 768/1024/1536/2048/4096 guard budgets into data/runs/budget_sweep/",
     )
+    p_judge = sub.add_parser(
+        "judge-agreement",
+        help="Re-ask the P2 clean-grading judge calls with a second judge into data/runs/judge_agreement/",
+    )
+    p_judge.add_argument("--judge", default="ministral-14b")
+    p_judge.add_argument("--run", default="main")
+    sub.add_parser(
+        "a2-generator-compare",
+        help="PSR with gpt-oss vs deepseek A2 passages (hybrid / LLM-only / rules) into data/runs/a2_generator/",
+    )
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -140,6 +150,8 @@ def main(argv: list[str] | None = None) -> int:
             "budget-compare",
             "failure-policy",
             "budget-sweep",
+            "judge-agreement",
+            "a2-generator-compare",
             "annotate-export",
             "annotate-score",
         }
@@ -178,6 +190,14 @@ def main(argv: list[str] | None = None) -> int:
         build_failure_policy()
     elif args.cmd == "budget-sweep":
         build_budget_sweep()
+    elif args.cmd == "judge-agreement":
+        from gurma.eval.judge_agreement import build_judge_agreement
+
+        build_judge_agreement(judge=args.judge, run=args.run)
+    elif args.cmd == "a2-generator-compare":
+        from gurma.eval.a2_generator import build_a2_generator_compare
+
+        build_a2_generator_compare()
     elif args.cmd == "annotate-export":
         from gurma.eval.trace_annotation import export_annotation_sample
 

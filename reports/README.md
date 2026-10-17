@@ -9,7 +9,7 @@ Paper-facing results. Neither file calls an LLM; both are built from saved run o
 
 ## Which runs the report reads
 
-All runs with an LLM guard are read at a 4096-token guard budget (`data/runs/<run>_b4096/`). Rules-only (`main_ablation_rules`) and the PI detector (`main_baseline_pi`) make no guard LLM calls and have no budget variant. The suffix is set in one place: [`gurma/eval/run_names.py`](../src/gurma/eval/run_names.py).
+All runs with an LLM guard are read at a 4096-token guard budget (`data/runs/<run>_b4096/`). Rules-only (`main_ablation_rules`) and the PI detector (`main_baseline_pi`) make no input-guard LLM calls and have no budget variant; their G2 output guard ran at 768 tokens, with 0.3% (rules-only) and 1.5% (PI detector) output-guard parse failures. The suffix is set in one place: [`gurma/eval/run_names.py`](../src/gurma/eval/run_names.py).
 
 The 768-token originals (`data/runs/<run>/`) are kept only for the paired budget comparison.
 
@@ -22,6 +22,7 @@ The 768-token originals (`data/runs/<run>/`) are kept only for the paired budget
 | E4 Distribution shift | Known vs unseen vs adaptive attacks | `main_b4096`, `main_transfer_b4096`, `main_adaptive_b4096`, `xfer_size_compare/` |
 | E5 Transfer | Other dataset and target model | `main_squad_b4096`, `main_third_model_b4096` |
 | E6 Guard budget and failure handling | 768 vs 4096; budget sweep; fail-open vs fail-closed | `budget_compare/`, `budget_sweep/`, `failure_policy/` |
+| Independence checks | Are attack generator, guard and judge different models? | `judge_agreement/`, `a2_generator/`, `main_a2ds`, `main_ablation_*_a2ds` |
 | E7 CoT guard prompt | Does explicit reasoning help? Are decisions sensitive to cited evidence? | `cot_compare/`, `main_cot_*/8_faithfulness/` |
 
 Some folder names predate the E1–E7 numbering: `e6_capacity_compare/` and the `main_e6_*` runs belong to E3, and `main_transfer` holds the E4 unseen-template run.
@@ -42,8 +43,11 @@ gurma budget-compare
 gurma budget-sweep
 gurma failure-policy
 gurma cot-compare
+gurma a2-generator-compare
 gurma report
 ```
+
+`gurma judge-agreement --judge ministral-14b` re-asks the P2 judge calls and needs the inference API.
 
 [`scripts/post_queue.sh`](../scripts/post_queue.sh) runs the budget, CoT and report steps after a rerun queue finishes.
 

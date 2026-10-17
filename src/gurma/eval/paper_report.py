@@ -244,6 +244,18 @@ FINDINGS = [
     "CoT has no significant effect. CoT costs 55–89% more guard output tokens. "
     "Deleting the evidence the CoT guard cites flips its decision far more often than "
     "deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).",
+    # Independence checks
+    "**Independence — A2 generator:** regenerating A2 with deepseek (not the guard model) "
+    "leaves the conclusions intact. The attacks are as strong (G0 PSR 0.545 vs 0.530), and "
+    "hybrid and LLM-only G1 PSR are within noise (0.175 vs 0.205; 0.190 vs 0.215), so there "
+    "is no sign the guard benefits from defending its own attacks. Rules-only gets worse "
+    "(0.415 → 0.525): its 0.415 was flattered by the 27 template fallbacks (0.185 on templates "
+    "vs 0.500 on generated passages), so hybrid's PSR advantage over rules is larger than the "
+    "main table shows.",
+    "**Independence — judge:** re-judging the 217 P2 clean-grading calls with ministral-14b "
+    "agrees with gpt-oss 86.6% of the time (κ = 0.733); ministral-14b is more lenient (23 "
+    "wrong→correct vs 6 correct→wrong) and 97 of the 100 frozen seeds would be kept. The judge "
+    "choice barely changes the seed pool, and P5 scoring never uses a judge.",
 ]
 
 
@@ -532,6 +544,28 @@ def render_paper_report(
     if attribution:
         lines += _attribution_section(attribution)
 
+    # --- Independence of attack generator, guard and judge ---------------
+    lines += [
+        "## Independence checks (attack generator / guard / judge)",
+        "",
+        "Design intent: the attack generator, the guard and the judge are different models.",
+        "",
+        "| Role | Model | Independent of the guard (gpt-oss)? |",
+        "|---|---|---|",
+        "| A1 / A3 / A4 attacks (known) | fixed templates, no LLM | yes |",
+        "| A2 poison passages (known) | gpt-oss | **no**: checked below with deepseek |",
+        "| E4 unseen / adaptive attacks | deepseek | yes |",
+        "| Judge (P2 clean-seed grading only) | gpt-oss | **no**: checked below with ministral-14b |",
+        "| P5 scoring (ASR, PSR, Acc) | rules (EM / F1 / markers), no LLM | yes |",
+        "",
+    ]
+    for path, heading in (
+        (runs_dir / "judge_agreement/judge_agreement.md", "### Judge"),
+        (runs_dir / "a2_generator/a2_generator.md", "### A2 attack generator"),
+    ):
+        if path.exists():
+            lines += [heading, "", *_embed(path, depth=2)]
+
     lines += [
         "## Caveats",
         "",
@@ -543,6 +577,13 @@ def render_paper_report(
         "E4 and E5 test generalization with the defense frozen.",
         "- External baselines (PI detector, moderation) are comparison systems, "
         "not retunes of the frozen hybrid.",
+        "- Known A2 passages were written by gpt-oss, the guard model, and 27/100 are a fixed "
+        "template fallback; every PSR outside the independence check mixes the two. The "
+        "independence check regenerates A2 with deepseek for hybrid, LLM-only and rules-only only.",
+        "- The P2 judge is gpt-oss, the guard model. It only grades clean answers for seed "
+        "selection; P5 scoring is rule-based.",
+        "- Rules-only G2 still calls the gpt-oss output guard; its original run used a 768-token "
+        "budget, but output-guard parse failures were 0.3%.",
         "",
     ]
     return "\n".join(lines)

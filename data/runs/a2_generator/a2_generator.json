@@ -1,0 +1,225 @@
+{
+  "gptoss_attacks": 100,
+  "gptoss_template": 27,
+  "deepseek_attacks": 100,
+  "deepseek_template": 0,
+  "rows": [
+    {
+      "mode": "hybrid",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.53,
+        "acc": 0.51
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.4931506849315068,
+        "acc": 0.5068493150684932
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.6296296296296297,
+        "acc": 0.5185185185185185
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.545,
+        "acc": 0.455
+      }
+    },
+    {
+      "mode": "hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.205,
+        "acc": 0.795
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.22602739726027396,
+        "acc": 0.773972602739726
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.14814814814814814,
+        "acc": 0.8518518518518519
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.175,
+        "acc": 0.825
+      }
+    },
+    {
+      "mode": "hybrid",
+      "guardrail": "G2",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.205,
+        "acc": 0.795
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.2328767123287671,
+        "acc": 0.7671232876712328
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.12962962962962962,
+        "acc": 0.8703703703703703
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.205,
+        "acc": 0.795
+      }
+    },
+    {
+      "mode": "LLM-only",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.53,
+        "acc": 0.51
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.4931506849315068,
+        "acc": 0.5068493150684932
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.6296296296296297,
+        "acc": 0.5185185185185185
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.545,
+        "acc": 0.455
+      }
+    },
+    {
+      "mode": "LLM-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.215,
+        "acc": 0.785
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.2191780821917808,
+        "acc": 0.7808219178082192
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.2037037037037037,
+        "acc": 0.7962962962962963
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.19,
+        "acc": 0.81
+      }
+    },
+    {
+      "mode": "LLM-only",
+      "guardrail": "G2",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.195,
+        "acc": 0.805
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.2191780821917808,
+        "acc": 0.7808219178082192
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.12962962962962962,
+        "acc": 0.8703703703703703
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.21,
+        "acc": 0.79
+      }
+    },
+    {
+      "mode": "rules-only",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.53,
+        "acc": 0.51
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.4931506849315068,
+        "acc": 0.5068493150684932
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.6296296296296297,
+        "acc": 0.5185185185185185
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.545,
+        "acc": 0.455
+      }
+    },
+    {
+      "mode": "rules-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.415,
+        "acc": 0.585
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.5,
+        "acc": 0.5
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.18518518518518517,
+        "acc": 0.8148148148148148
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.525,
+        "acc": 0.475
+      }
+    },
+    {
+      "mode": "rules-only",
+      "guardrail": "G2",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.43,
+        "acc": 0.57
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.5342465753424658,
+        "acc": 0.4657534246575342
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.14814814814814814,
+        "acc": 0.8518518518518519
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.54,
+        "acc": 0.46
+      }
+    }
+  ],
+  "missing": []
+}
