@@ -16,19 +16,6 @@ def normalize_simple(text: str) -> str:
     return " ".join((text or "").strip().lower().split())
 
 
-def _paragraphs_from_context(context: dict) -> tuple[list[str], list[str]]:
-    """HotpotQA distractor context: {title: [sentences...]} plus supporting_facts."""
-    titles = context.get("title") or []
-    sentences = context.get("sentences") or []
-    supporting: list[str] = []
-    distractors: list[str] = []
-    # Prefer caller-provided supporting title set via metadata later; here split heuristically.
-    for title, sents in zip(titles, sentences):
-        block = f"{title}\n" + " ".join(sents) if isinstance(sents, list) else f"{title}\n{sents}"
-        distractors.append(block.strip())
-    return supporting, distractors
-
-
 def _build_contexts(example: dict) -> tuple[list[str], list[str]]:
     ctx = example.get("context") or {}
     titles = list(ctx.get("title") or [])
