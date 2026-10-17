@@ -276,7 +276,11 @@ FINDINGS = [
     "only an adequate budget keeps both (0.018 / 0.751). A budget sweep (LLM-only G1, "
     "50 seeds) shows a threshold, not a gradual trend: parse failure stays at 44% through "
     "1024 tokens, then falls to 31% (1536), 8% (2048) and 0% (4096), and Safety ASR follows "
-    "(0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output.",
+    "(0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output. "
+    "Recovery policies on the 218 failed 768 calls: retrying at 4096 recovers all of them "
+    "(Safety ASR 0.030, Acc 0.720); a cheap 1024 retry with a rules-sanitize fallback (F3) is "
+    "nearly as good (0.017 / 0.700), while the same retry followed by block keeps only Acc 0.410 "
+    "and plain fail-closed 0.312 with 5% false blocks on clean contexts.",
     # E7
     "**E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the "
     "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
@@ -570,6 +574,16 @@ def render_paper_report(
     failure = runs_dir / "failure_policy/failure_policy.md"
     if failure.exists():
         lines += ["### Failure policy at 768", "", *_embed(failure, depth=2)]
+    recovery = runs_dir / "recovery_policy/recovery_policy.md"
+    if recovery.exists():
+        lines += [
+            "### Recovery policies after a failed guard call",
+            "",
+            *_embed(recovery, depth=2),
+            "The F3 fallback works here because the rules match these known attack templates; on "
+            "unseen phrasings (E4) the rules mostly miss, so F3 would fall through to block more often.",
+            "",
+        ]
     lines += [
         "Truncation affected every LLM-guarded run, not only LLM-only. Safety ASR that was "
         "already 0.000 stays 0.000, but PSR and accuracy move in most runs, because fail-open "

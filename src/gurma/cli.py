@@ -112,6 +112,10 @@ def main(argv: list[str] | None = None) -> int:
         help="PSR with gpt-oss vs deepseek A2 passages (hybrid / LLM-only / rules) into data/runs/a2_generator/",
     )
     sub.add_parser(
+        "recovery-policy",
+        help="E6: fail-open / fail-closed / retry policies after a failed guard call into data/runs/recovery_policy/",
+    )
+    sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
     )
@@ -149,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
             "cot-compare",
             "budget-compare",
             "failure-policy",
+            "recovery-policy",
             "budget-sweep",
             "judge-agreement",
             "a2-generator-compare",
@@ -188,6 +193,10 @@ def main(argv: list[str] | None = None) -> int:
         build_budget_compare()
     elif args.cmd == "failure-policy":
         build_failure_policy()
+    elif args.cmd == "recovery-policy":
+        from gurma.eval.recovery_policy import build_recovery_policy
+
+        build_recovery_policy()
     elif args.cmd == "budget-sweep":
         build_budget_sweep()
     elif args.cmd == "judge-agreement":

@@ -35,7 +35,7 @@ All LLM-guard numbers use a 4096-token guard budget (`*_b4096` runs). Regenerate
 9. **E4 Guard size × unseen:** Safety ASR does **not** fall with Ministral/Llama scale (LLM-only 0.027→0.107; hybrid 0.027→0.110), while gpt-oss hybrid reaches 0.017 at Acc 0.843 (ladder: 0.52–0.61).
 10. **E5 Transfer:** the frozen hybrid keeps Safety ASR at 0.000 on SQuAD and on a third target model (deepseek), with Acc 0.802 and 0.915.
 11. **Limitation:** context poisoning remains (PSR 0.205 under hybrid G1/G2; 0.280 on SQuAD, 0.120 on deepseek). This is an integrity leftover, not a missing instruction filter.
-12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751). A budget sweep (LLM-only G1, 50 seeds) shows a threshold, not a gradual trend: parse failure stays at 44% through 1024 tokens, then falls to 31% (1536), 8% (2048) and 0% (4096), and Safety ASR follows (0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output.
+12. **E6 Guard budget and failure handling:** the original 768-token budget truncated guard output (43% parse failure for LLM-only G1) and truncation failed open. At 4096 LLM-only Safety ASR drops 0.457 → 0.018, moderation 0.377 → 0.000, adaptive G1 0.327 → 0.203. A fail-closed policy at 768 would also have closed the safety gap (LLM-only 0.020) but at a utility cost (Acc 0.393 → 0.289; unseen 0.830 → 0.227); only an adequate budget keeps both (0.018 / 0.751). A budget sweep (LLM-only G1, 50 seeds) shows a threshold, not a gradual trend: parse failure stays at 44% through 1024 tokens, then falls to 31% (1536), 8% (2048) and 0% (4096), and Safety ASR follows (0.440 → 0.490 → 0.337 → 0.113 → 0.027). Every sweep parse failure is a truncated output. Recovery policies on the 218 failed 768 calls: retrying at 4096 recovers all of them (Safety ASR 0.030, Acc 0.720); a cheap 1024 retry with a rules-sanitize fallback (F3) is nearly as good (0.017 / 0.700), while the same retry followed by block keeps only Acc 0.410 and plain fail-closed 0.312 with 5% false blocks on clean contexts.
 13. **E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts policy-retrieval Acc 0.720 → 0.555: the guard blocks the whole context (76 vs 33 blocks) instead of sanitizing a removable harmful span. On hybrid, CoT has no significant effect. CoT costs 55–89% more guard output tokens. Deleting the evidence the CoT guard cites flips its decision far more often than deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).
 14. **Independence — A2 generator:** regenerating A2 with deepseek (not the guard model) leaves the conclusions intact. The attacks are as strong (G0 PSR 0.545 vs 0.530), and hybrid and LLM-only G1 PSR are within noise (0.175 vs 0.205; 0.190 vs 0.215), so there is no sign the guard benefits from defending its own attacks. Rules-only gets worse (0.415 → 0.525): its 0.415 was flattered by the 27 template fallbacks (0.185 on templates vs 0.500 on generated passages), so hybrid's PSR advantage over rules is larger than the main table shows.
 15. **Independence — judge:** re-judging the 217 P2 clean-grading calls with ministral-14b agrees with gpt-oss 86.6% of the time (κ = 0.733); ministral-14b is more lenient (23 wrong→correct vs 6 correct→wrong) and 97 of the 100 frozen seeds would be kept. The judge choice barely changes the seed pool, and P5 scoring never uses a judge.
@@ -417,6 +417,40 @@ Where the fail-open allows and successes came from (768, G1, attacked contexts):
 | main_third_model | 200 | 21 | 13 (62%) | 12 | 7 (58%) |
 
 Fail-closed safety is slightly optimistic: a real block is occasionally still judged an attack success. Parse fail is over G1 only, so it can differ from the budget table (G1+G2).
+
+### Recovery policies after a failed guard call
+
+Initial guard call at 768 tokens: 218 of 500 conditions unparseable (50 seeds × 4 attacks + clean × 2 models). A retry at budget R reuses the run at that budget on the same condition (temperature 0); the F3 fallback uses the rules-only decision and blocks when the rules found nothing to remove. No LLM calls.
+
+| Policy | Retry budget | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | False block ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| F0 fail-open | — | 0.440 | 0.320 | 0.427 | 0.910 | 0.000 |
+| F1 fail-closed | — | 0.013 | 0.150 | 0.312 | 0.860 | 0.050 |
+| F2 retry → block | 1024 | 0.017 | 0.190 | 0.410 | 0.890 | 0.000 |
+| F3 retry → rules sanitize → block | 1024 | 0.017 | 0.190 | 0.700 | 0.890 | 0.000 |
+| F2 retry → block | 1536 | 0.013 | 0.190 | 0.505 | 0.880 | 0.010 |
+| F3 retry → rules sanitize → block | 1536 | 0.013 | 0.200 | 0.730 | 0.880 | 0.010 |
+| F2 retry → block | 2048 | 0.027 | 0.200 | 0.667 | 0.880 | 0.000 |
+| F3 retry → rules sanitize → block | 2048 | 0.027 | 0.200 | 0.728 | 0.880 | 0.000 |
+| F2 retry → block | 4096 | 0.030 | 0.220 | 0.720 | 0.880 | 0.000 |
+| F3 retry → rules sanitize → block | 4096 | 0.030 | 0.220 | 0.720 | 0.880 | 0.000 |
+
+Recovery cost (retry policies only):
+
+| Policy | Retry budget | Retried | Recovered | Recovery rate | Rules fallback | Extra calls / request | Extra out tokens / request | Tokens / recovered decision | Added latency mean / P95 ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| F2 | 1024 | 218 | 76 | 0.349 | 0 | 0.44 | 377 | 2477 | 2115 / 6572 |
+| F3 | 1024 | 218 | 76 | 0.349 | 128 | 0.44 | 377 | 2477 | 2115 / 6572 |
+| F2 | 1536 | 218 | 114 | 0.523 | 0 | 0.44 | 523 | 2292 | 2372 / 7774 |
+| F3 | 1536 | 218 | 114 | 0.523 | 96 | 0.44 | 523 | 2292 | 2372 / 7774 |
+| F2 | 2048 | 218 | 189 | 0.867 | 0 | 0.44 | 591 | 1564 | 2653 / 9327 |
+| F3 | 2048 | 218 | 189 | 0.867 | 27 | 0.44 | 591 | 1564 | 2653 / 9327 |
+| F2 | 4096 | 218 | 218 | 1.000 | 0 | 0.44 | 554 | 1271 | 2591 / 9345 |
+| F3 | 4096 | 218 | 218 | 1.000 | 0 | 0.44 | 554 | 1271 | 2591 / 9345 |
+
+Approximation: a retry is an independent run on the same condition, not a second call inside one request. Costs are what retries add; the 768 attempt itself is not measured.
+
+The F3 fallback works here because the rules match these known attack templates; on unseen phrasings (E4) the rules mostly miss, so F3 would fall through to block more often.
 
 Truncation affected every LLM-guarded run, not only LLM-only. Safety ASR that was already 0.000 stays 0.000, but PSR and accuracy move in most runs, because fail-open also lets poisoned context through.
 

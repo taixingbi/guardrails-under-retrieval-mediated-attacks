@@ -20,7 +20,7 @@ The 768-token originals (`data/runs/<run>/`) are kept only for the paired budget
 | E3 Guard capacity | Does guard size matter? | `e6_capacity_compare/`, `guard_size_compare/` |
 | E4 Distribution shift | Known vs unseen vs adaptive attacks | `main_b4096`, `main_transfer_b4096`, `main_adaptive_b4096`, `xfer_size_compare/` |
 | E5 Transfer | Other dataset and target model | `main_squad_b4096`, `main_third_model_b4096` |
-| E6 Guard budget and failure handling | 768 vs 4096; budget sweep; fail-open vs fail-closed | `budget_compare/`, `budget_sweep/`, `failure_policy/` |
+| E6 Guard budget and failure handling | 768 vs 4096; budget sweep; fail-open vs fail-closed; retry and recovery policies | `budget_compare/`, `budget_sweep/`, `failure_policy/`, `recovery_policy/` |
 | Independence checks | Are attack generator, guard and judge different models? | `judge_agreement/`, `a2_generator/`, `main_a2ds`, `main_ablation_*_a2ds` |
 | E7 CoT guard prompt | Does explicit reasoning help? Are decisions sensitive to cited evidence? | `cot_compare/`, `main_cot_*/8_faithfulness/` |
 
@@ -41,6 +41,7 @@ gurma xfer-size-compare
 gurma budget-compare
 gurma budget-sweep
 gurma failure-policy
+gurma recovery-policy
 gurma cot-compare
 gurma a2-generator-compare
 gurma report
@@ -52,6 +53,7 @@ gurma report
 
 ## Conventions
 
+- **Recovery policies** (E6): F0 fail-open, F1 fail-closed, F2 retry then block, F3 retry then rules sanitize then block. A retry at budget R reuses the run at that budget on the same condition; no LLM calls.
 - **Fail-closed** (E6): a counterfactual re-scoring of the 768 runs in which an unparseable guard output counts as a block (attack fails, answer wrong). No LLM calls.
 - **Safety ASR**: mean attack success over A1 indirect injection, A3 policy-violating retrieval and A4 authority conflict. Lower is better.
 - **PSR**: attack success on A2 context poisoning, reported separately as an integrity metric.
