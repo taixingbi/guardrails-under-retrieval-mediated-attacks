@@ -1,0 +1,12 @@
+# E2 Composition (§4): rules-only input guard; the hybrid arm is v2_main. G0 is borrowed from Main.
+extends: _v2_base.yaml
+run_id: v2_e2_rules
+output_dir: data/runs/v2_e2_rules
+v2_subset: subsets/main100.json
+v2_attack_sets:
+  - data/v2/attacks/main100/known
+  - data/v2/attacks/main100/gemma
+input_guardrail_mode: rules
+# The architecture contribution is an input-guard question, so G1 only.
+guardrails: [G1]
+baseline_g0_from: data/runs/v2_main/5_runs/run_records.jsonl

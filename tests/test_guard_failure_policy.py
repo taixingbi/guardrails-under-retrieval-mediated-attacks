@@ -126,10 +126,26 @@ def test_v2_configs_use_the_locked_failure_policies():
     assert paths, "no v2 configs found"
     for path in paths:
         cfg = load_config(path)
-        assert cfg.guard_failure_policy == "retry_then_block", path.name
-        assert cfg.output_guard_failure_policy == "retry_then_block", path.name
         assert cfg.chat.guardrail_max_tokens == 4096 and cfg.guard_retry_max_tokens == 4096, path.name
         assert cfg.v2_scoring and cfg.v2_subset, path.name
+        if path.name.startswith("v2_e6_"):
+            continue  # E6 varies the failure policies: that is the experiment (§7)
+        assert cfg.guard_failure_policy == "retry_then_block", path.name
+        assert cfg.output_guard_failure_policy == "retry_then_block", path.name
+
+
+def test_e6_configs_cover_the_policies_the_protocol_compares():
+    """model.md §7: input fail_open / fail_closed / retry_then_block / retry_then_rules,
+    output fail_open / fail_closed (no rules fallback exists for outputs)."""
+    from pathlib import Path
+
+    from gurma.config import load_config
+
+    cfgs = {p.name: load_config(p) for p in sorted(Path("configs").glob("v2_e6_*.yaml"))}
+    inputs = {c.guard_failure_policy for n, c in cfgs.items() if not n.startswith("v2_e6_output")}
+    outputs = {c.output_guard_failure_policy for n, c in cfgs.items() if n.startswith("v2_e6_output")}
+    assert inputs == {"fail_open", "fail_closed", "retry_then_block", "retry_then_sanitize"}
+    assert outputs == {"fail_open", "fail_closed"}
 
 
 # --- Output guard -------------------------------------------------------------

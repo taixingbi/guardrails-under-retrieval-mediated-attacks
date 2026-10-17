@@ -1,0 +1,7 @@
+# E5 Cross-Dataset (§4): SQuAD seeds and attacks, HotpotQA-developed defense unchanged.
+extends: _v2_base.yaml
+run_id: v2_e5_squad
+output_dir: data/runs/v2_e5_squad
+v2_subset: subsets/squad50.json
+v2_attack_sets:
+  - data/v2/attacks/squad50/gemma

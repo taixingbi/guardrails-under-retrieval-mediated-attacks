@@ -1,0 +1,12 @@
+# E6 Failure Recovery (§7): output guard fail_open; input guard left at the locked policy.
+extends: _v2_base.yaml
+run_id: v2_e6_output_fail_open
+output_dir: data/runs/v2_e6_output_fail_open
+v2_subset: subsets/heldout50.json
+v2_attack_sets:
+  - data/v2/attacks/main100/known
+  - data/v2/attacks/main100/gemma
+output_guard_failure_policy: fail_open
+# Only G2 has an output guard, so the output policy is isolated there.
+guardrails: [G2]
+baseline_g0_from: data/runs/v2_main/5_runs/run_records.jsonl

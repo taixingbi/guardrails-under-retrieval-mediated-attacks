@@ -1,0 +1,11 @@
+# E7 CoT (§4): LLM-only guard with the cot prompt, Gemma unseen attacks.
+extends: _v2_base.yaml
+run_id: v2_e7_cot
+output_dir: data/runs/v2_e7_cot
+v2_subset: subsets/heldout50.json
+v2_attack_sets:
+  - data/v2/attacks/main100/gemma
+input_guardrail_mode: llm
+guardrail_reasoning: cot
+guardrails: [G1]
+baseline_g0_from: data/runs/v2_main/5_runs/run_records.jsonl

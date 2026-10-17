@@ -1,0 +1,8 @@
+# Main benchmark (model.md §4): hybrid GPT-OSS guard, known + Gemma attacks, both targets.
+extends: _v2_base.yaml
+run_id: v2_main
+output_dir: data/runs/v2_main
+v2_subset: subsets/main100.json
+v2_attack_sets:
+  - data/v2/attacks/main100/known
+  - data/v2/attacks/main100/gemma

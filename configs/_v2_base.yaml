@@ -1,0 +1,32 @@
+# Shared v2 settings — the locked configuration of model.md §10.
+# Every v2_*.yaml extends this; only E6 overrides the guard failure policies, by design.
+v2_scoring: true
+v2_judge_model: deepseek
+v2_judge_max_tokens: 1024
+skip_llm: false
+input_hybrid: true
+models:
+  llm_a: nova-pro
+  llm_b: llama
+  guardrail: gpt-oss
+  judge: gpt-oss
+guardrail_prompt_version: v3
+guardrail_reasoning: direct
+guardrails: [G0, G1, G2]
+attacks:
+  - indirect_injection
+  - context_poisoning
+  - policy_retrieval
+  - authority_conflict
+chat:
+  temperature: 0
+  max_tokens: 512
+  judge_max_tokens: 256
+  guardrail_max_tokens: 4096
+guard_retry_max_tokens: 4096
+guard_failure_policy: retry_then_block
+output_guard_failure_policy: retry_then_block
+llm_concurrency: 2
+http_retries: 8
+bootstrap_n: 2000
+bootstrap_seed: 0

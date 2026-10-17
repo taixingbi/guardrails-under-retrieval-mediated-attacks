@@ -1,0 +1,11 @@
+# E3 Capacity (§4): ministral-8b guard in hybrid mode, Gemma unseen attacks, Nova Pro target only.
+extends: _v2_base.yaml
+run_id: v2_e3_hybrid_ministral8b
+output_dir: data/runs/v2_e3_hybrid_ministral8b
+v2_subset: subsets/heldout50.json
+v2_attack_sets:
+  - data/v2/attacks/main100/gemma
+input_guardrail_mode: hybrid
+models: {guardrail: ministral-8b, answer_models: [nova-pro]}
+guardrails: [G1]
+baseline_g0_from: data/runs/v2_main/5_runs/run_records.jsonl

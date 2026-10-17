@@ -195,16 +195,20 @@ def merge_baseline_g0(cfg: AppConfig, records: list[RunRecord]) -> list[RunRecor
     rest = [r for r in records if r.guardrail != "G0"]
     keep_seeds = {r.seed_id for r in rest} or {r.seed_id for r in records}
     keep_models = set(cfg.answer_model_list())
+    # Match the borrowed G0 arm to the attacks actually re-run: an ablation restricted to one
+    # attack source (E3, E7) must not inherit G0 rows for the sources it never evaluated.
+    keep_attacks = {r.attack_id for r in rest if r.attack_id}
     g0 = [
         r
         for r in base
         if r.guardrail == "G0"
         and r.seed_id in keep_seeds
         and r.model in keep_models
+        and (r.attack_id in keep_attacks if keep_attacks and r.attack_id else not r.attack_id)
     ]
     print(
-        f"[ablation] merged G0={len(g0)} from {path} "
-        f"(filtered seeds={len(keep_seeds)} models={sorted(keep_models)}) + new={len(rest)}"
+        f"[ablation] merged G0={len(g0)} from {path} (filtered seeds={len(keep_seeds)} "
+        f"models={sorted(keep_models)} attacks={len(keep_attacks)}) + new={len(rest)}"
     )
     return g0 + rest
 
