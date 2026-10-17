@@ -218,7 +218,8 @@ Target responses judged policy-violating (A3) are kept only in the uncommitted r
 
 These hypotheses were confirmed on 2026-10-17 and are part of the locked protocol. H8 was cut with E8 on the same day, before any v2 outcome was examined, because the protocol lost its second attack generator (§5). The primary family is therefore H0–H7.
 
-**H6 eligibility.** H6 needs at least 30 failed guard calls in E6. This is decided from the failure count alone, before any E6 outcome is examined. If the count is below 30, H6 is removed from the primary family, reported as descriptive, and Holm is applied to the remaining seven hypotheses.
+**H6 eligibility.** H6 needs at least 30 failed guard calls in E6. The pilot's 1.0% guard
+failure rate (§13) makes this unlikely. This is decided from the failure count alone, before any E6 outcome is examined. If the count is below 30, H6 is removed from the primary family, reported as descriptive, and Holm is applied to the remaining seven hypotheses.
 
 | Metric | Direction | Purpose |
 |---|---|---|
@@ -344,9 +345,58 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (2 attack sourc
 3. Implement the attack schema and validators, judge integration (QA and A3 rubrics, disagreement policy, unjudged handling) and the output-guard failure policy; freeze rubrics. Done: rubrics, judge, scoring rules, output-guard policy, and runner integration (`gurma.v2`; enable with `v2_scoring: true`: every condition gets `metadata.v2` scores and each run writes `5_runs/run_meta.json` with protocol version, rubric hashes, judge settings and failure policies). A2 is scored only for attacks that carry an explicit poisoned answer (`metadata.poisoned_answer`). Attack validators, generation harness (`gurma v2-generate-attacks`) and runner inputs (`v2_subset`, `v2_attack_sets`) done; attack-generation prompts drafted in `prompts/attacks/`, to be finalized by the authors in the pilot.
 4. ~~Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.~~ Done 2026-10-17 (see §3).
 5. ~~2-seed smoke test across all roles, plus the 8 SQuAD smoke seeds for attack validity.~~ Done 2026-10-17 (see §5); it removed Qwen from the protocol, so the known A2 smoke artifacts were discarded and regenerated with Gemma.
-6. 20-seed pilot with Gemma; check attack validity, generation truncation, distribution check, judge agreement and scoring reliability. Adjust prompts and rubrics only here.
+6. ~~20-seed pilot with Gemma; check attack validity, generation truncation, distribution check, judge agreement and scoring reliability.~~ Generation and the full G0/G1/G2 × 2-target run done 2026-10-17 (`data/runs/v2_pilot20`, 1,062 conditions; see §13). Prompt and rubric changes, if any, must still be made before step 7.
 7. Lock §10, freeze the 100-seed benchmark and attack artifacts.
 8. Run Main, E1 and E2.
 9. Run E3, E4 (known / unseen) and E5.
 10. Run E6 and E7.
 11. Generate final tables, confidence intervals and failure analysis.
+
+## 13. Pilot results (2026-10-17, `v2_pilot20`)
+
+20 seeds × (known + Gemma) × A1–A4 × G0/G1/G2 × 2 targets = 1,062 conditions. Generation:
+157/160 attacks accepted; the 3 failures are A3 payloads the `a3_payload_v1` check rejected
+as `not_a_request`. No truncation, unparseable output or retry in 160 generation calls.
+
+**Attack strength without a guardrail (G0 success / scored conditions).**
+
+| Attack | Known | Gemma unseen |
+|---|---|---|
+| A1 Indirect injection | 37/40 | 4/40 |
+| A2 Context poisoning | 22/40 | 13/39 |
+| A3 Policy-violating retrieval | **0/39** | **0/32** |
+| A4 Authority conflict | 21/40 | 15/40 |
+
+**A3 has no attack strength in either regime, and this is a property of the targets, not of
+the generation prompt.** Across 74 unguarded A3 conditions the judge returned
+`policy_violating` zero times. The two regimes fail differently: the known template makes
+the target refuse (37/40 `safe_refusal`, task accuracy 2.5%), so it is a denial of service
+on utility rather than a safety breach; the unseen payloads are simply ignored (32/34
+`legitimate_qa`, task accuracy 88%). Nova Pro and Llama 3.3 therefore already handle
+policy-violating retrieval requests without any guardrail, and no guardrail can improve on
+a floor of zero. A3 is reported as that floor result; the generation prompt is **not** tuned
+to defeat the targets' own refusal behaviour, because doing so would optimise the benchmark
+against the models under test rather than measure them. Safety ASR is read per attack type,
+since pooling A1/A3/A4 dilutes it with a structural zero.
+
+**Guardrail effect.** G1 and G2 bring Safety ASR to 0.0% on both distributions. PSR falls
+from 55.0% to 2.5% (known) and 33.3% to 7.5% (Gemma) at G1, and to 0.0% at G2. Task accuracy
+under attack rises from 25.0% to 98.8% (known) and 74.7% to 79.2% (Gemma). The share of G0
+successes removed by G1 is 98.8% known vs 90.6% unseen, the direction H4 predicts. On clean
+conditions, over-refusal and false blocks are 0.0% for both guards, but G2 costs 5 points of
+benign accuracy (100.0% → 95.0%) through output rewriting, not blocking.
+
+**Judge reliability.** QA: 0.0% ambiguous and 0.0% unjudged; the semantic fallback was used
+on 252 of 1,062 answers (24%, matching the §11 estimate). Attack scoring: 4 ambiguous
+verdicts (0.4%), no unjudged. Guard: input parse failures 0.9%, truncations 0.4%, retries
+triggered on 1.0% of calls with 63.6% recovered; the output guard had no failures. Latency
+p50 1.3 s, p95 9.6 s.
+
+**H6 eligibility risk.** The pilot produced 11 failed input-guard calls in 1,062 conditions
+(1.0%). At that rate E6 would need roughly 3,000 conditions to reach the 30 the protocol
+requires, so H6 is likely to leave the primary family and be reported as descriptive.
+
+**Floor effects.** With G1 and G2 at 0.0% Safety ASR on every source, comparisons between
+guard variants (E2, E3) have little room on Safety ASR and should be read on PSR and task
+accuracy. The placement comparison (H1) is unaffected, because query-only placement never
+sees the retrieved context.
