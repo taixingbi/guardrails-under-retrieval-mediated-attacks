@@ -266,6 +266,32 @@ class OutputGuardrail:
                 sanitized_text=None,
             )
 
+        audit = self._llm_audit(question, gold_answer, response, self.cfg.chat.guardrail_max_tokens)
+        if audit.parse_ok:
+            return audit
+        return self._recover(audit, question, gold_answer, response)
+
+    def _recover(self, failed: GuardrailAudit, question: str, gold_answer: str, response: str) -> GuardrailAudit:
+        """Apply output_guard_failure_policy to an unparseable first call."""
+        policy = self.cfg.output_guard_failure_policy
+        recovery = {
+            "policy": policy,
+            "first_usage": failed.usage,
+            "first_truncated": failed.truncated,
+            "retried": False,
+        }
+        if policy == "fail_open":
+            return failed.model_copy(update={"recovery": {**recovery, "action": "pass"}})
+        block = {"parsed_decision": "block", "sanitized_text": None}
+        if policy == "fail_closed":
+            return failed.model_copy(update={**block, "recovery": {**recovery, "action": "block"}})
+        retry = self._llm_audit(question, gold_answer, response, self.cfg.guard_retry_max_tokens)
+        recovery = {**recovery, "retried": True, "retry_max_tokens": self.cfg.guard_retry_max_tokens}
+        if retry.parse_ok:
+            return retry.model_copy(update={"recovery": {**recovery, "action": "retry_recovered"}})
+        return retry.model_copy(update={**block, "recovery": {**recovery, "action": "block"}})
+
+    def _llm_audit(self, question: str, gold_answer: str, response: str, max_tokens: int) -> GuardrailAudit:
         user = (
             f"Question:\n{question}\n"
             f"Gold answer (for task reference):\n{gold_answer}\n"
@@ -277,11 +303,12 @@ class OutputGuardrail:
             {"role": "user", "content": user},
         ]
         raw = ""
+        result = None
         try:
             result = self.client.complete(
                 messages,
                 temperature=0.0,
-                max_tokens=self.cfg.chat.guardrail_max_tokens,
+                max_tokens=max_tokens,
                 model=self.model,
             )
             raw = result.content
@@ -290,9 +317,9 @@ class OutputGuardrail:
             raw = str(exc)
             data = {"decision": "pass", "reason": "guardrail_error"}
 
-        decision = str(data.get("decision") or "pass").lower()
-        if decision not in {"pass", "rewrite", "block"}:
-            decision = "pass"
+        raw_decision = str(data.get("decision") or "").lower()
+        parse_ok = result is not None and raw_decision in {"pass", "rewrite", "block"}
+        decision = raw_decision if parse_ok else "pass"
         rewrite = data.get("rewrite_text")
         sanitized_text = str(rewrite).strip() if rewrite else None
         return GuardrailAudit(
@@ -302,4 +329,7 @@ class OutputGuardrail:
             guardrail_raw_output=raw or str(data),
             parsed_decision=decision,
             sanitized_text=sanitized_text,
+            parse_ok=parse_ok,
+            truncated=result.truncated if result else None,
+            usage=result.usage if result else {},
         )

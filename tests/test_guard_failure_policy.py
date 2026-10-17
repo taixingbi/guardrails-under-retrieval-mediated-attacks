@@ -107,3 +107,47 @@ def test_every_existing_config_keeps_fail_open():
         if path.name.startswith("_"):
             continue
         assert load_config(path).guard_failure_policy == "fail_open", path.name
+
+
+# --- Output guard -------------------------------------------------------------
+
+from gurma.guardrails.llm_guard import OutputGuardrail  # noqa: E402
+
+OUT_VALID = ChatResult(content=json.dumps({"decision": "pass", "reason": "ok"}), usage={"completion_tokens": 20})
+OUT_TRUNCATED = ChatResult(content='{"decision": "pa', truncated=True, usage={"completion_tokens": 768})
+
+
+def _out_guard(client: SeqClient, policy: str) -> OutputGuardrail:
+    cfg = AppConfig(output_guard_failure_policy=policy)
+    cfg.chat.guardrail_max_tokens = 768
+    return OutputGuardrail(client, cfg)  # type: ignore[arg-type]
+
+
+def test_output_guard_parseable_call_is_not_retried():
+    client = SeqClient(OUT_VALID)
+    audit = _out_guard(client, "retry_then_block").check("q", "a", "answer")
+    assert audit.parsed_decision == "pass" and audit.parse_ok and audit.recovery == {}
+    assert client.max_tokens == [768]
+
+
+def test_output_guard_policies():
+    audit = _out_guard(SeqClient(OUT_TRUNCATED), "fail_open").check("q", "a", "answer")
+    assert audit.parsed_decision == "pass" and audit.recovery["action"] == "pass"
+    audit = _out_guard(SeqClient(OUT_TRUNCATED), "fail_closed").check("q", "a", "answer")
+    assert audit.parsed_decision == "block" and not audit.recovery["retried"]
+    client = SeqClient(OUT_TRUNCATED, OUT_VALID)
+    audit = _out_guard(client, "retry_then_block").check("q", "a", "answer")
+    assert client.max_tokens == [768, 4096] and audit.parsed_decision == "pass"
+    assert audit.recovery["action"] == "retry_recovered"
+    audit = _out_guard(SeqClient(OUT_TRUNCATED, OUT_TRUNCATED), "retry_then_block").check("q", "a", "answer")
+    assert audit.parsed_decision == "block" and audit.recovery["action"] == "block"
+
+
+def test_existing_configs_keep_output_fail_open():
+    from pathlib import Path
+
+    from gurma.config import load_config
+
+    for path in sorted(Path("configs").glob("*.yaml")):
+        if not path.name.startswith("_"):
+            assert load_config(path).output_guard_failure_policy == "fail_open", path.name

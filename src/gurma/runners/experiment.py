@@ -192,7 +192,7 @@ def run_condition(
         output_audit = output_guard.check(question_used, gold, response)
         output_ms = (time.perf_counter() - to) * 1000.0
         if not cfg.skip_llm:
-            n_llm_calls += 1
+            n_llm_calls += 1 + int(bool(output_audit.recovery.get("retried")))
         if output_audit.parsed_decision == "block":
             refused = True
             response = "[GUARDRAIL_OUTPUT_BLOCKED]"

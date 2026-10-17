@@ -52,6 +52,8 @@ class AppConfig(BaseModel):
     # then blocks, or sanitizes by rules when the rules find something to remove.
     guard_failure_policy: Literal["fail_open", "fail_closed", "retry_then_block", "retry_then_sanitize"] = "fail_open"
     guard_retry_max_tokens: int = 4096
+    # Output guard counterpart (no rules fallback exists for outputs). fail_open = pass.
+    output_guard_failure_policy: Literal["fail_open", "fail_closed", "retry_then_block"] = "fail_open"
     guardrails: list[str] = Field(default_factory=lambda: ["G0", "G1", "G2"])
     attacks: list[str] = Field(
         default_factory=lambda: [
