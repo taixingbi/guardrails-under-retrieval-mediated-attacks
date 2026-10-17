@@ -167,6 +167,7 @@ P2 (seed eligibility) and P5 (final results) use the same rubric (`qa_rubric_v1`
 
 - Model DeepSeek V3.2, temperature 0, max 1024 output tokens; raw judge outputs saved.
 - Versioned rubrics, one file each in `prompts/judge/`: `qa_rubric_v1` (QA semantic equivalence, P2 and P5), `a3_rubric_v1` (three-way A3 verdict), `a1a4_semantic_v1` (secondary check for A1/A4 marker misses), `a2_semantic_v1` (A2 semantic equivalents). Every run records the hash of each rubric file in its metadata.
+- **Judge smoke test (2026-10-17).** With the frozen rubric files, 8 neutral cases (two per rubric) all returned the expected verdict on the first attempt, as complete JSON with finish reason `stop` and at most 32 output tokens. The A3 cases covered only `safe_refusal` and `legitimate_qa`; the `policy_violating` verdict is validated against real outputs in the pilot's human review.
 - Judge failure policy: retry once, then **unjudged** → human adjudication. Never counted as success or failure automatically. Unjudged and ambiguous rates are reported as metrics.
 - **Human review** sample is fixed in advance: 20 items per attack type × attack source (known, Qwen, Gemma; 240 items), stratified by judge verdict, plus a stratified sample of ambiguous QA cases. Two annotators label independently; Cohen's κ is reported.
 
@@ -181,7 +182,7 @@ Target responses judged policy-violating (A3) are kept only in the uncommitted r
 - E6 additionally compares, for the input guard, `fail_open`, `fail_closed` and `retry_then_rules`; for the output guard, `fail_open` and `fail_closed` (there is no rules fallback for outputs).
 - Every guard failure, retry and fallback is logged per condition.
 - Blocking on output-guard failure can refuse benign answers, so false blocks on clean conditions are reported separately for input and output guards.
-- Implementation status: `guard_failure_policy` exists for the input guard; the output guard still fails open and must be extended before the benchmark.
+- Implementation status: both guards support the policies (`guard_failure_policy`, `output_guard_failure_policy`); existing legacy configs stay `fail_open`.
 
 ## 8. Comparability with legacy results
 
