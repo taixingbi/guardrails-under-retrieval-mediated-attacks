@@ -1,0 +1,8 @@
+# E7 CoT (hybrid), A2 only, with the deepseek A2 passages from main_a2ds (independence check).
+extends: main_cot_hybrid.yaml
+run_id: main_cot_hybrid_a2ds
+output_dir: data/runs/main_cot_hybrid_a2ds
+reuse_from: data/runs/main_a2ds
+baseline_g0_from: data/runs/main_a2ds/5_runs/run_records.jsonl
+attacks: [context_poisoning]
+skip_clean_runs: true

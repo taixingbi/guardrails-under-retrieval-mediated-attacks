@@ -1,0 +1,6 @@
+# E3 capacity (llm, s), A2 only, with the deepseek A2 passages from main_a2ds (independence check).
+extends: main_e6_llm_s_b4096.yaml
+run_id: main_e6_llm_s_a2ds
+output_dir: data/runs/main_e6_llm_s_a2ds
+reuse_from: data/runs/main_a2ds
+attacks: [context_poisoning]

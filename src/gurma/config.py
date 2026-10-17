@@ -47,6 +47,11 @@ class AppConfig(BaseModel):
     guardrail_reasoning: Literal["direct", "cot"] = "direct"
     # Sent as reasoning_effort to the input guard (gpt-oss); None = server default
     guardrail_reasoning_effort: Literal["low", "medium", "high"] | None = None
+    # What the LLM input guard does when its output cannot be parsed (truncated, invalid JSON,
+    # API error). fail_open = allow (all frozen runs); retry_* re-asks at guard_retry_max_tokens,
+    # then blocks, or sanitizes by rules when the rules find something to remove.
+    guard_failure_policy: Literal["fail_open", "fail_closed", "retry_then_block", "retry_then_sanitize"] = "fail_open"
+    guard_retry_max_tokens: int = 4096
     guardrails: list[str] = Field(default_factory=lambda: ["G0", "G1", "G2"])
     attacks: list[str] = Field(
         default_factory=lambda: [

@@ -5,7 +5,7 @@
   "deepseek_template": 0,
   "rows": [
     {
-      "mode": "hybrid",
+      "mode": "Main, hybrid",
       "guardrail": "G0",
       "gptoss_all": {
         "n": 200,
@@ -29,7 +29,7 @@
       }
     },
     {
-      "mode": "hybrid",
+      "mode": "Main, hybrid",
       "guardrail": "G1",
       "gptoss_all": {
         "n": 200,
@@ -53,7 +53,7 @@
       }
     },
     {
-      "mode": "hybrid",
+      "mode": "Main, hybrid",
       "guardrail": "G2",
       "gptoss_all": {
         "n": 200,
@@ -77,7 +77,7 @@
       }
     },
     {
-      "mode": "LLM-only",
+      "mode": "E2, LLM-only",
       "guardrail": "G0",
       "gptoss_all": {
         "n": 200,
@@ -101,7 +101,7 @@
       }
     },
     {
-      "mode": "LLM-only",
+      "mode": "E2, LLM-only",
       "guardrail": "G1",
       "gptoss_all": {
         "n": 200,
@@ -125,7 +125,7 @@
       }
     },
     {
-      "mode": "LLM-only",
+      "mode": "E2, LLM-only",
       "guardrail": "G2",
       "gptoss_all": {
         "n": 200,
@@ -149,7 +149,7 @@
       }
     },
     {
-      "mode": "rules-only",
+      "mode": "E2, rules-only",
       "guardrail": "G0",
       "gptoss_all": {
         "n": 200,
@@ -173,7 +173,7 @@
       }
     },
     {
-      "mode": "rules-only",
+      "mode": "E2, rules-only",
       "guardrail": "G1",
       "gptoss_all": {
         "n": 200,
@@ -197,7 +197,7 @@
       }
     },
     {
-      "mode": "rules-only",
+      "mode": "E2, rules-only",
       "guardrail": "G2",
       "gptoss_all": {
         "n": 200,
@@ -218,6 +218,414 @@
         "n": 200,
         "psr": 0.54,
         "acc": 0.46
+      }
+    },
+    {
+      "mode": "E1 placement",
+      "guardrail": "Q",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.53,
+        "acc": 0.5
+      },
+      "gptoss_generated": {
+        "n": 76,
+        "psr": 0.5,
+        "acc": 0.5
+      },
+      "gptoss_template": {
+        "n": 24,
+        "psr": 0.625,
+        "acc": 0.5
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.54,
+        "acc": 0.46
+      }
+    },
+    {
+      "mode": "E1 placement",
+      "guardrail": "C",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.17,
+        "acc": 0.83
+      },
+      "gptoss_generated": {
+        "n": 76,
+        "psr": 0.18421052631578946,
+        "acc": 0.8157894736842105
+      },
+      "gptoss_template": {
+        "n": 24,
+        "psr": 0.125,
+        "acc": 0.875
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.19,
+        "acc": 0.81
+      }
+    },
+    {
+      "mode": "E1 placement",
+      "guardrail": "O",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.54,
+        "acc": 0.47
+      },
+      "gptoss_generated": {
+        "n": 76,
+        "psr": 0.5394736842105263,
+        "acc": 0.4605263157894737
+      },
+      "gptoss_template": {
+        "n": 24,
+        "psr": 0.5416666666666666,
+        "acc": 0.5
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.55,
+        "acc": 0.45
+      }
+    },
+    {
+      "mode": "E1 placement",
+      "guardrail": "CO",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.21,
+        "acc": 0.79
+      },
+      "gptoss_generated": {
+        "n": 76,
+        "psr": 0.25,
+        "acc": 0.75
+      },
+      "gptoss_template": {
+        "n": 24,
+        "psr": 0.08333333333333333,
+        "acc": 0.9166666666666666
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.17,
+        "acc": 0.83
+      }
+    },
+    {
+      "mode": "E3 ministral-3b, LLM-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.36,
+        "acc": 0.64
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.2894736842105263,
+        "acc": 0.7105263157894737
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.5833333333333334,
+        "acc": 0.4166666666666667
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.28,
+        "acc": 0.72
+      }
+    },
+    {
+      "mode": "E3 ministral-14b, LLM-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.54,
+        "acc": 0.46
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.47368421052631576,
+        "acc": 0.5263157894736842
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.75,
+        "acc": 0.25
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.52,
+        "acc": 0.48
+      }
+    },
+    {
+      "mode": "E3 llama-70B, LLM-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.48,
+        "acc": 0.52
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.42105263157894735,
+        "acc": 0.5789473684210527
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.6666666666666666,
+        "acc": 0.3333333333333333
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.44,
+        "acc": 0.56
+      }
+    },
+    {
+      "mode": "E3 ministral-3b, hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.18,
+        "acc": 0.82
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.23684210526315788,
+        "acc": 0.7631578947368421
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.0,
+        "acc": 1.0
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.28,
+        "acc": 0.72
+      }
+    },
+    {
+      "mode": "E3 ministral-14b, hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.34,
+        "acc": 0.66
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.4473684210526316,
+        "acc": 0.5526315789473685
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.0,
+        "acc": 1.0
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.52,
+        "acc": 0.48
+      }
+    },
+    {
+      "mode": "E3 llama-70B, hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 50,
+        "psr": 0.3,
+        "acc": 0.7
+      },
+      "gptoss_generated": {
+        "n": 38,
+        "psr": 0.39473684210526316,
+        "acc": 0.6052631578947368
+      },
+      "gptoss_template": {
+        "n": 12,
+        "psr": 0.0,
+        "acc": 1.0
+      },
+      "deepseek": {
+        "n": 50,
+        "psr": 0.4,
+        "acc": 0.6
+      }
+    },
+    {
+      "mode": "E5 SQuAD, hybrid",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.57,
+        "acc": 0.45
+      },
+      "gptoss_generated": {
+        "n": 78,
+        "psr": 0.5256410256410257,
+        "acc": 0.47435897435897434
+      },
+      "gptoss_template": {
+        "n": 22,
+        "psr": 0.7272727272727273,
+        "acc": 0.36363636363636365
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.49,
+        "acc": 0.51
+      }
+    },
+    {
+      "mode": "E5 SQuAD, hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.28,
+        "acc": 0.72
+      },
+      "gptoss_generated": {
+        "n": 78,
+        "psr": 0.32051282051282054,
+        "acc": 0.6794871794871795
+      },
+      "gptoss_template": {
+        "n": 22,
+        "psr": 0.13636363636363635,
+        "acc": 0.8636363636363636
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.36,
+        "acc": 0.64
+      }
+    },
+    {
+      "mode": "E5 SQuAD, hybrid",
+      "guardrail": "G2",
+      "gptoss_all": {
+        "n": 100,
+        "psr": 0.29,
+        "acc": 0.71
+      },
+      "gptoss_generated": {
+        "n": 78,
+        "psr": 0.32051282051282054,
+        "acc": 0.6794871794871795
+      },
+      "gptoss_template": {
+        "n": 22,
+        "psr": 0.18181818181818182,
+        "acc": 0.8181818181818182
+      },
+      "deepseek": {
+        "n": 100,
+        "psr": 0.35,
+        "acc": 0.65
+      }
+    },
+    {
+      "mode": "E7 CoT, LLM-only",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.53,
+        "acc": 0.51
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.4931506849315068,
+        "acc": 0.5068493150684932
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.6296296296296297,
+        "acc": 0.5185185185185185
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.545,
+        "acc": 0.455
+      }
+    },
+    {
+      "mode": "E7 CoT, LLM-only",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.205,
+        "acc": 0.795
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.21232876712328766,
+        "acc": 0.7876712328767124
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.18518518518518517,
+        "acc": 0.8148148148148148
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.18,
+        "acc": 0.82
+      }
+    },
+    {
+      "mode": "E7 CoT, hybrid",
+      "guardrail": "G0",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.53,
+        "acc": 0.51
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.4931506849315068,
+        "acc": 0.5068493150684932
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.6296296296296297,
+        "acc": 0.5185185185185185
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.545,
+        "acc": 0.455
+      }
+    },
+    {
+      "mode": "E7 CoT, hybrid",
+      "guardrail": "G1",
+      "gptoss_all": {
+        "n": 200,
+        "psr": 0.19,
+        "acc": 0.81
+      },
+      "gptoss_generated": {
+        "n": 146,
+        "psr": 0.2054794520547945,
+        "acc": 0.7945205479452054
+      },
+      "gptoss_template": {
+        "n": 54,
+        "psr": 0.14814814814814814,
+        "acc": 0.8518518518518519
+      },
+      "deepseek": {
+        "n": 200,
+        "psr": 0.18,
+        "acc": 0.82
       }
     }
   ],

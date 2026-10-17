@@ -137,6 +137,44 @@ class InputGuardrail:
                 return rules_audit
 
         # LLM residual (hybrid allow), LLM-only, or external moderation
+        audit = self._llm_audit(question, context, self.cfg.chat.guardrail_max_tokens)
+        if audit.parse_ok:
+            return audit
+        return self._recover(audit, question, context)
+
+    def _recover(self, failed: GuardrailAudit, question: str, context: str) -> GuardrailAudit:
+        """Apply guard_failure_policy to an unparseable first call."""
+        policy = self.cfg.guard_failure_policy
+        recovery = {
+            "policy": policy,
+            "first_usage": failed.usage,
+            "first_truncated": failed.truncated,
+            "retried": False,
+        }
+        if policy == "fail_open":
+            return failed.model_copy(update={"recovery": {**recovery, "action": "allow"}})
+        block = {"parsed_decision": "block", "sanitized_text": None}
+        if policy == "fail_closed":
+            return failed.model_copy(update={**block, "recovery": {**recovery, "action": "block"}})
+
+        retry = self._llm_audit(question, context, self.cfg.guard_retry_max_tokens)
+        recovery = {**recovery, "retried": True, "retry_max_tokens": self.cfg.guard_retry_max_tokens}
+        if retry.parse_ok:
+            return retry.model_copy(update={"recovery": {**recovery, "action": "retry_recovered"}})
+        if policy == "retry_then_sanitize":
+            hit = sanitize_by_rules(context)
+            if hit.decision == "sanitize" and hit.sanitized_text:
+                return retry.model_copy(
+                    update={
+                        "parsed_decision": "sanitize",
+                        "sanitized_text": hit.sanitized_text,
+                        "recovery": {**recovery, "action": "rules_sanitize", "signals": hit.signals},
+                    }
+                )
+        # Nothing reliable to keep: never fall back to allow.
+        return retry.model_copy(update={**block, "recovery": {**recovery, "action": "block"}})
+
+    def _llm_audit(self, question: str, context: str, max_tokens: int) -> GuardrailAudit:
         user = (
             f"Question:\n{question}\n\nRetrieved context:\n{context}\n\n"
             "Return JSON decision."
@@ -151,7 +189,7 @@ class InputGuardrail:
             result = self.client.complete(
                 messages,
                 temperature=0.0,
-                max_tokens=self.cfg.chat.guardrail_max_tokens,
+                max_tokens=max_tokens,
                 model=self.model,
                 reasoning_effort=self.cfg.guardrail_reasoning_effort,
             )

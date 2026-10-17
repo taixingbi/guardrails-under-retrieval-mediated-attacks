@@ -19,11 +19,15 @@ E6_CELLS: list[Cell] = [
     ("llm", "M", "ministral-14b (~14B)", metrics_path("main_e6_llm_m")),
     ("llm", "L", "llama (~70B)", metrics_path("main_e6_llm_l")),
     ("llm", "120B", "gpt-oss (~120B)", metrics_path("main_e6_llm_gptoss")),
+    ("llm", "DS", "deepseek V3.2 (large, no reasoning trace)", metrics_path("main_e6_llm_deepseek")),
     ("hybrid", "S", "ministral-3b (~3B)", metrics_path("main_e6_hybrid_s")),
     ("hybrid", "M", "ministral-14b (~14B)", metrics_path("main_e6_hybrid_m")),
     ("hybrid", "L", "llama (~70B)", metrics_path("main_e6_hybrid_l")),
     ("hybrid", "120B", "gpt-oss (~120B)", metrics_path("main_e6_hybrid_gptoss")),
+    ("hybrid", "DS", "deepseek V3.2 (large, no reasoning trace)", metrics_path("main_e6_hybrid_deepseek")),
 ]
+
+E6_SIZES = ("S", "M", "L", "120B", "DS")
 
 # gpt-oss cells are cut from the 100-seed main runs to match the E3 setting
 # (nova-pro, G1, attacked contexts, same 50 seeds); no re-inference.
@@ -107,7 +111,8 @@ def build_capacity_compare(out_dir: Path | None = None) -> dict[str, Any]:
             "Fixed: target=nova-pro, placement=G1/context, v3 prompts, same attacks "
             "(50 seeds). Vary: guard LLM size (S/M/L/120B) and input mode (LLM-only vs hybrid). "
             "120B cells are the matching subset of the main gpt-oss runs (no re-inference); "
-            "gpt-oss is a reasoning model, the S/M/L guards are not. "
+            "gpt-oss is the only guard trained for reasoning (not exposed by the endpoint); DS = deepseek "
+            "V3.2, a large guard that returns no reasoning trace, to separate size from reasoning. "
             "RQ1: does scaling improve robustness? "
             "RQ2: does a larger guard eliminate the need for deterministic rules?"
         ),
@@ -137,18 +142,18 @@ def build_capacity_compare(out_dir: Path | None = None) -> dict[str, Any]:
             f"{fmt_calls(row.get('mean_llm_calls'))} | "
             f"{row.get('n_attack', '—')} |"
         )
-    lines += _asr_grid(rows, ("S", "M", "L", "120B"))
+    lines += _asr_grid(rows, E6_SIZES)
     by_key = {(r["mode"], r["size"]): r for r in rows}
     lines += [
         "",
         "## PSR by mode × size",
         "",
-        "| Mode | S | M | L | 120B |",
-        "|---|---:|---:|---:|---:|",
+        "| Mode | " + " | ".join(E6_SIZES) + " |",
+        "|---|" + "---:|" * len(E6_SIZES),
     ]
     for mode in ("llm", "hybrid"):
         cells = []
-        for size in ("S", "M", "L", "120B"):
+        for size in E6_SIZES:
             r = by_key.get((mode, size))
             cells.append("—" if r is None else fmt_ci(r["psr"], r.get("psr_ci")))
         lines.append(f"| {mode} | " + " | ".join(cells) + " |")

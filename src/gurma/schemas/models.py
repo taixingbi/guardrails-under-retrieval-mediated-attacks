@@ -133,6 +133,8 @@ class GuardrailAudit(BaseModel):
     parse_ok: bool | None = None
     truncated: bool | None = None
     usage: dict[str, Any] = Field(default_factory=dict)
+    # Set when the first guard call was unparseable: policy, action taken, first-call usage.
+    recovery: dict[str, Any] = Field(default_factory=dict)
 
 
 class RunRecord(BaseModel):

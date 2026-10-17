@@ -250,9 +250,12 @@ FINDINGS = [
     # E3
     "**E3 Guard capacity:** on Nova Pro × G1 × 50 seeds, Safety ASR is ≈0 at every size "
     "and mode (largest: LLM-only gpt-oss 0.013). The gap is **utility**: as a standalone guard "
-    "only gpt-oss is usable (Acc 0.830 vs 0.115–0.190 for 3B–70B), while hybrid keeps "
-    "Acc 0.885–0.935 at every size. gpt-oss also has the lowest PSR (0.140 hybrid). "
-    "gpt-oss is the only reasoning model, so size and reasoning are confounded at 120B.",
+    "the 3B–70B models collapse Acc (0.115–0.190), while the two large guards are usable "
+    "(gpt-oss 120B 0.830; deepseek V3.2 0.730, which returns no reasoning trace, at 17.7 s mean "
+    "latency). Hybrid keeps Acc 0.885–0.935 at every size. gpt-oss also has the lowest PSR "
+    "(0.140 hybrid). The endpoint exposes no reasoning and ignores `reasoning_effort`, so size "
+    "and reasoning cannot be fully separated, but a large guard without a reasoning trace also "
+    "works standalone.",
     # E4
     "**E4 Distribution shift:** hybrid G1 removes 100% of G0 successes on known attacks, "
     "85% on unseen templates and only 41% on adaptive attacks "
@@ -280,7 +283,9 @@ FINDINGS = [
     "Recovery policies on the 218 failed 768 calls: retrying at 4096 recovers all of them "
     "(Safety ASR 0.030, Acc 0.720); a cheap 1024 retry with a rules-sanitize fallback (F3) is "
     "nearly as good (0.017 / 0.700), while the same retry followed by block keeps only Acc 0.410 "
-    "and plain fail-closed 0.312 with 5% false blocks on clean contexts.",
+    "and plain fail-closed 0.312 with 5% false blocks on clean contexts. On unseen attacks "
+    "(hybrid, E4) the rules never fire, so the fallback cannot help, but a 4096 retry still "
+    "recovers 212 of 214 failures (Acc 0.827 vs 0.227 fail-closed).",
     # E7
     "**E7 CoT guard prompt:** on LLM-only G1, step-by-step reasoning removes the "
     "residual Safety ASR (0.018 → 0.000) and lifts clean Acc (+0.035), but cuts "
@@ -291,12 +296,13 @@ FINDINGS = [
     "deleting other text (LLM-only 0.86 vs 0.19; hybrid 0.80 vs 0.07).",
     # Independence checks
     "**Independence — A2 generator:** regenerating A2 with deepseek (not the guard model) "
-    "leaves the conclusions intact. The attacks are as strong (G0 PSR 0.545 vs 0.530), and "
-    "hybrid and LLM-only G1 PSR are within noise (0.175 vs 0.205; 0.190 vs 0.215), so there "
-    "is no sign the guard benefits from defending its own attacks. Rules-only gets worse "
-    "(0.415 → 0.525): its 0.415 was flattered by the 27 template fallbacks (0.185 on templates "
-    "vs 0.500 on generated passages), so hybrid's PSR advantage over rules is larger than the "
-    "main table shows.",
+    "leaves the gpt-oss-guarded results intact: the attacks are as strong (G0 PSR 0.545 vs 0.530) "
+    "and G1 PSR stays within noise for hybrid (0.175 vs 0.205), LLM-only (0.190 vs 0.215), E1 "
+    "context placement (0.190 vs 0.170) and E7 CoT (0.180 vs 0.205 / 0.190), so there is no sign "
+    "the guard benefits from defending its own attacks. Rule-heavy setups get worse: rules-only "
+    "0.415 → 0.525, E5 SQuAD hybrid 0.280 → 0.360, and E3 hybrid with 3B–70B guards "
+    "0.18–0.34 → 0.28–0.52. The rules catch the gpt-oss template fallbacks (22–27% of A2), which "
+    "flattered every configuration that leans on them.",
     "**Independence — judge:** re-judging the 217 P2 clean-grading calls with ministral-14b "
     "agrees with gpt-oss 86.6% of the time (κ = 0.733); ministral-14b is more lenient (23 "
     "wrong→correct vs 6 correct→wrong) and 97 of the 100 frozen seeds would be kept. The judge "
@@ -560,10 +566,14 @@ def render_paper_report(
     lines += [
         "## E6 — Guard budget and failure handling",
         "",
-        "`gpt-oss` is a reasoning model and spends tokens before it writes its JSON verdict. When "
-        "the output is cut off or cannot be parsed, the input guard defaults to `allow` and the "
-        "output guard to `pass` ([llm_guard.py](../src/gurma/guardrails/llm_guard.py)), so a failed "
-        "guard call lets the content through. The original runs used a 768-token guard budget.",
+        "The v3 input-guard prompt asks for the full cleaned context in its JSON answer, so a "
+        "`sanitize` verdict is long (≈1,350 output tokens at 4096, vs ≈210 for `allow`) and grows "
+        "with the retrieved context. When the output is cut off or cannot be parsed, the input guard "
+        "defaults to `allow` and the output guard to `pass` "
+        "([llm_guard.py](../src/gurma/guardrails/llm_guard.py)). The original 768-token budget "
+        "therefore failed on exactly the contexts the guard was trying to clean, and let them "
+        "through unfiltered. Truncated outputs are cut inside the cleaned-context copy, not in a "
+        "reasoning trace (see the budget-sweep tables).",
         "",
     ]
     if budget:
@@ -580,8 +590,9 @@ def render_paper_report(
             "### Recovery policies after a failed guard call",
             "",
             *_embed(recovery, depth=2),
-            "The F3 fallback works here because the rules match these known attack templates; on "
-            "unseen phrasings (E4) the rules mostly miss, so F3 would fall through to block more often.",
+            "The F3 fallback only helps where the rules can act. Under LLM-only on known attacks it "
+            "rescues most failed retries; on unseen attacks (E4) the rules fired on 0 of 300 contexts, "
+            "so F3 equals F2 and only the retry itself recovers decisions.",
             "",
         ]
     lines += [
@@ -653,7 +664,8 @@ def render_paper_report(
         "not retunes of the frozen hybrid.",
         "- Known A2 passages were written by gpt-oss, the guard model, and 27/100 are a fixed "
         "template fallback; every PSR outside the independence check mixes the two. The "
-        "independence check regenerates A2 with deepseek for hybrid, LLM-only and rules-only only.",
+        "independence check regenerates A2 with deepseek for the main hybrid, E2, E1, E3 (3B–70B), "
+        "E5 SQuAD and E7 runs; the third-model run is excluded because its target is deepseek.",
         "- The P2 judge is gpt-oss, the guard model. It only grades clean answers for seed "
         "selection; P5 scoring is rule-based.",
         "- Rules-only G2 still calls the gpt-oss output guard; its original run used a 768-token "

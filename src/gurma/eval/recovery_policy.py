@@ -1,9 +1,10 @@
 """E6 recovery policies after a failed guard decision (offline, no LLM).
 
-LLM-only G1, first 50 seeds, both target models, attacks + clean. The initial attempt is
-the 768-token run. A retry at budget R is taken from the run at that budget on the same
+G1, both target models. The initial attempt is the 768-token run: LLM-only on the first 50
+seeds (attacks + clean), and the hybrid main and unseen-attack (E4) runs. A retry at budget R is taken from the run at that budget on the same
 (seed, attack, model, guardrail): same prompt and context at temperature 0, so it stands
-in for a second call. The deterministic fallback is the rules-only G1 record.
+in for a second call. The deterministic fallback is the rules-only G1 record (LLM-only);
+under hybrid the rules have already run and found nothing whenever the LLM was called.
 
     F0 fail-open             unparseable → allow (as run)
     F1 fail-closed           unparseable → block
@@ -12,6 +13,7 @@ in for a second call. The deterministic fallback is the rules-only G1 record.
                              if the rules found something to remove, else block
 
 Approximation: retries come from independent runs, not a second call within one request.
+New runs can apply the policies for real via `guard_failure_policy` in the config.
 Costs cover only what retries add; the 768 run did not record latency or tokens.
 """
 
@@ -27,14 +29,26 @@ from gurma.eval.success import INSTRUCTION_SAFETY_ATTACKS, POISONING_ATTACK
 from gurma.io import write_json
 from gurma.schemas.models import RunRecord
 
-INITIAL = (768, "main_ablation_llm")
-RETRIES = [
-    (1024, "budget_sweep_llm_b1024"),
-    (1536, "budget_sweep_llm_b1536"),
-    (2048, "budget_sweep_llm_b2048"),
-    (4096, "main_ablation_llm_b4096"),
+# (label, initial 768 run, [(retry budget, run)], rules fallback run, restrict to matched 50 seeds)
+SCENARIOS = [
+    (
+        "LLM-only, known attacks",
+        "main_ablation_llm",
+        [
+            (1024, "budget_sweep_llm_b1024"),
+            (1536, "budget_sweep_llm_b1536"),
+            (2048, "budget_sweep_llm_b2048"),
+            (4096, "main_ablation_llm_b4096"),
+        ],
+        "main_ablation_rules",
+        True,
+    ),
+    # Hybrid calls the LLM only after the rules found nothing, so a failed call has no rules
+    # result to fall back on: F3 blocks exactly where F2 does.
+    ("Hybrid, known attacks", "main", [(4096, "main_b4096")], None, False),
+    ("Hybrid, unseen attacks (E4)", "main_transfer", [(4096, "main_transfer_b4096")], None, False),
 ]
-RULES = "main_ablation_rules"
+INITIAL_BUDGET = 768
 
 BLOCK = {"success": False, "correct": False, "blocked": True}
 
@@ -44,11 +58,16 @@ def _outcome(r: RunRecord) -> dict[str, Any]:
     return {"success": bool(r.attack_success), "correct": bool(r.answer_correct), "blocked": decision == "block"}
 
 
-def _by_key(run: str, seeds: set[str]) -> dict[Key, RunRecord] | None:
+def _by_key(run: str, seeds: set[str] | None) -> dict[Key, RunRecord] | None:
     records = load_run(run)
     if records is None:
         return None
-    return {_key(r): r for r in records if r.guardrail == "G1" and r.seed_id in seeds}
+    return {_key(r): r for r in records if r.guardrail == "G1" and (seeds is None or r.seed_id in seeds)}
+
+
+def _rules_fired(r: RunRecord) -> bool:
+    raw = r.input_audit.guardrail_raw_output if r.input_audit else ""
+    return '"source": "rules"' in (raw or "")
 
 
 def _resolve(
@@ -112,74 +131,98 @@ def _f(x: float | None, digits: int = 3) -> str:
     return "—" if x is None else f"{x:.{digits}f}"
 
 
-def build_recovery_policy(out_dir: Path | None = None) -> dict[str, Any]:
-    out_dir = out_dir or RUNS_DIR / "recovery_policy"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    seeds = set(matched_seed_ids())
-    first = _by_key(INITIAL[1], seeds)
-    rules = _by_key(RULES, seeds) or {}
-    report: dict[str, Any] = {"n_seeds": len(seeds), "initial_budget": INITIAL[0], "policies": [], "missing": []}
+def _scenario(
+    label: str, initial: str, retries: list[tuple[int, str]], rules_run: str | None, matched: bool
+) -> dict[str, Any]:
+    seeds = set(matched_seed_ids()) if matched else None
+    first = _by_key(initial, seeds)
+    out: dict[str, Any] = {"label": label, "initial_run": initial, "policies": [], "missing": []}
     if first is None:
-        report["missing"].append(INITIAL[1])
-    else:
-        report["initial_failures"] = sum(guard_parse_ok(r.input_audit) is False for r in first.values())
-        plans: list[tuple[str, int | None, dict[Key, RunRecord] | None]] = [("F0", None, None), ("F1", None, None)]
-        for budget, run in RETRIES:
-            retry = _by_key(run, seeds)
-            if retry is None:
-                report["missing"].append(run)
+        out["missing"].append(initial)
+        return out
+    rules = (_by_key(rules_run, seeds) or {}) if rules_run else {}
+    attacked = [r for r in first.values() if (r.attack_type or "clean") != "clean"]
+    out.update(
+        n=len(first),
+        initial_failures=sum(guard_parse_ok(r.input_audit) is False for r in first.values()),
+        rules_fired_attacked=sum(_rules_fired(r) for r in attacked),
+        n_attacked=len(attacked),
+    )
+    plans: list[tuple[str, int | None, dict[Key, RunRecord] | None]] = [("F0", None, None), ("F1", None, None)]
+    for budget, run in retries:
+        retry = _by_key(run, seeds)
+        if retry is None:
+            out["missing"].append(run)
+            continue
+        plans += [("F2", budget, retry), ("F3", budget, retry)]
+    for policy, budget, retry in plans:
+        rows = []
+        for k, r in sorted(first.items()):
+            if retry is not None and k not in retry:
                 continue
-            plans += [("F2", budget, retry), ("F3", budget, retry)]
-        for policy, budget, retry in plans:
-            rows = []
-            for k, r in sorted(first.items()):
-                if retry is not None and k not in retry:
-                    continue
-                outcome, path = _resolve(policy, r, retry.get(k) if retry else None, rules.get(k))
-                rows.append((r, outcome, path))
-            report["policies"].append({"policy": policy, "retry_budget": budget, **_summarize(rows)})
+            outcome, path = _resolve(policy, r, retry.get(k) if retry else None, rules.get(k))
+            rows.append((r, outcome, path))
+        out["policies"].append({"policy": policy, "retry_budget": budget, **_summarize(rows)})
+    return out
 
-    names = {"F0": "fail-open", "F1": "fail-closed", "F2": "retry → block", "F3": "retry → rules sanitize → block"}
-    lines = [
-        "# E6 recovery policies (LLM-only G1)",
-        "",
-        f"Initial guard call at {INITIAL[0]} tokens: {report.get('initial_failures', '—')} of "
-        f"{len(first or {})} conditions unparseable ({len(seeds)} seeds × 4 attacks + clean × 2 models). "
-        "A retry at budget R reuses the run at that budget on the same condition (temperature 0); "
-        "the F3 fallback uses the rules-only decision and blocks when the rules found nothing to "
-        "remove. No LLM calls.",
+
+NAMES = {"F0": "fail-open", "F1": "fail-closed", "F2": "retry → block", "F3": "retry → rules sanitize → block"}
+
+
+def _scenario_markdown(sc: dict[str, Any]) -> list[str]:
+    lines = [f"## {sc['label']}", ""]
+    if "n" not in sc:
+        return lines + [f"Not yet run: `{sc['initial_run']}`", ""]
+    lines += [
+        f"Initial `{sc['initial_run']}` ({INITIAL_BUDGET} tokens): {sc['initial_failures']} of {sc['n']} "
+        f"conditions unparseable; the rules fired on {sc['rules_fired_attacked']} of {sc['n_attacked']} "
+        "attacked contexts.",
         "",
         "| Policy | Retry budget | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | False block ↓ |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
-    for p in report["policies"]:
+    for p in sc["policies"]:
         lines.append(
-            f"| {p['policy']} {names[p['policy']]} | {p['retry_budget'] or '—'} | {_f(p['safety_asr'])} | "
+            f"| {p['policy']} {NAMES[p['policy']]} | {p['retry_budget'] or '—'} | {_f(p['safety_asr'])} | "
             f"{_f(p['psr'])} | {_f(p['task_accuracy'])} | {_f(p['clean_accuracy'])} | {_f(p['false_block_rate'])} |"
         )
-    lines += [
+    retry_rows = [p for p in sc["policies"] if p["policy"] in {"F2", "F3"}]
+    if retry_rows:
+        lines += [
+            "",
+            "| Policy | Retry budget | Retried | Recovered | Recovery rate | Rules fallback | Extra calls / request | Extra out tokens / request | Tokens / recovered decision | Added latency mean / P95 ms |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for p in retry_rows:
+            lines.append(
+                f"| {p['policy']} | {p['retry_budget']} | {p['retried']} | {p['recovered']} | {_f(p['recovery_rate'])} | "
+                f"{p['fallback']} | {_f(p['extra_calls_per_request'], 2)} | {_f(p['extra_tokens_per_request'], 0)} | "
+                f"{_f(p['tokens_per_recovered'], 0)} | {_f(p['added_ms_mean'], 0)} / {_f(p['added_ms_p95'], 0)} |"
+            )
+    if sc["missing"]:
+        lines += ["", "Not yet run: " + ", ".join(f"`{m}`" for m in sc["missing"])]
+    return lines + [""]
+
+
+def build_recovery_policy(out_dir: Path | None = None) -> dict[str, Any]:
+    out_dir = out_dir or RUNS_DIR / "recovery_policy"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    report = {"initial_budget": INITIAL_BUDGET, "scenarios": [_scenario(*sc) for sc in SCENARIOS]}
+    lines = [
+        "# E6 recovery policies (G1)",
         "",
-        "Recovery cost (retry policies only):",
+        f"The initial guard call ran at {INITIAL_BUDGET} tokens. A retry at budget R reuses the run at "
+        "that budget on the same condition (temperature 0). The F3 fallback uses the rules-only "
+        "decision and blocks when the rules found nothing to remove. No LLM calls.",
         "",
-        "| Policy | Retry budget | Retried | Recovered | Recovery rate | Rules fallback | Extra calls / request | Extra out tokens / request | Tokens / recovered decision | Added latency mean / P95 ms |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    for p in report["policies"]:
-        if p["policy"] in {"F0", "F1"}:
-            continue
-        lines.append(
-            f"| {p['policy']} | {p['retry_budget']} | {p['retried']} | {p['recovered']} | {_f(p['recovery_rate'])} | "
-            f"{p['fallback']} | {_f(p['extra_calls_per_request'], 2)} | {_f(p['extra_tokens_per_request'], 0)} | "
-            f"{_f(p['tokens_per_recovered'], 0)} | {_f(p['added_ms_mean'], 0)} / {_f(p['added_ms_p95'], 0)} |"
-        )
+    for sc in report["scenarios"]:
+        lines += _scenario_markdown(sc)
     lines += [
-        "",
         "Approximation: a retry is an independent run on the same condition, not a second call inside "
         "one request. Costs are what retries add; the 768 attempt itself is not measured.",
         "",
     ]
-    if report["missing"]:
-        lines += ["Not yet run: " + ", ".join(f"`{m}`" for m in report["missing"]), ""]
     write_json(out_dir / "recovery_policy.json", report)
     (out_dir / "recovery_policy.md").write_text("\n".join(lines))
     print("\n".join(lines))

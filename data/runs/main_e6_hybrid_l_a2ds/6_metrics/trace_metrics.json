@@ -1,0 +1,43 @@
+{
+  "guardrail_prompt_versions": [
+    "v3"
+  ],
+  "overall": {
+    "n_llm_guard_calls": 50,
+    "json_parse_fail_rate": 0.0,
+    "truncation_rate": 0.0,
+    "evidence_cited_rate": 0.0,
+    "evidence_verbatim_rate": null,
+    "signal_decision_mismatch_rate": 0.0,
+    "native_reasoning_rate": 0.0,
+    "decisions": {
+      "allow": 9,
+      "block": 12,
+      "sanitize": 29
+    },
+    "input_guard_p50_ms": 694.54,
+    "input_guard_p95_ms": 1312.15,
+    "mean_prompt_tokens": 1642.62,
+    "mean_completion_tokens": 79.0
+  },
+  "by_attack": {
+    "context_poisoning": {
+      "n_llm_guard_calls": 50,
+      "json_parse_fail_rate": 0.0,
+      "truncation_rate": 0.0,
+      "evidence_cited_rate": 0.0,
+      "evidence_verbatim_rate": null,
+      "signal_decision_mismatch_rate": 0.0,
+      "native_reasoning_rate": 0.0,
+      "decisions": {
+        "allow": 9,
+        "block": 12,
+        "sanitize": 29
+      },
+      "input_guard_p50_ms": 694.54,
+      "input_guard_p95_ms": 1312.15,
+      "mean_prompt_tokens": 1642.62,
+      "mean_completion_tokens": 79.0
+    }
+  }
+}

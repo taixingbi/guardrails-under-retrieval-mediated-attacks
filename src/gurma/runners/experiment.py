@@ -82,7 +82,7 @@ def _apply_input(
     ti = time.perf_counter()
     audit = input_guard.check(question, text_to_check)
     ms = (time.perf_counter() - ti) * 1000.0
-    n = _count_input_llm_call(cfg, audit)
+    n = _count_input_llm_call(cfg, audit) + int(bool(audit.recovery.get("retried")))
     if audit.parsed_decision == "block":
         return audit, None, True, ms, n
     if audit.parsed_decision == "sanitize" and audit.sanitized_text:

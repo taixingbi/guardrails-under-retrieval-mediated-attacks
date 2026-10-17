@@ -1,0 +1,19 @@
+# E3 capacity: deepseek V3.2 as a large guard that returns no reasoning trace (hybrid).
+# Same setting as the other E3 cells: nova-pro, G1, first 50 seeds, frozen main attacks.
+extends: _base_g1_rerun.yaml
+run_id: main_e6_hybrid_deepseek_b4096
+output_dir: data/runs/main_e6_hybrid_deepseek_b4096
+reuse_from: data/runs/main
+input_hybrid: true
+input_guardrail_mode: hybrid
+http_retries: 8
+models:
+  answer_models: [nova-pro]
+  guardrail: deepseek
+attacks:
+  - indirect_injection
+  - context_poisoning
+  - policy_retrieval
+  - authority_conflict
+chat:
+  guardrail_max_tokens: 4096

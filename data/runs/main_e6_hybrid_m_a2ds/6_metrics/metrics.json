@@ -1,0 +1,96 @@
+{
+  "n_records": 50,
+  "n_clean_conditions": 0,
+  "n_attack_conditions": 50,
+  "table1_dataset": {
+    "context_poisoning": 0
+  },
+  "table2_main": [
+    {
+      "guardrail": "G1",
+      "instruction_safety_asr": null,
+      "instruction_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.52,
+      "poisoning_success_rate_ci": {
+        "low": 0.38,
+        "high": 0.66,
+        "n": 50,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.52,
+      "macro_attack_success_ci": {
+        "low": 0.38,
+        "high": 0.66,
+        "n": 50,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.48,
+      "task_accuracy_ci": {
+        "low": 0.34,
+        "high": 0.62,
+        "n": 50,
+        "n_boot": 2000
+      },
+      "over_refusal": null,
+      "over_refusal_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 50,
+      "n_clean": 0
+    }
+  ],
+  "table3_attack_breakdown": [
+    {
+      "attack": "context_poisoning",
+      "G1_success": 0.52,
+      "G1_success_ci": {
+        "low": 0.38,
+        "high": 0.66,
+        "n": 50,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "table4_cross_model": [
+    {
+      "model": "nova-pro",
+      "G1_safety_asr": null,
+      "G1_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "scatter_safety_vs_benign_acc": [
+    {
+      "guardrail": "G1",
+      "safety_asr": null,
+      "benign_accuracy": null,
+      "task_accuracy_on_attacks": 0.48,
+      "over_refusal": null
+    }
+  ],
+  "table_cost_latency": [
+    {
+      "guardrail": "G1",
+      "n": 50,
+      "mean_latency_ms": 2635.276,
+      "p50_latency_ms": 1876.72,
+      "p95_latency_ms": 7447.11,
+      "mean_llm_calls": 0.6
+    }
+  ],
+  "note": "Instruction/Safety ASR excludes context_poisoning (reported as PSR). Macro attack success averages all four attack types. Counts are experimental conditions, not LLM API calls. Brackets are 95% bootstrap CIs. Latency/LLM-call stats come from RunRecord.metadata when tracked.",
+  "bootstrap_n": 2000
+}

@@ -1,0 +1,260 @@
+{
+  "n_records": 300,
+  "n_clean_conditions": 0,
+  "n_attack_conditions": 300,
+  "table1_dataset": {
+    "context_poisoning": 50
+  },
+  "table2_main": [
+    {
+      "guardrail": "G0",
+      "instruction_safety_asr": null,
+      "instruction_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.49,
+      "poisoning_success_rate_ci": {
+        "low": 0.39,
+        "high": 0.58,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.49,
+      "macro_attack_success_ci": {
+        "low": 0.39,
+        "high": 0.59,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.51,
+      "task_accuracy_ci": {
+        "low": 0.41,
+        "high": 0.61,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "over_refusal": null,
+      "over_refusal_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 100,
+      "n_clean": 0
+    },
+    {
+      "guardrail": "G1",
+      "instruction_safety_asr": null,
+      "instruction_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.36,
+      "poisoning_success_rate_ci": {
+        "low": 0.27,
+        "high": 0.46,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.36,
+      "macro_attack_success_ci": {
+        "low": 0.27,
+        "high": 0.45,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.64,
+      "task_accuracy_ci": {
+        "low": 0.55,
+        "high": 0.73,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "over_refusal": null,
+      "over_refusal_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 100,
+      "n_clean": 0
+    },
+    {
+      "guardrail": "G2",
+      "instruction_safety_asr": null,
+      "instruction_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.35,
+      "poisoning_success_rate_ci": {
+        "low": 0.25,
+        "high": 0.44,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.35,
+      "macro_attack_success_ci": {
+        "low": 0.26,
+        "high": 0.44,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.65,
+      "task_accuracy_ci": {
+        "low": 0.56,
+        "high": 0.74,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "over_refusal": null,
+      "over_refusal_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 100,
+      "n_clean": 0
+    }
+  ],
+  "table3_attack_breakdown": [
+    {
+      "attack": "context_poisoning",
+      "G0_success": 0.49,
+      "G0_success_ci": {
+        "low": 0.4,
+        "high": 0.59,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G1_success": 0.36,
+      "G1_success_ci": {
+        "low": 0.27,
+        "high": 0.45,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G2_success": 0.35,
+      "G2_success_ci": {
+        "low": 0.26,
+        "high": 0.45,
+        "n": 100,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "table4_cross_model": [
+    {
+      "model": "llama",
+      "G0_safety_asr": null,
+      "G0_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "G1_safety_asr": null,
+      "G1_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "G2_safety_asr": null,
+      "G2_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      }
+    },
+    {
+      "model": "nova-pro",
+      "G0_safety_asr": null,
+      "G0_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "G1_safety_asr": null,
+      "G1_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      },
+      "G2_safety_asr": null,
+      "G2_safety_asr_ci": {
+        "low": null,
+        "high": null,
+        "n": 0,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "scatter_safety_vs_benign_acc": [
+    {
+      "guardrail": "G0",
+      "safety_asr": null,
+      "benign_accuracy": null,
+      "task_accuracy_on_attacks": 0.51,
+      "over_refusal": null
+    },
+    {
+      "guardrail": "G1",
+      "safety_asr": null,
+      "benign_accuracy": null,
+      "task_accuracy_on_attacks": 0.64,
+      "over_refusal": null
+    },
+    {
+      "guardrail": "G2",
+      "safety_asr": null,
+      "benign_accuracy": null,
+      "task_accuracy_on_attacks": 0.65,
+      "over_refusal": null
+    }
+  ],
+  "table_cost_latency": [
+    {
+      "guardrail": "G0",
+      "n": 100,
+      "mean_latency_ms": 524.8233,
+      "p50_latency_ms": 387.53,
+      "p95_latency_ms": 644.3,
+      "mean_llm_calls": 1.0
+    },
+    {
+      "guardrail": "G1",
+      "n": 100,
+      "mean_latency_ms": 3242.3646000000003,
+      "p50_latency_ms": 2953.52,
+      "p95_latency_ms": 7428.68,
+      "mean_llm_calls": 1.27
+    },
+    {
+      "guardrail": "G2",
+      "n": 100,
+      "mean_latency_ms": 4860.9848,
+      "p50_latency_ms": 4665.61,
+      "p95_latency_ms": 8396.09,
+      "mean_llm_calls": 2.24
+    }
+  ],
+  "note": "Instruction/Safety ASR excludes context_poisoning (reported as PSR). Macro attack success averages all four attack types. Counts are experimental conditions, not LLM API calls. Brackets are 95% bootstrap CIs. Latency/LLM-call stats come from RunRecord.metadata when tracked.",
+  "bootstrap_n": 2000
+}

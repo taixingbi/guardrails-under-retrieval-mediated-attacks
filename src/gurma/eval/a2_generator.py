@@ -19,12 +19,25 @@ from gurma.schemas.models import RunRecord, ValidatedAttack
 
 TEMPLATE_PREFIX = "A corrected source states"
 
-# (input mode, gpt-oss A2 run, deepseek A2 run); records include G0 where it is borrowed.
+# (row label, gpt-oss A2 run, deepseek A2 run, gpt-oss attack set, deepseek attack set).
+# Records include G0 where it is borrowed. The third-model run (target = deepseek) is left out:
+# there the deepseek generator would also be the target model.
 MODES = [
-    ("hybrid", "main_b4096", "main_a2ds"),
-    ("LLM-only", "main_ablation_llm_b4096", "main_ablation_llm_a2ds"),
-    ("rules-only", "main_ablation_rules", "main_ablation_rules_a2ds"),
+    ("Main, hybrid", "main_b4096", "main_a2ds", "main", "main_a2ds"),
+    ("E2, LLM-only", "main_ablation_llm_b4096", "main_ablation_llm_a2ds", "main", "main_a2ds"),
+    ("E2, rules-only", "main_ablation_rules", "main_ablation_rules_a2ds", "main", "main_a2ds"),
+    ("E1 placement", "main_placement_b4096", "main_placement_a2ds", "main", "main_a2ds"),
+    ("E3 ministral-3b, LLM-only", "main_e6_llm_s_b4096", "main_e6_llm_s_a2ds", "main", "main_a2ds"),
+    ("E3 ministral-14b, LLM-only", "main_e6_llm_m_b4096", "main_e6_llm_m_a2ds", "main", "main_a2ds"),
+    ("E3 llama-70B, LLM-only", "main_e6_llm_l_b4096", "main_e6_llm_l_a2ds", "main", "main_a2ds"),
+    ("E3 ministral-3b, hybrid", "main_e6_hybrid_s_b4096", "main_e6_hybrid_s_a2ds", "main", "main_a2ds"),
+    ("E3 ministral-14b, hybrid", "main_e6_hybrid_m_b4096", "main_e6_hybrid_m_a2ds", "main", "main_a2ds"),
+    ("E3 llama-70B, hybrid", "main_e6_hybrid_l_b4096", "main_e6_hybrid_l_a2ds", "main", "main_a2ds"),
+    ("E5 SQuAD, hybrid", "main_squad_b4096", "main_squad_a2ds", "main_squad", "main_squad_a2ds"),
+    ("E7 CoT, LLM-only", "main_cot_llm", "main_cot_llm_a2ds", "main", "main_a2ds"),
+    ("E7 CoT, hybrid", "main_cot_hybrid", "main_cot_hybrid_a2ds", "main", "main_a2ds"),
 ]
+GUARD_ORDER = ["G0", "G1", "G2", "Q", "C", "O", "CO"]
 
 
 def _records(run: str) -> list[RunRecord] | None:
@@ -64,6 +77,7 @@ def build_a2_generator_compare(out_dir: Path | None = None) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
     gpt_attacks = _attacks("main")
     ds_attacks = _attacks("main_a2ds")
+    attack_sets: dict[str, dict[str, ValidatedAttack]] = {}
     report: dict[str, Any] = {
         "gptoss_attacks": len(gpt_attacks),
         "gptoss_template": sum(_is_template(a) for a in gpt_attacks.values()),
@@ -72,19 +86,25 @@ def build_a2_generator_compare(out_dir: Path | None = None) -> dict[str, Any]:
         "rows": [],
         "missing": [],
     }
-    for mode, gpt_run, ds_run in MODES:
+    for mode, gpt_run, ds_run, gpt_set, _ds_set in MODES:
         gpt, ds = _records(gpt_run), _records(ds_run)
         if gpt is None:
             report["missing"].append(gpt_run)
             continue
         if ds is None:
             report["missing"].append(ds_run)
-        for guard in ("G0", "G1", "G2"):
+            continue
+        attacks = attack_sets.setdefault(gpt_set, _attacks(gpt_set))
+        # Compare on the same seeds (some gpt-oss runs cover more seeds than the A2-only rerun).
+        seeds = {r.seed_id for r in ds}
+        gpt = [r for r in gpt if r.seed_id in seeds]
+        present = {r.guardrail for r in gpt} | {r.guardrail for r in ds}
+        for guard in [g for g in GUARD_ORDER if g in present]:
             g = [r for r in gpt if r.guardrail == guard]
             if not g:
                 continue
-            gen = [r for r in g if r.attack_id in gpt_attacks and not _is_template(gpt_attacks[r.attack_id])]
-            tpl = [r for r in g if r.attack_id in gpt_attacks and _is_template(gpt_attacks[r.attack_id])]
+            gen = [r for r in g if r.attack_id in attacks and not _is_template(attacks[r.attack_id])]
+            tpl = [r for r in g if r.attack_id in attacks and _is_template(attacks[r.attack_id])]
             d = [r for r in ds or [] if r.guardrail == guard]
             report["rows"].append(
                 {
@@ -106,7 +126,7 @@ def build_a2_generator_compare(out_dir: Path | None = None) -> dict[str, Any]:
         f"({report['deepseek_template']}/{report['deepseek_attacks']} template fallbacks after "
         "validation); defense frozen. n = conditions (seeds × 2 target models).",
         "",
-        "| Input mode | Guard | PSR gpt-oss (all) | gpt-oss generated | gpt-oss template | PSR deepseek | Acc gpt-oss | Acc deepseek |",
+        "| Experiment | Guard | PSR gpt-oss (all) | gpt-oss generated | gpt-oss template | PSR deepseek | Acc gpt-oss | Acc deepseek |",
         "|---|---|---:|---:|---:|---:|---:|---:|",
     ]
     for row in report["rows"]:
