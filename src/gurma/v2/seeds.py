@@ -16,6 +16,7 @@ from typing import Any
 
 from gurma.clients.chat import ChatClient
 from gurma.concurrent import map_concurrent
+from gurma.schemas.models import ValidatedSeed
 from gurma.v2 import PROTOCOL_VERSION
 from gurma.v2.judge import Judge, rubric_hashes
 from gurma.v2.scoring import score_qa
@@ -40,6 +41,29 @@ SUBSETS = [
     ("squad50", "squad", 50),
 ]
 HELDOUT = ("heldout50", "main100", 50)  # drawn from inside main100
+
+
+def subset_path(subset: str | Path) -> Path:
+    """`main100`, `subsets/main100.json` or an absolute path."""
+    path = Path(subset)
+    if not path.suffix:
+        return SUBSET_DIR / f"{subset}.json"
+    return path if path.is_absolute() or path.exists() else ROOT / path
+
+
+def load_subset_seeds(subset: str | Path) -> list[ValidatedSeed]:
+    """Seeds of a frozen subset, in subset order.
+
+    Read from the legacy P2 candidate files, which hold every candidate: some v2-eligible seeds
+    were not eligible under the legacy judge and are missing from validated_seeds.jsonl.
+    """
+    meta = json.loads(subset_path(subset).read_text())
+    grades_path, id_key = POOLS[meta["pool"]]
+    by_id = {str(row["metadata"][id_key]): row for row in map(json.loads, grades_path.open())}
+    missing = [i for i in meta["ids"] if i not in by_id]
+    if missing:
+        raise KeyError(f"{meta['subset']}: {len(missing)} seed ids not in {grades_path}")
+    return [ValidatedSeed.model_validate(by_id[i]) for i in meta["ids"]]
 
 
 def _rescore(pool: str, judge: Judge | None, concurrency: int) -> list[dict[str, Any]]:

@@ -58,6 +58,10 @@ class AppConfig(BaseModel):
     v2_scoring: bool = False
     v2_judge_model: str = "deepseek"
     v2_judge_max_tokens: int = 1024
+    # v2 inputs: a frozen seed subset and generated attack sets replace P1–P4 when set,
+    # e.g. subsets/main100.json + [data/v2/attacks/main100/known, .../qwen, .../gemma].
+    v2_subset: str | None = None
+    v2_attack_sets: list[str] = Field(default_factory=list)
     guardrails: list[str] = Field(default_factory=lambda: ["G0", "G1", "G2"])
     attacks: list[str] = Field(
         default_factory=lambda: [

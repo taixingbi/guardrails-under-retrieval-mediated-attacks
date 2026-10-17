@@ -99,7 +99,8 @@ def test_runner_adds_v2_scores_only_when_enabled():
 def test_run_meta_records_protocol_and_policies():
     cfg = AppConfig(v2_scoring=True, guard_failure_policy="retry_then_block", output_guard_failure_policy="retry_then_block")
     meta = run_meta(cfg, n_seeds=2, n_attacks=8)
-    assert meta["protocol_version"] == "v2.0" and len(meta["rubric_hashes"]) == 4
+    assert meta["protocol_version"] == "v2.0" and len(meta["rubric_hashes"]) == 5
+    assert len(meta["attack_prompt_hashes"]) == 5 and meta["attack_sets"] == {}
     assert meta["guard"]["input_failure_policy"] == "retry_then_block"
     assert meta["guard"]["output_failure_policy"] == "retry_then_block"
     assert meta["judge"]["model"] == "deepseek"

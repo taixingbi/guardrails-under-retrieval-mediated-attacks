@@ -205,7 +205,27 @@ def merge_baseline_g0(cfg: AppConfig, records: list[RunRecord]) -> list[RunRecor
     return g0 + rest
 
 
+def load_v2_inputs(cfg: AppConfig) -> tuple[list[ValidatedSeed], list[ValidatedAttack]]:
+    """v2: frozen subset seeds + accepted attacks from the generated sets (replaces P1–P4).
+    Both are written to the run directory as the record of what was evaluated."""
+    from gurma.v2.attack_gen import load_attack_sets
+    from gurma.v2.seeds import load_subset_seeds
+
+    assert cfg.v2_subset
+    seeds = load_subset_seeds(cfg.v2_subset)
+    attacks = load_attack_sets(cfg.v2_attack_sets, {s.seed_id for s in seeds}, cfg.attacks)
+    write_jsonl(cfg.stage_dir("2_validated_seeds") / "validated_seeds.jsonl", seeds)
+    write_jsonl(cfg.stage_dir("4_validated_attacks") / "validated_attacks.jsonl", attacks)
+    print(f"[v2] subset={cfg.v2_subset} seeds={len(seeds)} attacks={len(attacks)} sets={cfg.v2_attack_sets}")
+    return seeds, attacks
+
+
 def run_pipeline(cfg: AppConfig) -> None:
+    if cfg.v2_subset:
+        seeds, attacks = load_v2_inputs(cfg)
+        stage_metrics(cfg, stage_runs(cfg, seeds, attacks))
+        stage_pilot_gate(cfg)
+        return
     seeds_cand = stage_build_seeds(cfg)
     seeds = stage_validate_seeds(cfg, seeds_cand)
     if not seeds:
@@ -223,7 +243,9 @@ def run_pipeline(cfg: AppConfig) -> None:
 
 def rerun_guardrails(cfg: AppConfig, *, force: bool = True) -> None:
     """Reuse frozen seeds/attacks; re-run P5–P7 with current guardrail_prompt_version."""
-    if cfg.reuse_path is None:
+    if cfg.v2_subset:
+        seeds, attacks = load_v2_inputs(cfg)
+    elif cfg.reuse_path is None:
         # Same output dir: require existing frozen stages
         seeds_path = cfg.stage_dir("2_validated_seeds") / "validated_seeds.jsonl"
         atk_path = cfg.stage_dir("4_validated_attacks") / "validated_attacks.jsonl"

@@ -120,6 +120,16 @@ def main(argv: list[str] | None = None) -> int:
         help="v2 step 4: re-score legacy P2 answers with the DeepSeek judge and draw subsets/*.json",
     )
     p_v2seeds.add_argument("--no-judge", action="store_true", help="rule-only rescoring (offline dry run)")
+    p_v2atk = sub.add_parser(
+        "v2-generate-attacks",
+        help="v2: generate and validate one attack set (subset × known|qwen|gemma) into data/v2/attacks/",
+    )
+    p_v2atk.add_argument("--subset", required=True, help="e.g. pilot20, main100, squad50")
+    p_v2atk.add_argument("--source", required=True, choices=["known", "qwen", "gemma"])
+    p_v2atk.add_argument("--types", nargs="+", help="attack types (default: all four)")
+    p_v2atk.add_argument("--limit", type=int, help="first N seeds only (smoke runs; use with --out)")
+    p_v2atk.add_argument("--out", help="output dir (default data/v2/attacks/<subset>/<source>)")
+    p_v2atk.add_argument("--concurrency", type=int, default=2)
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -159,6 +169,7 @@ def main(argv: list[str] | None = None) -> int:
             "budget-compare",
             "failure-policy",
             "v2-freeze-seeds",
+            "v2-generate-attacks",
             "recovery-policy",
             "budget-sweep",
             "judge-agreement",
@@ -203,6 +214,17 @@ def main(argv: list[str] | None = None) -> int:
         from gurma.v2.seeds import freeze_seeds
 
         freeze_seeds(use_judge=not args.no_judge)
+    elif args.cmd == "v2-generate-attacks":
+        from gurma.v2.attack_gen import ATTACK_TYPES, run_generation
+
+        run_generation(
+            args.subset,
+            args.source,
+            out_dir=args.out,
+            limit=args.limit,
+            types=tuple(args.types or ATTACK_TYPES),
+            concurrency=args.concurrency,
+        )
     elif args.cmd == "recovery-policy":
         from gurma.eval.recovery_policy import build_recovery_policy
 

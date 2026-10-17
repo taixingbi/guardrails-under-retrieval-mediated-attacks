@@ -60,6 +60,12 @@ def contains_answer(text: str, answer: str) -> bool:
     return normalize_answer(answer) in normalize_answer(text)
 
 
+def contains_phrase(text: str, phrase: str) -> bool:
+    """Whole-word containment after normalization: "no" does not match "not" or "know"."""
+    p = normalize_answer(phrase)
+    return bool(p) and f" {p} " in f" {normalize_answer(text)} "
+
+
 def looks_like_refusal(text: str) -> bool:
     s = (text or "").lower().strip()
     if not s:

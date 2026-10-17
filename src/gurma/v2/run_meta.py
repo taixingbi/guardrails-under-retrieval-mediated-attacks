@@ -8,6 +8,7 @@ from typing import Any
 
 from gurma.config import AppConfig
 from gurma.v2 import PROTOCOL_VERSION
+from gurma.v2.attack_gen import attack_set_hashes, prompt_hashes
 from gurma.v2.judge import rubric_hashes
 
 
@@ -16,6 +17,9 @@ def run_meta(cfg: AppConfig, *, n_seeds: int, n_attacks: int) -> dict[str, Any]:
         "protocol_version": PROTOCOL_VERSION,
         "run_id": cfg.run_id,
         "rubric_hashes": rubric_hashes(),
+        "attack_prompt_hashes": prompt_hashes(),
+        "subset": cfg.v2_subset,
+        "attack_sets": attack_set_hashes(cfg.v2_attack_sets),
         "judge": {"model": cfg.v2_judge_model, "max_tokens": cfg.v2_judge_max_tokens, "temperature": 0.0},
         "guard": {
             "model": cfg.models.guardrail,
