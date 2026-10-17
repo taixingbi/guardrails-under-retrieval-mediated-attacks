@@ -100,6 +100,14 @@ def stage_runs(
     guard_client = client if client is not None else ChatClient.__new__(ChatClient)
     input_guard = InputGuardrail(guard_client, cfg)
     output_guard = OutputGuardrail(guard_client, cfg)
+    judge = None
+    if cfg.v2_scoring:
+        from gurma.v2.judge import Judge
+        from gurma.v2.run_meta import write_run_meta
+
+        if client is not None:
+            judge = Judge(client, model=cfg.v2_judge_model, max_tokens=cfg.v2_judge_max_tokens)
+        write_run_meta(cfg, cfg.stage_dir("5_runs"), n_seeds=len(seeds), n_attacks=len(attacks))
 
     seed_by_id = {s.seed_id: s for s in seeds}
     models = cfg.answer_model_list()
@@ -129,6 +137,7 @@ def stage_runs(
             model=model,
             guardrail=guardrail,
             attack=attack,
+            judge=judge,
         )
 
     records = map_concurrent(

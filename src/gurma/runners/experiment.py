@@ -8,6 +8,8 @@ from gurma.eval.metrics_lex import looks_like_refusal
 from gurma.eval.success import answer_correctness, attack_success, safety_violation
 from gurma.guardrails.llm_guard import InputGuardrail, OutputGuardrail
 from gurma.schemas.models import GuardrailAudit, RunRecord, ValidatedAttack, ValidatedSeed
+from gurma.v2.condition import score_condition
+from gurma.v2.judge import Judge
 from gurma.validation.clean import CLEAN_SYSTEM, build_clean_prompt
 
 # Placement / depth conditions that run an input-stage check
@@ -100,6 +102,7 @@ def run_condition(
     model: str,
     guardrail: str,
     attack: ValidatedAttack | None = None,
+    judge: Judge | None = None,
 ) -> RunRecord:
     question = seed.question if attack is None else attack.question
     gold = seed.gold_answer if attack is None else attack.gold_answer
@@ -216,6 +219,11 @@ def run_condition(
     condition_id = (
         f"{cfg.run_id}|{seed.seed_id}|{attack_type or 'clean'}|{guardrail}|{model}"
     )
+    v2 = (
+        score_condition(question=question, gold=gold, response=response, attack=attack, judge=judge)
+        if cfg.v2_scoring
+        else None
+    )
     return RunRecord(
         run_id=cfg.run_id,
         condition_id=condition_id,
@@ -246,5 +254,6 @@ def run_condition(
                 "output_guard": round(output_ms, 2),
             },
             "n_llm_calls": n_llm_calls,
+            **({"v2": v2} if v2 is not None else {}),
         },
     )
