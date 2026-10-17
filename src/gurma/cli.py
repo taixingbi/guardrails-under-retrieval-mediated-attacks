@@ -115,6 +115,11 @@ def main(argv: list[str] | None = None) -> int:
         "recovery-policy",
         help="E6: fail-open / fail-closed / retry policies after a failed guard call into data/runs/recovery_policy/",
     )
+    p_v2seeds = sub.add_parser(
+        "v2-freeze-seeds",
+        help="v2 step 4: re-score legacy P2 answers with the DeepSeek judge and draw subsets/*.json",
+    )
+    p_v2seeds.add_argument("--no-judge", action="store_true", help="rule-only rescoring (offline dry run)")
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -153,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
             "cot-compare",
             "budget-compare",
             "failure-policy",
+            "v2-freeze-seeds",
             "recovery-policy",
             "budget-sweep",
             "judge-agreement",
@@ -193,6 +199,10 @@ def main(argv: list[str] | None = None) -> int:
         build_budget_compare()
     elif args.cmd == "failure-policy":
         build_failure_policy()
+    elif args.cmd == "v2-freeze-seeds":
+        from gurma.v2.seeds import freeze_seeds
+
+        freeze_seeds(use_judge=not args.no_judge)
     elif args.cmd == "recovery-policy":
         from gurma.eval.recovery_policy import build_recovery_policy
 

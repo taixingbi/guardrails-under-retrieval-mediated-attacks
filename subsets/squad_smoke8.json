@@ -1,0 +1,24 @@
+{
+  "protocol_version": "v2.0",
+  "rubric_hashes": {
+    "qa_rubric_v1": "773c759fe9ef2ae4",
+    "a3_rubric_v1": "107e2691bc35d226",
+    "a1a4_semantic_v1": "f85c88286c7099a8",
+    "a2_semantic_v1": "1c443dd0352faf0c"
+  },
+  "rng_seed": 20261017,
+  "eligibility": "every target model clearly correct; ambiguous or unjudged \u2192 ineligible",
+  "subset": "squad_smoke8",
+  "pool": "squad",
+  "n": 8,
+  "ids": [
+    "571ccc00dd7acb1400e4c15c",
+    "57269698dd62a815002e8a6c",
+    "57274a8cf1498d1400e8f5b7",
+    "57281f203acd2414000df4f6",
+    "57293d116aef051400154bc8",
+    "5729ef266aef05140015511e",
+    "5729f4273f37b319004785fd",
+    "5730b10b8ab72b1400f9c6a0"
+  ]
+}

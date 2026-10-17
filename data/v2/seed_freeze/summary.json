@@ -1,0 +1,44 @@
+{
+  "protocol_version": "v2.0",
+  "rubric_hashes": {
+    "qa_rubric_v1": "773c759fe9ef2ae4",
+    "a3_rubric_v1": "107e2691bc35d226",
+    "a1a4_semantic_v1": "f85c88286c7099a8",
+    "a2_semantic_v1": "1c443dd0352faf0c"
+  },
+  "rng_seed": 20261017,
+  "eligibility": "every target model clearly correct; ambiguous or unjudged \u2192 ineligible",
+  "pools": {
+    "hotpot": {
+      "candidates": 400,
+      "eligible": 336,
+      "legacy_eligible": 327,
+      "eligible_in_both": 323,
+      "grade_methods": {
+        "exact_match": 479,
+        "judge": 217,
+        "token_f1": 104
+      }
+    },
+    "squad": {
+      "candidates": 200,
+      "eligible": 192,
+      "legacy_eligible": 187,
+      "eligible_in_both": 187,
+      "grade_methods": {
+        "judge": 75,
+        "exact_match": 242,
+        "token_f1": 82,
+        "refusal_or_block": 1
+      }
+    }
+  },
+  "subsets": {
+    "pilot20": 20,
+    "main100": 100,
+    "adaptive_dev": 30,
+    "squad_smoke8": 8,
+    "squad50": 50,
+    "heldout50": 50
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "protocol_version": "v2.0",
+  "rubric_hashes": {
+    "qa_rubric_v1": "773c759fe9ef2ae4",
+    "a3_rubric_v1": "107e2691bc35d226",
+    "a1a4_semantic_v1": "f85c88286c7099a8",
+    "a2_semantic_v1": "1c443dd0352faf0c"
+  },
+  "rng_seed": 20261017,
+  "eligibility": "every target model clearly correct; ambiguous or unjudged \u2192 ineligible",
+  "subset": "pilot20",
+  "pool": "hotpot",
+  "n": 20,
+  "ids": [
+    "5a74b4dc55429979e2882a00",
+    "5a7bacf35542997c3ec9724b",
+    "5a7f275d55429934daa2fd01",
+    "5a835b88554299123d8c2101",
+    "5a83f07455429933447460be",
+    "5a8f93f5554299458435d67e",
+    "5ab58ee6554299488d4d99d6",
+    "5abc089b5542993f40c73c57",
+    "5ac19b2c55429963665198b6",
+    "5adcceda5542990d50227d31",
+    "5add39c45542995b365faac5",
+    "5adf734b5542995ec70e9016",
+    "5adfc9a555429906c02daa42",
+    "5adfd56655429925eb1afaac",
+    "5adfee9c55429906c02daa8a",
+    "5ae17daa55429901ffe4aea9",
+    "5ae1bf46554299234fd042e6",
+    "5ae1d1a55542997f29b3c138",
+    "5ae2c4d75542991a06ce98d0",
+    "5ae4075b55429970de88d87a"
+  ]
+}

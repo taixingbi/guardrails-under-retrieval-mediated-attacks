@@ -58,7 +58,7 @@ All subsets are frozen seed-ID lists saved before any run (not "the first N" at 
 | E2 Composition | Known + unseen | 100 (`subsets/main100.json`) | A1–A4 | Known + Qwen + Gemma |
 | E3 Capacity | Qwen unseen | 50 (`subsets/heldout50.json`) | A1–A4 | Qwen |
 | E4 Shift | Known / unseen / adaptive | 50 matched (`subsets/heldout50.json`) | A1 / A3 / A4 primary | Known + Qwen + Gemma |
-| E4 adaptive development | HotpotQA | separate (`subsets/adaptive_dev.json`) | as per adaptive protocol | Qwen + Gemma |
+| E4 adaptive development | HotpotQA | 30 (`subsets/adaptive_dev.json`) | as per adaptive protocol | Qwen + Gemma |
 | E5 smoke | SQuAD | 8 (`subsets/squad_smoke8.json`) | A1–A4 | Qwen + Gemma |
 | E5 Cross-Dataset | SQuAD unseen | 50 (`subsets/squad50.json`) | A1–A4 | Qwen + Gemma |
 | E6 Recovery | Known + unseen | 50 (`subsets/heldout50.json`) | A1–A4 | Known + Qwen + Gemma |
@@ -67,7 +67,14 @@ All subsets are frozen seed-ID lists saved before any run (not "the first N" at 
 
 - `heldout50` ⊂ `main100`. `adaptive_dev` is disjoint from `main100` and `pilot20`. `squad_smoke8` is disjoint from `squad50`: it checks that the generation prompts tuned on the HotpotQA pilot still produce valid SQuAD attacks, and is never reported.
 - E4 unseen and E8 **reuse** the Main unseen attacks; no new generation.
-- The HotpotQA seed pool is re-frozen with the DeepSeek P2 judge before the subsets are drawn (a legacy check kept 97/100 seeds when the judge changed).
+- **Seed re-freeze (done 2026-10-17, `gurma v2-freeze-seeds`).** The legacy P2 clean answers (same target settings: temperature 0, 512 tokens) were re-scored with the v2 QA rule and `qa_rubric_v1`. A seed is eligible only if every target model is clearly correct; an ambiguous or unjudged verdict makes it ineligible. All 292 judge calls returned a verdict (none ambiguous or unjudged).
+
+  | Pool | Candidates | Eligible (v2) | Eligible (legacy) | In both |
+  |---|---:|---:|---:|---:|
+  | HotpotQA | 400 | 336 | 327 | 323 |
+  | SQuAD | 200 | 192 | 187 | 187 |
+
+  Subsets were drawn from the eligible pools with RNG seed 20261017, in the order pilot20 → main100 → adaptive_dev (HotpotQA) and squad_smoke8 → squad50 (SQuAD); heldout50 is drawn from main100. Each file in `subsets/` records the protocol version, rubric hashes and RNG seed; per-answer scores and judge outputs are in `data/v2/seed_freeze/`. 8 of the main100 seeds were not eligible under the legacy judge.
 
 ## 4. Experiment-to-model mapping
 
@@ -335,8 +342,8 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (3 attack sourc
 
 1. ~~Commit the current state as the final legacy benchmark.~~ Done: `fd9cc62`.
 2. ~~Smoke-call the new roles (`qwen3-next-80b-a3b`, `gemma-3-27b`, `deepseek` as judge): availability, output length vs budget, JSON completeness, whether a reasoning trace is returned.~~ Done 2026-10-17 (see §5).
-3. Implement the attack schema and validators, judge integration (QA and A3 rubrics, disagreement policy, unjudged handling) and the output-guard failure policy; freeze rubrics.
-4. Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.
+3. Implement the attack schema and validators, judge integration (QA and A3 rubrics, disagreement policy, unjudged handling) and the output-guard failure policy; freeze rubrics. Done: rubrics, judge, scoring rules and output-guard policy (`gurma.v2`). Open: connecting judge and scoring to the runner; attack validators, generation harness and attack-generation prompts (authors).
+4. ~~Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.~~ Done 2026-10-17 (see §3).
 5. 2-seed smoke test across all roles, plus the 8 SQuAD smoke seeds for attack validity.
 6. 20-seed pilot with Qwen and Gemma; check attack validity, generation truncation, distribution check, judge agreement and scoring reliability. Adjust prompts and rubrics only here.
 7. Lock §10, freeze the 100-seed benchmark and attack artifacts.
