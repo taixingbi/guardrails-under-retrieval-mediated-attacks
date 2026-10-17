@@ -254,6 +254,8 @@ def run_condition(
                 "output_guard": round(output_ms, 2),
             },
             "n_llm_calls": n_llm_calls,
+            **({"attack_source": attack.metadata["attack_source"]}
+               if attack is not None and attack.metadata.get("attack_source") else {}),
             **({"v2": v2} if v2 is not None else {}),
         },
     )

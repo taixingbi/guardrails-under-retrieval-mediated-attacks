@@ -97,16 +97,39 @@ def test_api_error_counts_as_a_failed_call():
     assert audit.parsed_decision == "block" and audit.parse_ok is False
 
 
+def _legacy_configs():
+    """Legacy configs only: v2 runs use the locked v2 policies (model.md §10)."""
+    from pathlib import Path
+
+    return [
+        p
+        for p in sorted(Path("configs").glob("*.yaml"))
+        if not p.name.startswith(("_", "v2_"))
+    ]
+
+
 def test_every_existing_config_keeps_fail_open():
-    """All reported runs were produced fail-open; a config change must be deliberate."""
+    """All reported legacy runs were produced fail-open; a change must be deliberate."""
+    from gurma.config import load_config
+
+    for path in _legacy_configs():
+        assert load_config(path).guard_failure_policy == "fail_open", path.name
+
+
+def test_v2_configs_use_the_locked_failure_policies():
+    """model.md §10: both guards are retry_then_block at 4096 tokens, with v2 scoring on."""
     from pathlib import Path
 
     from gurma.config import load_config
 
-    for path in sorted(Path("configs").glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        assert load_config(path).guard_failure_policy == "fail_open", path.name
+    paths = sorted(Path("configs").glob("v2_*.yaml"))
+    assert paths, "no v2 configs found"
+    for path in paths:
+        cfg = load_config(path)
+        assert cfg.guard_failure_policy == "retry_then_block", path.name
+        assert cfg.output_guard_failure_policy == "retry_then_block", path.name
+        assert cfg.chat.guardrail_max_tokens == 4096 and cfg.guard_retry_max_tokens == 4096, path.name
+        assert cfg.v2_scoring and cfg.v2_subset, path.name
 
 
 # --- Output guard -------------------------------------------------------------
@@ -148,6 +171,5 @@ def test_existing_configs_keep_output_fail_open():
 
     from gurma.config import load_config
 
-    for path in sorted(Path("configs").glob("*.yaml")):
-        if not path.name.startswith("_"):
-            assert load_config(path).output_guard_failure_policy == "fail_open", path.name
+    for path in _legacy_configs():
+        assert load_config(path).output_guard_failure_policy == "fail_open", path.name
