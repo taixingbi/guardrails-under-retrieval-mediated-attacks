@@ -1,13 +1,16 @@
 """v2 attack generation harness (model.md §2, §5).
 
 One output directory per subset × attack source:
-- `known`: fixed legacy templates for A1/A3/A4 (no LLM call) and Qwen A2 with `a2_known_v1`;
-- `qwen` / `gemma`: unseen attacks from `a<n>_unseen_v1`, same prompts for both generators.
+- `known`: fixed legacy templates for A1/A3/A4 (no LLM call) and generated A2 with `a2_known_v1`;
+- `gemma`: unseen attacks from `a<n>_unseen_v1`.
+
+Gemma 3 27B is the sole attack generator: Qwen was removed from the protocol on 2026-10-17
+(model.md §5), so there is no cross-generator arm.
 
 At most two attempts per seed × attack type, the second only after a technical failure
 (api_error, truncated, unparseable). Every attempt is saved with its raw output, finish reason
 and token usage. A1/A4 markers are drawn before generation from a fixed RNG seed and saved in
-`markers.json`; an A3 harm category is assigned per seed, so Qwen and Gemma attacks stay paired.
+`markers.json`; an A3 harm category is assigned per seed, so a seed keeps it across regimes.
 
 Files: attempts.jsonl, validation.jsonl (one final row per seed × type; resumable),
 attacks.jsonl (accepted ValidatedAttack rows), markers.json, stats.json, manifest.json.
@@ -49,8 +52,8 @@ PROMPT_DIR = ROOT / "prompts" / "attacks"
 ATTACK_DIR = ROOT / "data" / "v2" / "attacks"
 USER_DELIM = "=== user ==="
 
-GENERATORS = {"qwen": "qwen3-next-80b-a3b", "gemma": "gemma-3-27b"}
-SOURCES = ("known", "qwen", "gemma")
+GENERATOR = "gemma-3-27b"   # sole attack generator (model.md §1, §5)
+SOURCES = ("known", "gemma")
 TEMPERATURE = 0.7
 MAX_TOKENS = 4096
 MAX_ATTEMPTS = 2
@@ -127,11 +130,11 @@ def _digest(*parts: object) -> int:
 
 
 def marker_table(seed_ids: list[str]) -> dict[str, dict[str, str]]:
-    """source → "seed_id|attack_type" → ZQ-XXXXXX, for both unseen sources at once so markers are
-    unique across generators. Deterministic in RNG_SEED and the seed ids."""
+    """source → "seed_id|attack_type" → ZQ-XXXXXX, unique across the table and deterministic in
+    RNG_SEED and the seed ids."""
     table: dict[str, dict[str, str]] = {}
     used: set[str] = set()
-    for source in ("qwen", "gemma"):
+    for source in ("gemma",):
         table[source] = {}
         for sid in sorted(seed_ids):
             for atype in sorted(MARKER_ATTACKS):
@@ -208,7 +211,7 @@ def generate_one(
         "protocol_version": PROTOCOL_VERSION,
         "attack_source": source,
         "regime": "known" if source == "known" else "unseen",
-        "generator": "template" if name is None else GENERATORS["qwen" if source == "known" else source],
+        "generator": "template" if name is None else GENERATOR,
         "prompt": name,
         "prompt_hash": _hash(_prompt_text(name)) if name else None,
     }
@@ -355,8 +358,8 @@ def generate_attack_set(
         "limit": limit,
         "attack_types": list(types),
         "generator": {
-            "a1_a3_a4": "template" if source == "known" else GENERATORS[source],
-            "a2": GENERATORS["qwen" if source == "known" else source],
+            "a1_a3_a4": "template" if source == "known" else GENERATOR,
+            "a2": GENERATOR,
             "temperature": TEMPERATURE,
             "max_tokens": MAX_TOKENS,
             "max_attempts": MAX_ATTEMPTS,

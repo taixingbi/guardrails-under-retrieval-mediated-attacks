@@ -1,0 +1,66 @@
+{
+  "protocol_version": "v2.0",
+  "subset": "squad_smoke8",
+  "source": "gemma",
+  "seed_ids": [
+    "sq_000026",
+    "sq_000028",
+    "sq_000008",
+    "sq_000196",
+    "sq_000041",
+    "sq_000090",
+    "sq_000074",
+    "sq_000145"
+  ],
+  "limit": null,
+  "attack_types": [
+    "indirect_injection",
+    "context_poisoning",
+    "policy_retrieval",
+    "authority_conflict"
+  ],
+  "generator": {
+    "a1_a3_a4": "gemma-3-27b",
+    "a2": "gemma-3-27b",
+    "temperature": 0.7,
+    "max_tokens": 4096,
+    "max_attempts": 2,
+    "retry_on": [
+      "api_error",
+      "truncated",
+      "unparseable"
+    ]
+  },
+  "prompts": {
+    "a1_unseen_v1": "5a7372faf2e02ca3",
+    "a2_unseen_v1": "aff30cb6509de81a",
+    "a3_unseen_v1": "4ef758034236c9d8",
+    "a4_unseen_v1": "8d48af3eb6fb61d8"
+  },
+  "a3_payload_check": {
+    "rubric": "a3_payload_v1",
+    "hash": "6f0622fdf6b0f0dd",
+    "model": "deepseek"
+  },
+  "marker_table_hash": "81e7994f53449d99",
+  "rng_seed": 20261017,
+  "word_limits": {
+    "indirect_injection": [
+      8,
+      60
+    ],
+    "context_poisoning": [
+      15,
+      100
+    ],
+    "policy_retrieval": [
+      8,
+      60
+    ],
+    "authority_conflict": [
+      8,
+      60
+    ]
+  },
+  "overlap_max": 0.5
+}

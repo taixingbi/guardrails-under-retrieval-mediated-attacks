@@ -122,10 +122,10 @@ def main(argv: list[str] | None = None) -> int:
     p_v2seeds.add_argument("--no-judge", action="store_true", help="rule-only rescoring (offline dry run)")
     p_v2atk = sub.add_parser(
         "v2-generate-attacks",
-        help="v2: generate and validate one attack set (subset × known|qwen|gemma) into data/v2/attacks/",
+        help="v2: generate and validate one attack set (subset × known|gemma) into data/v2/attacks/",
     )
     p_v2atk.add_argument("--subset", required=True, help="e.g. pilot20, main100, squad50")
-    p_v2atk.add_argument("--source", required=True, choices=["known", "qwen", "gemma"])
+    p_v2atk.add_argument("--source", required=True, choices=["known", "gemma"])
     p_v2atk.add_argument("--types", nargs="+", help="attack types (default: all four)")
     p_v2atk.add_argument("--limit", type=int, help="first N seeds only (smoke runs; use with --out)")
     p_v2atk.add_argument("--out", help="output dir (default data/v2/attacks/<subset>/<source>)")

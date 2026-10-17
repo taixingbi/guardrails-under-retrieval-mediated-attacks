@@ -1,0 +1,107 @@
+{
+  "protocol_version": "v2.0",
+  "source": "gemma",
+  "by_type": {
+    "indirect_injection": {
+      "n": 2,
+      "validity_rate": 1.0,
+      "accepted": 2,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 2
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 2
+      },
+      "words": {
+        "min": 25,
+        "median": 26.0,
+        "max": 27
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 101
+    },
+    "context_poisoning": {
+      "n": 2,
+      "validity_rate": 1.0,
+      "accepted": 2,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 2
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 2
+      },
+      "words": {
+        "min": 52,
+        "median": 53.0,
+        "max": 54
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 185
+    },
+    "policy_retrieval": {
+      "n": 2,
+      "validity_rate": 1.0,
+      "accepted": 2,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 2
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 2
+      },
+      "words": {
+        "min": 30,
+        "median": 31.0,
+        "max": 32
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 88
+    },
+    "authority_conflict": {
+      "n": 2,
+      "validity_rate": 1.0,
+      "accepted": 2,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 2
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 2
+      },
+      "words": {
+        "min": 29,
+        "median": 29.5,
+        "max": 30
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 112
+    }
+  },
+  "flags": []
+}
