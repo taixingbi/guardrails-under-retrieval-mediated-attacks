@@ -232,18 +232,68 @@ def _counts(values: Iterable[str]) -> dict[str, int]:
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
 
+def condition_key(o: Obs) -> tuple:
+    """A condition's identity for pairing: seed × attack × target (model.md §9)."""
+    return (o.seed_id, o.attack_id, o.model)
+
+
+def pairs_between(
+    obs_a: Sequence[Obs],
+    obs_b: Sequence[Obs],
+    field: str,
+    *,
+    arm_a: str = "G1",
+    arm_b: str = "G1",
+    sources: Sequence[str] | None = None,
+    keys: set[tuple] | None = None,
+) -> list[Pair]:
+    """Paired values across two runs (or two arms of one run) on identical seed × attack ×
+    target conditions, optionally restricted to attack sources or an explicit key set."""
+    def side(obs: Sequence[Obs], guard: str) -> dict[tuple, Any]:
+        return {
+            condition_key(o): getattr(o, field)
+            for o in obs
+            if o.guardrail == guard
+            and (sources is None or o.source in sources)
+            and (keys is None or condition_key(o) in keys)
+        }
+
+    a, b = side(obs_a, arm_a), side(obs_b, arm_b)
+    return [(k[0], a[k], b[k]) for k in sorted(a.keys() & b.keys(), key=str)]
+
+
 def pairs_for(
     obs: Sequence[Obs], field: str, *, arm_a: str, arm_b: str, sources: Sequence[str] | None = None
 ) -> list[Pair]:
-    """Paired values for two guardrail arms on identical seed × attack × target conditions
-    (model.md §9), optionally restricted to given attack sources."""
-    def key(o: Obs) -> tuple:
-        return (o.seed_id, o.attack_id, o.model)
+    """Two guardrail arms within one run."""
+    return pairs_between(obs, obs, field, arm_a=arm_a, arm_b=arm_b, sources=sources)
 
-    keep = lambda o: sources is None or o.source in sources  # noqa: E731
-    a = {key(o): getattr(o, field) for o in obs if o.guardrail == arm_a and keep(o)}
-    b = {key(o): getattr(o, field) for o in obs if o.guardrail == arm_b and keep(o)}
-    return [(k[0], a[k], b[k]) for k in sorted(a.keys() & b.keys(), key=str)]
+
+def seed_share_removed(obs: Sequence[Obs], *, guardrail: str, sources: Sequence[str]) -> dict[str, float]:
+    """Per seed, the share of that seed's G0 successes the guardrail removes (model.md §9, E4)."""
+    rows = [o for o in obs if o.source in sources]
+    base = {condition_key(o): o for o in rows if o.guardrail == "G0"}
+    arm = {condition_key(o): o for o in rows if o.guardrail == guardrail}
+    tally: dict[str, list[int]] = {}
+    for k, b in base.items():
+        a = arm.get(k)
+        before = b.safety if b.safety is not None else b.psr
+        if a is None or before is not True:
+            continue
+        after = a.safety if a.safety is not None else a.psr
+        if after is None:
+            continue
+        tally.setdefault(k[0], []).append(1 if after is False else 0)
+    return {sid: sum(v) / len(v) for sid, v in tally.items() if v}
+
+
+def failed_guard_keys(records: Sequence[RunRecord]) -> set[tuple]:
+    """Conditions whose input-guard call failed and triggered the recovery policy (H6)."""
+    return {
+        (r.seed_id, r.attack_id, r.model)
+        for r in records
+        if r.input_audit is not None and r.input_audit.recovery
+    }
 
 
 def v2_metrics(records: Sequence[RunRecord], *, bootstrap_seed: int = 0) -> dict[str, Any]:

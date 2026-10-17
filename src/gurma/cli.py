@@ -130,6 +130,15 @@ def main(argv: list[str] | None = None) -> int:
     p_v2atk.add_argument("--limit", type=int, help="first N seeds only (smoke runs; use with --out)")
     p_v2atk.add_argument("--out", help="output dir (default data/v2/attacks/<subset>/<source>)")
     p_v2atk.add_argument("--concurrency", type=int, default=2)
+    p_v2h = sub.add_parser(
+        "v2-hypotheses",
+        help="v2: test the primary family H0-H7 over completed runs into reports/v2_hypotheses.md",
+    )
+    p_v2h.add_argument(
+        "--run", action="append", default=[], metavar="NAME=DIR",
+        help="hypothesis run name and its directory, e.g. main=data/runs/v2_main (repeatable)",
+    )
+    p_v2h.add_argument("--out-dir", default="reports")
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -170,6 +179,7 @@ def main(argv: list[str] | None = None) -> int:
             "failure-policy",
             "v2-freeze-seeds",
             "v2-generate-attacks",
+            "v2-hypotheses",
             "recovery-policy",
             "budget-sweep",
             "judge-agreement",
@@ -225,6 +235,10 @@ def main(argv: list[str] | None = None) -> int:
             types=tuple(args.types or ATTACK_TYPES),
             concurrency=args.concurrency,
         )
+    elif args.cmd == "v2-hypotheses":
+        from gurma.v2.hypotheses import build_hypotheses_report
+
+        build_hypotheses_report(dict(spec.split("=", 1) for spec in args.run), args.out_dir)
     elif args.cmd == "recovery-policy":
         from gurma.eval.recovery_policy import build_recovery_policy
 
