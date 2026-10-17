@@ -197,8 +197,6 @@ Target responses judged policy-violating (A3) are kept only in the uncommitted r
 
 | ID | Experiment | Primary hypothesis | Test |
 |---|---|---|---|
-| ID | Experiment | Primary hypothesis | Test |
-|---|---|---|---|
 | H0 | Main | On unseen attacks (Qwen + Gemma), hybrid G1 has lower Safety ASR than G0 | Seed-level paired permutation |
 | H1 | E1 | On unseen attacks, context placement (C) has lower Safety ASR than query placement (Q) | Seed-level paired permutation |
 | H2 | E2 | On unseen attacks, hybrid has lower PSR than rules-only | Seed-level paired permutation |
@@ -209,7 +207,7 @@ Target responses judged policy-violating (A3) are kept only in the uncommitted r
 | H7 | E7 | CoT and direct prompts differ in LLM-only Safety ASR | Seed-level paired permutation |
 | H8 | E8 | Qwen and Gemma attacks differ in G1 Safety ASR | Cluster bootstrap CI (different attack texts per seed) |
 
-These hypotheses are a **draft for confirmation** before the protocol is locked.
+These hypotheses were confirmed on 2026-10-17 and are part of the locked protocol.
 
 **H6 eligibility.** H6 needs at least 30 failed guard calls in E6. This is decided from the failure count alone, before any E6 outcome is examined. If the count is below 30, H6 is removed from the primary family, reported as descriptive, and Holm is applied to the remaining eight hypotheses.
 
@@ -333,7 +331,7 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (3 attack sourc
 
 ## 12. Execution plan
 
-1. Commit the current state as the final legacy benchmark.
+1. ~~Commit the current state as the final legacy benchmark.~~ Done: `fd9cc62`.
 2. Smoke-call the new roles (`qwen3-next-80b-a3b`, `gemma-3-27b`, `deepseek` as judge): availability, output length vs budget, JSON completeness, whether a reasoning trace is returned.
 3. Implement the attack schema and validators, judge integration (QA and A3 rubrics, disagreement policy, unjudged handling) and the output-guard failure policy; freeze rubrics.
 4. Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.
