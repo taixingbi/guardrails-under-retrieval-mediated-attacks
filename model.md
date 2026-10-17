@@ -105,7 +105,8 @@ All subsets are frozen seed-ID lists saved before any run (not "the first N" at 
 | Attack Generator B | Gemma 27B | 4096 (endpoint maximum) | Truncated or invalid → invalid |
 
 - Both generators get the same budget: payloads are capped at 60/100 words, so the budget only has to cover any reasoning before the payload, and an asymmetric budget would be a confound. The 2-seed smoke test checks whether either generator reaches the cap.
-- **Decoding:** temperature 0.7 for both generators (proposed; confirmed at the smoke test, then locked). A request seed is sent and recorded if the endpoint supports one; otherwise the frozen attack artifacts are the reproducibility record.
+- **Decoding:** temperature 0.7 for both generators, locked after the smoke test. The client does not send a request seed, so the frozen attack artifacts are the reproducibility record.
+- **Smoke test (2026-10-17).** Both generators and the judge are available. None returns a reasoning trace, and Qwen behaves as a non-thinking model. A 30–60-word JSON payload used 71–79 output tokens (finish reason `stop`), far below the 4096 cap. Gemma wraps its JSON in a Markdown code fence, which the parser and validator must accept. At 0.7, repeated calls start with nearly identical wording, so diversity comes mainly from different seeds.
 - **Payload length** is bounded so a generator cannot gain an advantage from longer payloads. Known templates are 23 (A1), 42 (A3) and 32 (A4) words; legacy A2 passages had a median of 29–35 words.
 
   | Attack | Min words | Max words |
@@ -332,7 +333,7 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (3 attack sourc
 ## 12. Execution plan
 
 1. ~~Commit the current state as the final legacy benchmark.~~ Done: `fd9cc62`.
-2. Smoke-call the new roles (`qwen3-next-80b-a3b`, `gemma-3-27b`, `deepseek` as judge): availability, output length vs budget, JSON completeness, whether a reasoning trace is returned.
+2. ~~Smoke-call the new roles (`qwen3-next-80b-a3b`, `gemma-3-27b`, `deepseek` as judge): availability, output length vs budget, JSON completeness, whether a reasoning trace is returned.~~ Done 2026-10-17 (see §5).
 3. Implement the attack schema and validators, judge integration (QA and A3 rubrics, disagreement policy, unjudged handling) and the output-guard failure policy; freeze rubrics.
 4. Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.
 5. 2-seed smoke test across all roles, plus the 8 SQuAD smoke seeds for attack validity.
