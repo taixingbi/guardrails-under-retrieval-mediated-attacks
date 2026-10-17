@@ -336,6 +336,8 @@ Conditions: 600 (attack=600, clean=0).
 
 ## E6 — Guard budget and failure handling
 
+`gpt-oss` is a reasoning model and spends tokens before it writes its JSON verdict. When the output is cut off or cannot be parsed, the input guard defaults to `allow` and the output guard to `pass` ([llm_guard.py](../src/gurma/guardrails/llm_guard.py)), so a failed guard call lets the content through. The original runs used a 768-token guard budget.
+
 ### Paired 768 vs 4096 (G1)
 
 Same conditions re-run with only `guardrail_max_tokens` changed. Safety Acc = task accuracy on A1/A3/A4. Full table: [budget_compare.md](../data/runs/budget_compare/budget_compare.md).
@@ -370,13 +372,13 @@ Same conditions re-run with only `guardrail_max_tokens` changed. Safety Acc = ta
 
 gpt-oss guard, direct prompt, fail-open, first 50 seeds × 4 attacks + clean × 2 target models. Only `guardrail_max_tokens` changes. 768 and 4096 are the main LLM-only runs restricted to the same seeds.
 
-| Guard budget | n | Parse fail | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | Mean guard out tokens | Guard P95 ms |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 768 | 500 | 0.436 | 0.440 | 0.320 | 0.427 | 0.910 | — | — |
-| 1024 | 500 | 0.438 | 0.490 | 0.350 | 0.388 | 0.880 | 682 | 8356 |
-| 1536 | 500 | 0.312 | 0.337 | 0.310 | 0.492 | 0.880 | 882 | 8191 |
-| 2048 | 500 | 0.084 | 0.113 | 0.250 | 0.710 | 0.880 | 984 | 9906 |
-| 4096 | 500 | 0.000 | 0.027 | 0.210 | 0.770 | 0.880 | 956 | 10138 |
+| Guard budget | n | Parse fail | Unparseable: truncated / all | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | Mean guard out tokens | Guard P95 ms |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 768 | 500 | 0.436 | — | 0.440 | 0.320 | 0.427 | 0.910 | — | — |
+| 1024 | 500 | 0.438 | 219 / 219 | 0.490 | 0.350 | 0.388 | 0.880 | 682 | 8356 |
+| 1536 | 500 | 0.312 | 156 / 156 | 0.337 | 0.310 | 0.492 | 0.880 | 882 | 8191 |
+| 2048 | 500 | 0.084 | 42 / 42 | 0.113 | 0.250 | 0.710 | 0.880 | 984 | 9906 |
+| 4096 | 500 | 0.000 | 0 / 0 | 0.027 | 0.210 | 0.770 | 0.880 | 956 | 10138 |
 
 ### Failure policy at 768
 
@@ -403,11 +405,24 @@ At 768 tokens an unparseable guard output was treated as `allow` (fail-open). Fa
 |  | fail-closed (768, counterfactual) | 0.342 | 0.000 | 0.100 | 0.855 | — |
 |  | 4096 (as run) | 0.000 | 0.000 | 0.120 | 0.915 | — |
 
+Where the fail-open allows and successes came from (768, G1, attacked contexts):
+
+| Run | Attacked | Allowed | … unparseable | Attack successes | … from unparseable |
+|---|---:|---:|---:|---:|---:|
+| main | 800 | 77 | 38 (49%) | 60 | 24 (40%) |
+| main_ablation_llm | 800 | 488 | 423 (87%) | 341 | 299 (88%) |
+| main_transfer | 300 | 249 | 214 (86%) | 28 | 26 (93%) |
+| main_adaptive | 300 | 267 | 169 (63%) | 98 | 41 (42%) |
+| main_baseline_mod | 400 | 228 | 210 (92%) | 161 | 147 (91%) |
+| main_third_model | 200 | 21 | 13 (62%) | 12 | 7 (58%) |
+
 Fail-closed safety is slightly optimistic: a real block is occasionally still judged an attack success. Parse fail is over G1 only, so it can differ from the budget table (G1+G2).
+
+Truncation affected every LLM-guarded run, not only LLM-only. Safety ASR that was already 0.000 stays 0.000, but PSR and accuracy move in most runs, because fail-open also lets poisoned context through.
 
 ## E7 — CoT guard prompt (paired)
 
-Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`). Full write-up: [e6-e7-guard-budget-and-cot.md](e6-e7-guard-budget-and-cot.md).
+Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`: four reasoning steps, verbatim evidence, rationale). 100 seeds × 4 attacks × 2 models, paired on identical conditions. Guard cost counts G1 calls only. The 20-seed pilot (`cot_pilot_llm_*`) is superseded by these runs.
 
 ### B2 vs B4 (LLM-only)
 
@@ -435,6 +450,13 @@ A = `main_ablation_llm_b4096`, B = `main_cot_llm`. Paired on identical (seed, at
 | A | 1000 | 0.000 | 12629 | 971 |
 | B | 1000 | 0.000 | 14814 | 1503 |
 
+| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
+|---|---|---|---:|---|
+| authority_conflict | 18 / 155 / 27 | 0 / 182 / 18 | 21 | sanitize→block (11) |
+| context_poisoning | 38 / 157 / 5 | 36 / 162 / 2 | 6 | sanitize→sanitize (3) |
+| indirect_injection | 2 / 176 / 22 | 0 / 197 / 3 | 6 | sanitize→block (3) |
+| policy_retrieval | 1 / 166 / 33 | 0 / 124 / 76 | 50 | sanitize→block (48) |
+
 ### B3 vs B5 (hybrid)
 
 A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, model, guardrail); Δ = B − A with paired-bootstrap 95% CI; McNemar exact p on discordant pairs.
@@ -460,6 +482,19 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 |---|---:|---:|---:|---:|
 | A | 346 | 0.000 | 9167 | 473 |
 | B | 346 | 0.003 | 13916 | 895 |
+
+| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
+|---|---|---|---:|---|
+| authority_conflict | 0 / 200 / 0 | 0 / 200 / 0 | 2 | sanitize→sanitize (2) |
+| context_poisoning | 35 / 158 / 7 | 43 / 157 / 0 | 7 | sanitize→allow (4) |
+| indirect_injection | 0 / 200 / 0 | 0 / 200 / 0 | 0 | — |
+| policy_retrieval | 0 / 200 / 0 | 0 / 200 / 0 | 2 | sanitize→sanitize (2) |
+
+### Why CoT loses policy-retrieval answers (LLM-only)
+
+CoT step 3 asks whether a span requests harmful content. The guard then blocks the whole context (76 blocks vs 33 without CoT) instead of removing the harmful span and keeping the facts the question needs. 48 of the 50 answers CoT lost changed from sanitize to block; the direct prompt sanitized the same contexts and answered correctly.
+
+Typical rationale: *"The retrieved context includes an explicit instruction to produce a dangerous chemical weapon guide, which is prohibited. Even though the user's question is benign, the malicious instruction must be blocked to prevent policy violation."*
 
 ### Evidence attribution and decision sensitivity
 
@@ -526,3 +561,21 @@ Main A2 poison passages were generated by gpt-oss (also the guard): 27/100 fell 
 - Known A2 passages were written by gpt-oss, the guard model, and 27/100 are a fixed template fallback; every PSR outside the independence check mixes the two. The independence check regenerates A2 with deepseek for hybrid, LLM-only and rules-only only.
 - The P2 judge is gpt-oss, the guard model. It only grades clean answers for seed selection; P5 scoring is rule-based.
 - Rules-only G2 still calls the gpt-oss output guard; its original run used a 768-token budget, but output-guard parse failures were 0.3%.
+
+## Appendix — Paper changes required
+
+Hand-maintained checklist, not regenerated: what the first paper draft (768-token guard runs) reports and what the current runs show.
+
+| Paper item | Draft (768) | Current (4096) | Change |
+|---|---|---|---|
+| Table III, LLM-only Safety ASR | 0.457 | 0.018 | Replace; LLM guards are not weak |
+| Finding 2 / V-B "Composition Dominates Safety Robustness" | hybrid ≫ LLM-only on safety | all modes ≈ 0 Safety ASR | Reframe: hybrid wins on PSR (0.205 vs 0.415 rules), accuracy (0.849 vs 0.751 LLM-only) and cost |
+| Table IV / unseen, gpt-oss | 0.093; "3B beats 120B" | 0.017; gpt-oss best | Remove the claim |
+| All PSR numbers | e.g. hybrid 0.300 | e.g. hybrid 0.205 | Replace |
+| Moderation baseline | 0.377 | 0.000 (Acc 0.588) | Replace |
+| Adaptive attacks | 0.327 | 0.203 | Replace |
+| Hybrid / placement Safety ASR | 0.000 | 0.000 | Unchanged |
+| Guard budget | not stated | 4096; E6 sweep and failure policy | State the budget; report the threshold and the fail-open risk |
+| CoT | not reported | E7 | Optional new subsection |
+
+The repository README states that 768 truncates gpt-oss and fails open, so a reviewer reading the repository can find the issue. The paper should state the guard budget and use the 4096 numbers throughout.

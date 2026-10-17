@@ -187,7 +187,38 @@ def _f(x: Any, digits: int = 3) -> str:
     return str(x)
 
 
-def _pair_markdown(title: str, a_name: str, b_name: str, rows: list[dict[str, Any]], ha: dict, hb: dict) -> list[str]:
+def decision_shift(a: list[RunRecord], b: list[RunRecord], *, guardrail: str = "G1") -> dict[str, Any]:
+    """Input-guard decisions per attack in A vs B, and how they changed where B lost an answer."""
+    a_by = {_key(r): r for r in a if r.guardrail == guardrail}
+    b_by = {_key(r): r for r in b if r.guardrail == guardrail}
+    out: dict[str, Any] = {}
+    for k in sorted(a_by.keys() & b_by.keys()):
+        ra, rb = a_by[k], b_by[k]
+        atype = ra.attack_type or "clean"
+        if atype == "clean" or ra.input_audit is None or rb.input_audit is None:
+            continue
+        cell = out.setdefault(atype, {"a": {}, "b": {}, "lost": {}, "lost_n": 0, "example": None})
+        da, db = ra.input_audit.parsed_decision, rb.input_audit.parsed_decision
+        cell["a"][da] = cell["a"].get(da, 0) + 1
+        cell["b"][db] = cell["b"].get(db, 0) + 1
+        if ra.answer_correct and not rb.answer_correct:
+            move = f"{da}→{db}"
+            cell["lost"][move] = cell["lost"].get(move, 0) + 1
+            cell["lost_n"] += 1
+            if cell["example"] is None and da == "sanitize" and db == "block":
+                cell["example"] = (rb.input_audit.rationale or "")[:240]
+    return out
+
+
+def _pair_markdown(
+    title: str,
+    a_name: str,
+    b_name: str,
+    rows: list[dict[str, Any]],
+    ha: dict,
+    hb: dict,
+    shift: dict[str, Any] | None = None,
+) -> list[str]:
     lines = [
         f"## {title}",
         "",
@@ -211,6 +242,19 @@ def _pair_markdown(title: str, a_name: str, b_name: str, rows: list[dict[str, An
         f"| B | {hb['llm_guard_calls']} | {_f(hb['parse_fail_rate'])} | {_f(hb['input_guard_p95_ms'], 0)} | {_f(hb['mean_completion_tokens'], 0)} |",
         "",
     ]
+    if shift:
+        lines += [
+            "| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |",
+            "|---|---|---|---:|---|",
+        ]
+        for atype, cell in shift.items():
+            fmt = lambda d: " / ".join(str(d.get(x, 0)) for x in ("allow", "sanitize", "block"))  # noqa: E731
+            top = max(cell["lost"].items(), key=lambda kv: kv[1]) if cell["lost"] else None
+            lines.append(
+                f"| {atype} | {fmt(cell['a'])} | {fmt(cell['b'])} | {cell['lost_n']} | "
+                f"{'—' if top is None else f'{top[0]} ({top[1]})'} |"
+            )
+        lines.append("")
     return lines
 
 
@@ -231,8 +275,11 @@ def _build(
             return [r for r in records if guardrails is None or r.guardrail in guardrails]
 
         ha, hb = guard_health(in_scope(a)), guard_health(in_scope(b))
-        report["pairs"].append({"label": label, "a": a_name, "b": b_name, "rows": rows, "health_a": ha, "health_b": hb})
-        lines += _pair_markdown(label, a_name, b_name, rows, ha, hb)
+        shift = decision_shift(a, b) if guardrails == {"G1"} else None
+        report["pairs"].append(
+            {"label": label, "a": a_name, "b": b_name, "rows": rows, "health_a": ha, "health_b": hb, "decision_shift": shift}
+        )
+        lines += _pair_markdown(label, a_name, b_name, rows, ha, hb, shift)
     if report["missing"]:
         lines += ["Missing (not yet run): " + ", ".join(report["missing"]), ""]
     stem = out_dir.name

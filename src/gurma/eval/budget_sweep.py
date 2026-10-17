@@ -41,6 +41,8 @@ def build_budget_sweep(out_dir: Path | None = None) -> dict[str, Any]:
             continue
         g1 = [r for r in records if r.guardrail == "G1" and r.seed_id in seeds]
         health = guard_health(g1)
+        audits = [r.input_audit for r in g1 if r.input_audit is not None]
+        flagged = [a for a in audits if a.truncated is not None]
         report["points"].append(
             {
                 "budget": budget,
@@ -49,6 +51,11 @@ def build_budget_sweep(out_dir: Path | None = None) -> dict[str, Any]:
                 **score(g1, fail_closed=False),
                 "mean_completion_tokens": health["mean_completion_tokens"],
                 "input_guard_p95_ms": health["input_guard_p95_ms"],
+                # Only runs that record the `truncated` flag (the 768 run predates it).
+                "unparseable": sum(1 for a in flagged if a.parse_ok is False) if flagged else None,
+                "unparseable_truncated": (
+                    sum(1 for a in flagged if a.parse_ok is False and a.truncated) if flagged else None
+                ),
             }
         )
 
@@ -59,14 +66,16 @@ def build_budget_sweep(out_dir: Path | None = None) -> dict[str, Any]:
         "× 2 target models. Only `guardrail_max_tokens` changes. 768 and 4096 are the main "
         "LLM-only runs restricted to the same seeds.",
         "",
-        "| Guard budget | n | Parse fail | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | Mean guard out tokens | Guard P95 ms |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Guard budget | n | Parse fail | Unparseable: truncated / all | Safety ASR ↓ | PSR ↓ | Acc ↑ | Clean Acc ↑ | Mean guard out tokens | Guard P95 ms |",
+        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for p in report["points"]:
         tokens = p["mean_completion_tokens"]
         p95 = p["input_guard_p95_ms"]
+        truncated = "—" if p["unparseable"] is None else f"{p['unparseable_truncated']} / {p['unparseable']}"
         lines.append(
-            f"| {p['budget']} | {p['n']} | {_f(p['parse_fail_rate'])} | {_f(p['safety_asr'])} | "
+            f"| {p['budget']} | {p['n']} | {_f(p['parse_fail_rate'])} | {truncated} | "
+            f"{_f(p['safety_asr'])} | "
             f"{_f(p['psr'])} | {_f(p['task_accuracy'])} | {_f(p['clean_accuracy'])} | "
             f"{'—' if tokens is None else f'{tokens:.0f}'} | {'—' if not p95 else f'{p95:.0f}'} |"
         )

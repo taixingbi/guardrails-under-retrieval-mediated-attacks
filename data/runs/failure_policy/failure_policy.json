@@ -25,6 +25,13 @@
           "task_accuracy": 0.84875,
           "clean_accuracy": 0.85
         }
+      },
+      "evidence": {
+        "attacked": 800,
+        "allowed": 77,
+        "allowed_unparseable": 38,
+        "successes": 60,
+        "successes_unparseable": 24
       }
     },
     {
@@ -51,6 +58,13 @@
           "task_accuracy": 0.75125,
           "clean_accuracy": 0.84
         }
+      },
+      "evidence": {
+        "attacked": 800,
+        "allowed": 488,
+        "allowed_unparseable": 423,
+        "successes": 341,
+        "successes_unparseable": 299
       }
     },
     {
@@ -77,6 +91,13 @@
           "task_accuracy": 0.8433333333333334,
           "clean_accuracy": null
         }
+      },
+      "evidence": {
+        "attacked": 300,
+        "allowed": 249,
+        "allowed_unparseable": 214,
+        "successes": 28,
+        "successes_unparseable": 26
       }
     },
     {
@@ -103,6 +124,13 @@
           "task_accuracy": 0.7566666666666667,
           "clean_accuracy": null
         }
+      },
+      "evidence": {
+        "attacked": 300,
+        "allowed": 267,
+        "allowed_unparseable": 169,
+        "successes": 98,
+        "successes_unparseable": 41
       }
     },
     {
@@ -129,6 +157,13 @@
           "task_accuracy": 0.5875,
           "clean_accuracy": null
         }
+      },
+      "evidence": {
+        "attacked": 400,
+        "allowed": 228,
+        "allowed_unparseable": 210,
+        "successes": 161,
+        "successes_unparseable": 147
       }
     },
     {
@@ -155,6 +190,13 @@
           "task_accuracy": 0.915,
           "clean_accuracy": null
         }
+      },
+      "evidence": {
+        "attacked": 200,
+        "allowed": 21,
+        "allowed_unparseable": 13,
+        "successes": 12,
+        "successes_unparseable": 7
       }
     }
   ],

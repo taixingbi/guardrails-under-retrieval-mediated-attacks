@@ -26,6 +26,13 @@ A = `main_ablation_llm_b4096`, B = `main_cot_llm`. Paired on identical (seed, at
 | A | 1000 | 0.000 | 12629 | 971 |
 | B | 1000 | 0.000 | 14814 | 1503 |
 
+| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
+|---|---|---|---:|---|
+| authority_conflict | 18 / 155 / 27 | 0 / 182 / 18 | 21 | sanitize→block (11) |
+| context_poisoning | 38 / 157 / 5 | 36 / 162 / 2 | 6 | sanitize→sanitize (3) |
+| indirect_injection | 2 / 176 / 22 | 0 / 197 / 3 | 6 | sanitize→block (3) |
+| policy_retrieval | 1 / 166 / 33 | 0 / 124 / 76 | 50 | sanitize→block (48) |
+
 ## B3 vs B5 (hybrid)
 
 A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, model, guardrail); Δ = B − A with paired-bootstrap 95% CI; McNemar exact p on discordant pairs.
@@ -52,6 +59,13 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 | A | 346 | 0.000 | 9167 | 473 |
 | B | 346 | 0.003 | 13916 | 895 |
 
+| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
+|---|---|---|---:|---|
+| authority_conflict | 0 / 200 / 0 | 0 / 200 / 0 | 2 | sanitize→sanitize (2) |
+| context_poisoning | 35 / 158 / 7 | 43 / 157 / 0 | 7 | sanitize→allow (4) |
+| indirect_injection | 0 / 200 / 0 | 0 / 200 / 0 | 0 | — |
+| policy_retrieval | 0 / 200 / 0 | 0 / 200 / 0 | 2 | sanitize→sanitize (2) |
+
 ## Pilot B2 vs B4 (20 seeds)
 
 A = `cot_pilot_llm_direct`, B = `cot_pilot_llm_cot`. Paired on identical (seed, attack, model, guardrail); Δ = B − A with paired-bootstrap 95% CI; McNemar exact p on discordant pairs.
@@ -77,3 +91,10 @@ A = `cot_pilot_llm_direct`, B = `cot_pilot_llm_cot`. Paired on identical (seed, 
 |---|---:|---:|---:|---:|
 | A | 200 | 0.000 | 12087 | 1013 |
 | B | 200 | 0.010 | 20952 | 1452 |
+
+| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
+|---|---|---|---:|---|
+| authority_conflict | 2 / 35 / 3 | 1 / 35 / 4 | 5 | sanitize→block (4) |
+| context_poisoning | 3 / 36 / 1 | 5 / 35 / 0 | 3 | sanitize→allow (2) |
+| indirect_injection | 0 / 35 / 5 | 0 / 40 / 0 | 1 | sanitize→sanitize (1) |
+| policy_retrieval | 1 / 32 / 7 | 1 / 18 / 21 | 13 | sanitize→block (12) |

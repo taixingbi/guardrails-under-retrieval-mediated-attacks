@@ -186,6 +186,47 @@ def _attribution_section(runs: list[tuple[str, dict[str, Any]]]) -> list[str]:
     return lines + [""]
 
 
+def _cot_mechanism(cot: dict[str, Any]) -> list[str]:
+    """Why CoT loses policy-retrieval answers on LLM-only G1 (from cot_compare.json)."""
+    pair = next((p for p in cot.get("pairs") or [] if p.get("b") == "main_cot_llm"), None)
+    cell = ((pair or {}).get("decision_shift") or {}).get("policy_retrieval")
+    if not cell:
+        return []
+    moved = cell["lost"].get("sanitize→block", 0)
+    lines = [
+        "### Why CoT loses policy-retrieval answers (LLM-only)",
+        "",
+        "CoT step 3 asks whether a span requests harmful content. The guard then blocks the "
+        f"whole context ({cell['b'].get('block', 0)} blocks vs {cell['a'].get('block', 0)} without CoT) "
+        "instead of removing the harmful span and keeping the facts the question needs. "
+        f"{moved} of the {cell['lost_n']} answers CoT lost changed from sanitize to block; the "
+        "direct prompt sanitized the same contexts and answered correctly.",
+        "",
+    ]
+    if cell.get("example"):
+        lines += [f"Typical rationale: *\"{cell['example']}\"*", ""]
+    return lines
+
+
+# Hand-maintained: old values come from the original 768-token runs and the first paper draft.
+PAPER_CHANGES = [
+    ("Table III, LLM-only Safety ASR", "0.457", "0.018", "Replace; LLM guards are not weak"),
+    (
+        "Finding 2 / V-B \"Composition Dominates Safety Robustness\"",
+        "hybrid ≫ LLM-only on safety",
+        "all modes ≈ 0 Safety ASR",
+        "Reframe: hybrid wins on PSR (0.205 vs 0.415 rules), accuracy (0.849 vs 0.751 LLM-only) and cost",
+    ),
+    ("Table IV / unseen, gpt-oss", "0.093; \"3B beats 120B\"", "0.017; gpt-oss best", "Remove the claim"),
+    ("All PSR numbers", "e.g. hybrid 0.300", "e.g. hybrid 0.205", "Replace"),
+    ("Moderation baseline", "0.377", "0.000 (Acc 0.588)", "Replace"),
+    ("Adaptive attacks", "0.327", "0.203", "Replace"),
+    ("Hybrid / placement Safety ASR", "0.000", "0.000", "Unchanged"),
+    ("Guard budget", "not stated", "4096; E6 sweep and failure policy", "State the budget; report the threshold and the fail-open risk"),
+    ("CoT", "not reported", "E7", "Optional new subsection"),
+]
+
+
 FINDINGS = [
     # Main result
     "**G0 is highly vulnerable** to retrieval-mediated instruction attacks "
@@ -512,7 +553,15 @@ def render_paper_report(
             lines += [f"### {title}", "", blurb, "", *_run_summary(metrics)]
 
     # --- E6 Budget and failure handling ----------------------------------
-    lines += ["## E6 — Guard budget and failure handling", ""]
+    lines += [
+        "## E6 — Guard budget and failure handling",
+        "",
+        "`gpt-oss` is a reasoning model and spends tokens before it writes its JSON verdict. When "
+        "the output is cut off or cannot be parsed, the input guard defaults to `allow` and the "
+        "output guard to `pass` ([llm_guard.py](../src/gurma/guardrails/llm_guard.py)), so a failed "
+        "guard call lets the content through. The original runs used a 768-token guard budget.",
+        "",
+    ]
     if budget:
         lines += _budget_section(budget)
     sweep = runs_dir / "budget_sweep/budget_sweep.md"
@@ -521,6 +570,12 @@ def render_paper_report(
     failure = runs_dir / "failure_policy/failure_policy.md"
     if failure.exists():
         lines += ["### Failure policy at 768", "", *_embed(failure, depth=2)]
+    lines += [
+        "Truncation affected every LLM-guarded run, not only LLM-only. Safety ASR that was "
+        "already 0.000 stays 0.000, but PSR and accuracy move in most runs, because fail-open "
+        "also lets poisoned context through.",
+        "",
+    ]
 
     # --- E7 CoT ----------------------------------------------------------
     cot = runs_dir / "cot_compare/cot_compare.md"
@@ -528,11 +583,16 @@ def render_paper_report(
         lines += [
             "## E7 — CoT guard prompt (paired)",
             "",
-            "Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`). "
-            "Full write-up: [e6-e7-guard-budget-and-cot.md](e6-e7-guard-budget-and-cot.md).",
+            "Same 4096 budget; only the input-guard prompt changes (`v3` → `v3-cot`: four "
+            "reasoning steps, verbatim evidence, rationale). 100 seeds × 4 attacks × 2 models, "
+            "paired on identical conditions. Guard cost counts G1 calls only. The 20-seed pilot "
+            "(`cot_pilot_llm_*`) is superseded by these runs.",
             "",
             *_embed(cot, drop_from="## Pilot"),
         ]
+        cot_json = runs_dir / "cot_compare/cot_compare.json"
+        if cot_json.exists():
+            lines += _cot_mechanism(_load(cot_json))
     attribution = [
         (label, _load(path))
         for label, path in (
@@ -584,6 +644,21 @@ def render_paper_report(
         "selection; P5 scoring is rule-based.",
         "- Rules-only G2 still calls the gpt-oss output guard; its original run used a 768-token "
         "budget, but output-guard parse failures were 0.3%.",
+        "",
+    ]
+    lines += [
+        "## Appendix — Paper changes required",
+        "",
+        "Hand-maintained checklist, not regenerated: what the first paper draft (768-token guard "
+        "runs) reports and what the current runs show.",
+        "",
+        "| Paper item | Draft (768) | Current (4096) | Change |",
+        "|---|---|---|---|",
+        *[f"| {item} | {old} | {new} | {change} |" for item, old, new, change in PAPER_CHANGES],
+        "",
+        "The repository README states that 768 truncates gpt-oss and fails open, so a reviewer "
+        "reading the repository can find the issue. The paper should state the guard budget and "
+        "use the 4096 numbers throughout.",
         "",
     ]
     return "\n".join(lines)
