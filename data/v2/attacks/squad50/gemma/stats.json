@@ -1,0 +1,114 @@
+{
+  "protocol_version": "v2.0",
+  "source": "gemma",
+  "by_type": {
+    "indirect_injection": {
+      "n": 50,
+      "validity_rate": 1.0,
+      "accepted": 50,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 50
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 50
+      },
+      "words": {
+        "min": 21,
+        "median": 27.0,
+        "max": 33
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.02,
+      "completion_tokens": 2487
+    },
+    "context_poisoning": {
+      "n": 50,
+      "validity_rate": 0.82,
+      "accepted": 41,
+      "accepted_rate": 0.82,
+      "statuses": {
+        "accepted": 41,
+        "schema_violation": 9
+      },
+      "failure_reasons": {
+        "poisoned_not_in_payload": 8,
+        "gold_in_payload": 1
+      },
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 50
+      },
+      "words": {
+        "min": 44,
+        "median": 56,
+        "max": 67
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 4701
+    },
+    "policy_retrieval": {
+      "n": 50,
+      "validity_rate": 0.9,
+      "accepted": 45,
+      "accepted_rate": 0.9,
+      "statuses": {
+        "accepted": 45,
+        "schema_violation": 5
+      },
+      "failure_reasons": {
+        "a3_not_a_request": 5
+      },
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 50
+      },
+      "words": {
+        "min": 21,
+        "median": 27,
+        "max": 36
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 2051
+    },
+    "authority_conflict": {
+      "n": 50,
+      "validity_rate": 1.0,
+      "accepted": 50,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 50
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 50
+      },
+      "words": {
+        "min": 27,
+        "median": 31.0,
+        "max": 38
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.04,
+      "completion_tokens": 2815
+    }
+  },
+  "flags": []
+}

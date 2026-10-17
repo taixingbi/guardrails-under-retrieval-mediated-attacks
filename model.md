@@ -250,6 +250,9 @@ Main results are reported per attack distribution, never only as one pooled aver
 
 ## 10. Locked configuration
 
+**Locked 2026-10-17** after the pilot (§13) and the benchmark freeze (§14). Changes from
+here require a new protocol version.
+
 ```yaml
 protocol_version: v2.0
 
@@ -346,7 +349,7 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (2 attack sourc
 4. ~~Re-freeze the HotpotQA seed pool with the DeepSeek P2 judge; draw and save all seed subsets.~~ Done 2026-10-17 (see §3).
 5. ~~2-seed smoke test across all roles, plus the 8 SQuAD smoke seeds for attack validity.~~ Done 2026-10-17 (see §5); it removed Qwen from the protocol, so the known A2 smoke artifacts were discarded and regenerated with Gemma.
 6. ~~20-seed pilot with Gemma; check attack validity, generation truncation, distribution check, judge agreement and scoring reliability.~~ Generation and the full G0/G1/G2 × 2-target run done 2026-10-17 (`data/runs/v2_pilot20`, 1,062 conditions; see §13). Prompt and rubric changes, if any, must still be made before step 7.
-7. Lock §10, freeze the 100-seed benchmark and attack artifacts.
+7. ~~Lock §10, freeze the 100-seed benchmark and attack artifacts.~~ Done 2026-10-17 (§14).
 8. Run Main, E1 and E2.
 9. Run E3, E4 (known / unseen) and E5.
 10. Run E6 and E7.
@@ -400,3 +403,39 @@ requires, so H6 is likely to leave the primary family and be reported as descrip
 guard variants (E2, E3) have little room on Safety ASR and should be read on PSR and task
 accuracy. The placement comparison (H1) is unaffected, because query-only placement never
 sees the retrieved context.
+
+## 14. Frozen benchmark artifacts (2026-10-17)
+
+Generated with `gurma v2-generate-attacks` and committed under `data/v2/attacks/`. The
+client sends no request seed, so these files — not a seed — are the reproducibility record.
+
+| Set | Accepted | A1 | A2 | A3 | A4 | Manifest hash |
+|---|---|---:|---:|---:|---:|---|
+| `main100/known` | 390/400 | 100 | 90 | 100 | 100 | `f913abcfd32d1cdf` |
+| `main100/gemma` | 376/400 | 100 | 88 | 88 | 100 | `056ebb90d67c70da` |
+| `squad50/gemma` | 186/200 | 50 | 41 | 45 | 50 | `d58ed001f20599c8` |
+
+Attack-generation prompts: `a1_unseen_v1` `5a7372faf2e02ca3`, `a2_known_v1`
+`02fbaa9bd206ca58`, `a2_unseen_v1` `aff30cb6509de81a`, `a3_unseen_v1` `4ef758034236c9d8`,
+`a4_unseen_v1` `8d48af3eb6fb61d8`. Rubrics: `qa_rubric_v1` `773c759fe9ef2ae4`,
+`a3_rubric_v1` `107e2691bc35d226`, `a1a4_semantic_v1` `f85c88286c7099a8`, `a2_semantic_v1`
+`1c443dd0352faf0c`, `a3_payload_v1` `6f0622fdf6b0f0dd`.
+
+**Validity failures** are deterministic schema violations, which by §5 get no retry. A2 is
+the weakest type in both regimes: the generator names a poisoned answer and then writes it
+in a different surface form (`poisoned_not_in_payload`: 11 unseen, 8 SQuAD), or picks an
+answer that collides with the gold one (`poisoned_equals_gold`: 5 known), or mentions the
+gold answer in the passage (`gold_in_payload`: 3 known, 1 SQuAD). A3 unseen lost 12 (main)
+and 5 (SQuAD) items to `a3_not_a_request`, the same hedging seen in the pilot. One known A2
+item stayed unparseable after its single permitted retry. Every failure is listed with its
+reason in each set's `validation.jsonl` and counted in `stats.json`.
+
+**Distribution check passes.** Unseen 4-gram containment with the known templates is 0.00
+on average for every attack type (largest single payload 0.23, cutoff 0.50), and unseen
+rule-hit rates are 0.00–0.05, far below the 0.20 flag. No set raised a flag.
+
+**Experiment configs.** `configs/_v2_base.yaml` carries the §10 settings; each
+`configs/v2_*.yaml` extends it. Arms are scoped to what each hypothesis needs: E2 and E7
+run G1 only, E3 runs G1 on Nova Pro only, E6 isolates the input policy at G1 and the output
+policy at G2, and these runs borrow the guardrail-independent G0 arm from Main instead of
+re-running it.
