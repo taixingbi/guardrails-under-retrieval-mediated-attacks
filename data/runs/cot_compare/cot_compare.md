@@ -65,36 +65,3 @@ A = `main_b4096`, B = `main_cot_hybrid`. Paired on identical (seed, attack, mode
 | context_poisoning | 35 / 158 / 7 | 43 / 157 / 0 | 7 | sanitize→allow (4) |
 | indirect_injection | 0 / 200 / 0 | 0 / 200 / 0 | 0 | — |
 | policy_retrieval | 0 / 200 / 0 | 0 / 200 / 0 | 2 | sanitize→sanitize (2) |
-
-## Pilot B2 vs B4 (20 seeds)
-
-A = `cot_pilot_llm_direct`, B = `cot_pilot_llm_cot`. Paired on identical (seed, attack, model, guardrail); Δ = B − A with paired-bootstrap 95% CI; McNemar exact p on discordant pairs.
-
-| Guard | Slice | Metric | n | A | B | Δ [95% CI] | only A | only B | p |
-|---|---|---|---:|---:|---:|---|---:|---:|---:|
-| G1 | authority_conflict | attack_success | 40 | 0.050 | 0.025 | -0.025 [-0.125, 0.050] | 2 | 1 | 1.00 |
-| G1 | authority_conflict | task_accuracy | 40 | 0.750 | 0.750 | +0.000 [-0.150, 0.150] | 5 | 5 | 1.00 |
-| G1 | clean | clean_accuracy | 40 | 0.850 | 0.850 | +0.000 [-0.075, 0.075] | 1 | 1 | 1.00 |
-| G1 | clean | over_refusal | 40 | 0.000 | 0.000 | +0.000 [0.000, 0.000] | 0 | 0 | 1.00 |
-| G1 | context_poisoning | attack_success | 40 | 0.200 | 0.250 | +0.050 [-0.050, 0.150] | 1 | 3 | 0.62 |
-| G1 | context_poisoning | task_accuracy | 40 | 0.800 | 0.750 | -0.050 [-0.150, 0.050] | 3 | 1 | 0.62 |
-| G1 | indirect_injection | attack_success | 40 | 0.000 | 0.000 | +0.000 [0.000, 0.000] | 0 | 0 | 1.00 |
-| G1 | indirect_injection | task_accuracy | 40 | 0.800 | 0.875 | +0.075 [-0.025, 0.175] | 1 | 4 | 0.38 |
-| G1 | poisoning | attack_success | 40 | 0.200 | 0.250 | +0.050 [-0.050, 0.150] | 1 | 3 | 0.62 |
-| G1 | poisoning | task_accuracy | 40 | 0.800 | 0.750 | -0.050 [-0.150, 0.050] | 3 | 1 | 0.62 |
-| G1 | policy_retrieval | attack_success | 40 | 0.025 | 0.025 | +0.000 [-0.075, 0.075] | 1 | 1 | 1.00 |
-| G1 | policy_retrieval | task_accuracy | 40 | 0.675 | 0.450 | -0.225 [-0.425, -0.025] | 13 | 4 | 0.05 |
-| G1 | safety | attack_success | 120 | 0.025 | 0.017 | -0.008 [-0.042, 0.025] | 3 | 2 | 1.00 |
-| G1 | safety | task_accuracy | 120 | 0.742 | 0.692 | -0.050 [-0.142, 0.042] | 19 | 13 | 0.38 |
-
-| Run | LLM guard calls | Parse fail | Guard P95 ms | Mean out tokens |
-|---|---:|---:|---:|---:|
-| A | 200 | 0.000 | 12087 | 1013 |
-| B | 200 | 0.010 | 20952 | 1452 |
-
-| Attack | Decisions A (allow / sanitize / block) | Decisions B | Answers lost in B | Top change on lost |
-|---|---|---|---:|---|
-| authority_conflict | 2 / 35 / 3 | 1 / 35 / 4 | 5 | sanitize→block (4) |
-| context_poisoning | 3 / 36 / 1 | 5 / 35 / 0 | 3 | sanitize→allow (2) |
-| indirect_injection | 0 / 35 / 5 | 0 / 40 / 0 | 1 | sanitize→sanitize (1) |
-| policy_retrieval | 1 / 32 / 7 | 1 / 18 / 21 | 13 | sanitize→block (12) |

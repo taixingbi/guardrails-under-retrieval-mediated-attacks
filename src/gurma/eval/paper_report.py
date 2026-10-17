@@ -106,11 +106,9 @@ def _run_summary(metrics: dict[str, Any]) -> list[str]:
     ]
 
 
-def _embed(path: Path, *, drop_from: str | None = None, depth: int = 1) -> list[str]:
+def _embed(path: Path, *, depth: int = 1) -> list[str]:
     """Inline a generated markdown file: drop its H1 title and nest its headings `depth` levels."""
     text = path.read_text()
-    if drop_from and drop_from in text:
-        text = text[: text.index(drop_from)]
     out = []
     for line in text.strip().splitlines():
         if line.startswith("# "):
@@ -613,7 +611,7 @@ def render_paper_report(
             "paired on identical conditions. Guard cost counts G1 calls only. The 20-seed pilot "
             "(`cot_pilot_llm_*`) is superseded by these runs.",
             "",
-            *_embed(cot, drop_from="## Pilot"),
+            *_embed(cot),
         ]
         cot_json = runs_dir / "cot_compare/cot_compare.json"
         if cot_json.exists():

@@ -145,33 +145,27 @@ Each run stores `guardrail_prompt_version`, `guardrail_model`, `guardrail_raw_ou
 
 **Do not change** `guardrail_prompt_version` after main starts. See [FREEZE.md](FREEZE.md).
 
-## CoT extension — Phase 1 pilot (B2 vs B4)
-
-> Superseded by Phase 2 (`main_cot_llm`, 100 seeds). The pilot predates the JSON `strict=False` fix
-> (1 of 200 CoT guard calls affected) and is kept only as the Phase 1 record.
+## CoT guard prompt
 
 Frozen `input.txt` is untouched. `guardrail_reasoning: cot` swaps in `prompts/guardrails/input_cot.txt`
-(stepwise checks + verbatim evidence quotes + rationale); audits are labelled `v3-cot`.
-Both arms reuse main's frozen seeds/attacks (20 seeds, G1, LLM-only) at the same 4096-token guard budget (endpoint max; 768 truncates gpt-oss and fails open).
-
-```bash
-gurma -c configs/cot_pilot_llm_direct.yaml rerun-guardrails   # B2
-gurma -c configs/cot_pilot_llm_cot.yaml rerun-guardrails      # B4
-```
+(stepwise checks + verbatim evidence quotes + rationale); audits are labelled `v3-cot`. The full
+experiment is `main_cot_llm` / `main_cot_hybrid` (100 seeds, 4096-token guard budget). The 20-seed
+Phase 1 pilot (`configs/cot_pilot_llm_*.yaml`) is superseded; its run data was removed and the configs
+are kept only to reproduce it.
 
 Besides `metrics.md`, P6 writes `6_metrics/trace_metrics.md`: JSON parse-fail and truncation rates,
 evidence citation and verbatim-match rates, signal/decision mismatch, input-guard P95 latency and tokens.
 `guardrail_reasoning_effort` (low/medium/high) is optionally forwarded to gpt-oss; its native reasoning
-is stored as `input_audit.native_reasoning` when the endpoint returns it.
+is stored as `input_audit.native_reasoning` when the endpoint returns it (the current endpoint returns none, and `reasoning_effort` had no measurable effect).
 
 ## Guard-budget correction and CoT Phases 2–3
 
-At `guardrail_max_tokens: 768` the LLM input guard often truncates (gpt-oss hidden reasoning, Ministral
-sanitize echoes), the JSON fails to parse and the guard fails open (`allow`). Every experiment has a
+At `guardrail_max_tokens: 768` the LLM input guard often truncates (a `sanitize` verdict echoes the whole
+cleaned context), the JSON fails to parse and the guard fails open (`allow`). Every experiment has a
 `configs/<run>_b4096.yaml` twin that reuses `<run>`'s frozen P1–P4 and re-runs P5–P7 at 4096 (endpoint max).
 
 ```bash
-scripts/run_queue.sh main_b4096 main_ablation_llm_b4096 main_cot_llm main_cot_hybrid ...  # sequential; status in data/runs/queue_status.txt
+scripts/run_queue.sh main_b4096 main_ablation_llm_b4096 main_cot_llm main_cot_hybrid ...  # sequential; status in data/runs/queue_status.txt (local, not committed)
 gurma budget-compare      # data/runs/budget_compare/: every run, 768 vs 4096, paired
 gurma cot-compare         # data/runs/cot_compare/: B2 vs B4 (LLM-only), B3 vs B5 (hybrid), paired G1
 gurma annotate-export     # data/runs/cot_annotation/annotation_sample.csv (stratified, failures oversampled)

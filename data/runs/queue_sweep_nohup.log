@@ -1,8 +1,0 @@
-2026-10-16 11:48:48 START budget_sweep_llm_b1024
-2026-10-16 12:07:23 DONE  budget_sweep_llm_b1024
-2026-10-16 12:07:23 START budget_sweep_llm_b1536
-2026-10-16 12:27:07 DONE  budget_sweep_llm_b1536
-2026-10-16 12:27:07 START budget_sweep_llm_b2048
-2026-10-16 12:48:53 DONE  budget_sweep_llm_b2048
-[budget-sweep] wrote data/runs/budget_sweep/budget_sweep.md
-[report] wrote /Users/h/Desktop/paper/paper7-Guardrail/paper7-Guardrails-Under-Retrieval-Mediated-Attacks/reports/main-e1-e7-results.md

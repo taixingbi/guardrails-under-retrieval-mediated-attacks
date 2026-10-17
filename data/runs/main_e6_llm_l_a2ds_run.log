@@ -1,36 +1,0 @@
-[reuse] data/runs/main_a2ds/1_seeds → data/runs/main_e6_llm_l_a2ds/1_seeds
-[reuse] data/runs/main_a2ds/2_validated_seeds → data/runs/main_e6_llm_l_a2ds/2_validated_seeds
-[reuse] data/runs/main_a2ds/3_attacks → data/runs/main_e6_llm_l_a2ds/3_attacks
-[reuse] data/runs/main_a2ds/4_validated_attacks → data/runs/main_e6_llm_l_a2ds/4_validated_attacks
-[reuse] truncated to seed_limit=50
-[reuse] frozen seeds=50 attacks=50 guardrail_prompt_version=v3 input_mode=llm
-P5 guardrail runs:   0%|          | 0/50 [00:00<?, ?it/s]P5 guardrail runs:   2%|▏         | 1/50 [00:02<01:53,  2.32s/it]P5 guardrail runs:   4%|▍         | 2/50 [00:02<01:04,  1.34s/it]P5 guardrail runs:   6%|▌         | 3/50 [00:04<01:13,  1.57s/it]P5 guardrail runs:   8%|▊         | 4/50 [00:05<00:54,  1.19s/it]P5 guardrail runs:  10%|█         | 5/50 [00:06<00:58,  1.30s/it]P5 guardrail runs:  12%|█▏        | 6/50 [00:07<00:46,  1.06s/it]P5 guardrail runs:  14%|█▍        | 7/50 [00:09<01:00,  1.40s/it]P5 guardrail runs:  16%|█▌        | 8/50 [00:11<01:06,  1.59s/it]P5 guardrail runs:  18%|█▊        | 9/50 [00:14<01:20,  1.96s/it]P5 guardrail runs:  20%|██        | 10/50 [00:16<01:22,  2.06s/it]P5 guardrail runs:  22%|██▏       | 11/50 [00:19<01:31,  2.35s/it]P5 guardrail runs:  24%|██▍       | 12/50 [00:21<01:27,  2.31s/it]P5 guardrail runs:  26%|██▌       | 13/50 [00:23<01:19,  2.14s/it]P5 guardrail runs:  28%|██▊       | 14/50 [00:26<01:24,  2.35s/it]P5 guardrail runs:  30%|███       | 15/50 [00:28<01:21,  2.34s/it]P5 guardrail runs:  32%|███▏      | 16/50 [00:32<01:34,  2.77s/it]P5 guardrail runs:  34%|███▍      | 17/50 [00:34<01:18,  2.37s/it]P5 guardrail runs:  36%|███▌      | 18/50 [00:36<01:19,  2.47s/it]P5 guardrail runs:  38%|███▊      | 19/50 [00:37<00:57,  1.86s/it]P5 guardrail runs:  40%|████      | 20/50 [00:37<00:44,  1.49s/it]P5 guardrail runs:  42%|████▏     | 21/50 [00:38<00:39,  1.36s/it]P5 guardrail runs:  44%|████▍     | 22/50 [00:40<00:40,  1.46s/it]P5 guardrail runs:  46%|████▌     | 23/50 [00:43<00:49,  1.82s/it]P5 guardrail runs:  48%|████▊     | 24/50 [00:43<00:37,  1.46s/it]P5 guardrail runs:  50%|█████     | 25/50 [00:44<00:29,  1.20s/it]P5 guardrail runs:  52%|█████▏    | 26/50 [00:45<00:28,  1.18s/it]P5 guardrail runs:  54%|█████▍    | 27/50 [00:49<00:46,  2.01s/it]P5 guardrail runs:  56%|█████▌    | 28/50 [00:50<00:39,  1.79s/it]P5 guardrail runs:  58%|█████▊    | 29/50 [00:52<00:40,  1.90s/it]P5 guardrail runs:  60%|██████    | 30/50 [00:55<00:39,  1.96s/it]P5 guardrail runs:  62%|██████▏   | 31/50 [00:55<00:29,  1.57s/it]P5 guardrail runs:  64%|██████▍   | 32/50 [00:56<00:22,  1.24s/it]P5 guardrail runs:  66%|██████▌   | 33/50 [00:56<00:18,  1.06s/it]P5 guardrail runs:  68%|██████▊   | 34/50 [00:57<00:16,  1.05s/it]P5 guardrail runs:  70%|███████   | 35/50 [01:00<00:20,  1.39s/it]P5 guardrail runs:  72%|███████▏  | 36/50 [01:00<00:16,  1.19s/it]P5 guardrail runs:  74%|███████▍  | 37/50 [01:01<00:13,  1.00s/it]P5 guardrail runs:  76%|███████▌  | 38/50 [01:02<00:11,  1.01it/s]P5 guardrail runs:  78%|███████▊  | 39/50 [01:05<00:18,  1.65s/it]P5 guardrail runs:  80%|████████  | 40/50 [01:06<00:13,  1.37s/it]P5 guardrail runs:  82%|████████▏ | 41/50 [01:07<00:12,  1.34s/it]P5 guardrail runs:  84%|████████▍ | 42/50 [01:09<00:12,  1.61s/it]P5 guardrail runs:  86%|████████▌ | 43/50 [01:10<00:09,  1.33s/it]P5 guardrail runs:  88%|████████▊ | 44/50 [01:13<00:11,  1.85s/it]P5 guardrail runs:  90%|█████████ | 45/50 [01:14<00:08,  1.67s/it]P5 guardrail runs:  92%|█████████▏| 46/50 [01:18<00:08,  2.18s/it]P5 guardrail runs:  94%|█████████▍| 47/50 [01:19<00:05,  1.84s/it]P5 guardrail runs:  96%|█████████▌| 48/50 [01:22<00:04,  2.20s/it]P5 guardrail runs:  98%|█████████▊| 49/50 [01:23<00:02,  2.00s/it]P5 guardrail runs: 100%|██████████| 50/50 [01:26<00:00,  2.30s/it]P5 guardrail runs: 100%|██████████| 50/50 [01:26<00:00,  1.73s/it]
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 1/8 in 1.0s
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 1/8 in 1.0s
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 2/8 in 2.0s
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 3/8 in 4.0s
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 4/8 in 8.0s
-[chat] HTTP 502 '{"error":"bedrock request failed","detail":"Too many requests, please wait before trying again."}'; retry 5/8 in 16.0s
-[P5] experimental conditions=50 (clean=0, attack=50) → data/runs/main_e6_llm_l_a2ds/5_runs/run_records.jsonl
-[P5] note: inference API calls exceed condition count (input/output guards, judges, validation).
-[P6] wrote metrics → data/runs/main_e6_llm_l_a2ds/6_metrics
-# Gate Review
-
-## Verdict signals
-
-- G1 input decisions on attacks: `{'sanitize': 28, 'allow': 8, 'block': 14}`
-- G2 output decisions on attacks: `{}`
-- G2 input→output: `{}`
-- Rescue: G0 successes=0/0; G1 stopped 0; G2 rescued after G1 miss 0
-- G2 correct by output decision: `{}`
-- Clean G1 input: `{}`; Clean G2 output: `{}`
-
-## Interpretation
-
-1. **G1 active**: 42/50 (84.0%) attacked contexts were sanitize/block; allow=8 (16.0%).
-2. **G2 mechanism**: block=0, rewrite=0, pass=0. Rewrite is rare — Acc gains are not primarily rewrite-inflated.
-3. Compare against ablations (rules-only / LLM-only / hybrid) before claiming which input component drives Safety ASR reductions.
-
-Samples: `pilot_gate_samples.jsonl`
-
-[P7] wrote pilot gate → data/runs/main_e6_llm_l_a2ds/7_ablation

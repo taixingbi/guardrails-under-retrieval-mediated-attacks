@@ -1,8 +1,0 @@
-2026-10-15 22:32:59 START main_adaptive_b4096
-2026-10-15 23:06:35 DONE  main_adaptive_b4096
-2026-10-15 23:06:35 START main_cot_llm
-2026-10-16 00:15:26 DONE  main_cot_llm
-[compare] wrote data/runs/budget_compare/budget_compare.md
-[compare] wrote data/runs/cot_compare/cot_compare.md
-[annotate] wrote 123 items → data/runs/cot_annotation/annotation_sample.csv
-[report] wrote /Users/h/Desktop/paper/paper7-Guardrail/paper7-Guardrails-Under-Retrieval-Mediated-Attacks/reports/results.md

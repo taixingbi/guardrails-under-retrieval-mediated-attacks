@@ -17,3 +17,7 @@ data/runs/**/4_validated_attacks/
 data/runs/**/5_runs/
 
 # Keep reports: 6_metrics/, 7_ablation/, ablation_compare/
+
+# Run logs and queue status (local only)
+data/runs/*.log
+data/runs/queue_status.txt

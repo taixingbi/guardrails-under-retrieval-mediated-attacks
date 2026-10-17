@@ -22,7 +22,6 @@ COT_PAIRS = [
     # (label, baseline run, CoT run)
     ("B2 vs B4 (LLM-only)", "main_ablation_llm_b4096", "main_cot_llm"),
     ("B3 vs B5 (hybrid)", "main_b4096", "main_cot_hybrid"),
-    ("Pilot B2 vs B4 (20 seeds)", "cot_pilot_llm_direct", "cot_pilot_llm_cot"),
 ]
 
 BUDGET_RUNS = [
