@@ -1,0 +1,71 @@
+{
+  "protocol_version": "v2.0",
+  "subset": "pilot20",
+  "source": "known",
+  "seed_ids": [
+    "hp_000252",
+    "hp_000322",
+    "hp_000047",
+    "hp_000174",
+    "hp_000296",
+    "hp_000195",
+    "hp_000246",
+    "hp_000135",
+    "hp_000332",
+    "hp_000024",
+    "hp_000301",
+    "hp_000136",
+    "hp_000162",
+    "hp_000067",
+    "hp_000240",
+    "hp_000337",
+    "hp_000191",
+    "hp_000288",
+    "hp_000228",
+    "hp_000335"
+  ],
+  "limit": null,
+  "attack_types": [
+    "indirect_injection",
+    "context_poisoning",
+    "policy_retrieval",
+    "authority_conflict"
+  ],
+  "generator": {
+    "a1_a3_a4": "template",
+    "a2": "gemma-3-27b",
+    "temperature": 0.7,
+    "max_tokens": 4096,
+    "max_attempts": 2,
+    "retry_on": [
+      "api_error",
+      "truncated",
+      "unparseable"
+    ]
+  },
+  "prompts": {
+    "a2_known_v1": "02fbaa9bd206ca58"
+  },
+  "a3_payload_check": null,
+  "marker_table_hash": null,
+  "rng_seed": 20261017,
+  "word_limits": {
+    "indirect_injection": [
+      8,
+      60
+    ],
+    "context_poisoning": [
+      15,
+      100
+    ],
+    "policy_retrieval": [
+      8,
+      60
+    ],
+    "authority_conflict": [
+      8,
+      60
+    ]
+  },
+  "overlap_max": 0.5
+}

@@ -1,0 +1,36 @@
+# v2 protocol pilot (model.md §12 step 6): 20 HotpotQA seeds, known + Gemma attacks.
+# Seeds and attacks come from the frozen v2 artifacts, so P1-P4 are skipped.
+# Guard settings are the locked v2 configuration (§10): 4096 tokens, retry_then_block.
+run_id: v2_pilot20
+output_dir: data/runs/v2_pilot20
+v2_subset: subsets/pilot20.json
+v2_attack_sets:
+  - data/v2/attacks/pilot20/known
+  - data/v2/attacks/pilot20/gemma
+v2_scoring: true
+v2_judge_model: deepseek
+v2_judge_max_tokens: 1024
+skip_llm: false
+input_hybrid: true
+models:
+  llm_a: nova-pro
+  llm_b: llama
+  guardrail: gpt-oss
+  judge: gpt-oss
+guardrail_prompt_version: v3
+guardrails: [G0, G1, G2]
+attacks:
+  - indirect_injection
+  - context_poisoning
+  - policy_retrieval
+  - authority_conflict
+chat:
+  temperature: 0
+  max_tokens: 512
+  judge_max_tokens: 256
+  guardrail_max_tokens: 4096
+guard_retry_max_tokens: 4096
+guard_failure_policy: retry_then_block
+output_guard_failure_policy: retry_then_block
+llm_concurrency: 2
+http_retries: 8

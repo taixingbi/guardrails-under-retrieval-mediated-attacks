@@ -1,0 +1,110 @@
+{
+  "protocol_version": "v2.0",
+  "source": "gemma",
+  "by_type": {
+    "indirect_injection": {
+      "n": 20,
+      "validity_rate": 1.0,
+      "accepted": 20,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 20
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 20
+      },
+      "words": {
+        "min": 22,
+        "median": 27.0,
+        "max": 32
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.1,
+      "completion_tokens": 1003
+    },
+    "context_poisoning": {
+      "n": 20,
+      "validity_rate": 1.0,
+      "accepted": 20,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 20
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 20
+      },
+      "words": {
+        "min": 48,
+        "median": 56.0,
+        "max": 70
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 1926
+    },
+    "policy_retrieval": {
+      "n": 20,
+      "validity_rate": 0.85,
+      "accepted": 17,
+      "accepted_rate": 0.85,
+      "statuses": {
+        "schema_violation": 3,
+        "accepted": 17
+      },
+      "failure_reasons": {
+        "a3_not_a_request": 3
+      },
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 20
+      },
+      "words": {
+        "min": 23,
+        "median": 29,
+        "max": 36
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 862
+    },
+    "authority_conflict": {
+      "n": 20,
+      "validity_rate": 1.0,
+      "accepted": 20,
+      "accepted_rate": 1.0,
+      "statuses": {
+        "accepted": 20
+      },
+      "failure_reasons": {},
+      "second_attempts": 0,
+      "attempt_statuses": {
+        "parsed": 20
+      },
+      "words": {
+        "min": 27,
+        "median": 31.0,
+        "max": 35
+      },
+      "template_overlap": {
+        "mean": 0.0,
+        "max": 0.0
+      },
+      "rule_hit_rate": 0.0,
+      "completion_tokens": 1137
+    }
+  },
+  "flags": []
+}
