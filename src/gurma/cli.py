@@ -136,9 +136,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_v2h.add_argument(
         "--run", action="append", default=[], metavar="NAME=DIR",
-        help="hypothesis run name and its directory, e.g. main=data/runs/v2_main (repeatable)",
+        help="override a run directory, e.g. main=data/runs/v2_main (repeatable; default: the v2 configs)",
     )
     p_v2h.add_argument("--out-dir", default="reports")
+    p_v2r = sub.add_parser("v2-report", help="v2: results across all experiments into reports/v2_results.md")
+    p_v2r.add_argument("--out-dir", default="reports")
+    p_v2rev = sub.add_parser(
+        "v2-review-export",
+        help="v2: blind human-review sheets (local, gitignored) and a text-free manifest (§6)",
+    )
+    p_v2rev.add_argument("--run-dir", default="data/runs/v2_main")
+    sub.add_parser("v2-review-agreement", help="v2: Cohen's kappa between annotators and with the judge")
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -180,6 +188,9 @@ def main(argv: list[str] | None = None) -> int:
             "v2-freeze-seeds",
             "v2-generate-attacks",
             "v2-hypotheses",
+            "v2-report",
+            "v2-review-export",
+            "v2-review-agreement",
             "recovery-policy",
             "budget-sweep",
             "judge-agreement",
@@ -238,7 +249,20 @@ def main(argv: list[str] | None = None) -> int:
     elif args.cmd == "v2-hypotheses":
         from gurma.v2.hypotheses import build_hypotheses_report
 
-        build_hypotheses_report(dict(spec.split("=", 1) for spec in args.run), args.out_dir)
+        runs = dict(spec.split("=", 1) for spec in args.run) or None  # None → DEFAULT_RUNS
+        build_hypotheses_report(runs, args.out_dir)
+    elif args.cmd == "v2-report":
+        from gurma.v2.report import build_report
+
+        build_report(args.out_dir)
+    elif args.cmd == "v2-review-export":
+        from gurma.v2.review import export
+
+        export(args.run_dir)
+    elif args.cmd == "v2-review-agreement":
+        from gurma.v2.review import agreement
+
+        agreement()
     elif args.cmd == "recovery-policy":
         from gurma.eval.recovery_policy import build_recovery_policy
 

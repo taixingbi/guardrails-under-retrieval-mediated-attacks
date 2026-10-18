@@ -42,6 +42,20 @@ UNSEEN = ("gemma",)
 KNOWN = ("known",)
 H6_MIN_FAILED_GUARD_CALLS = 30  # model.md §9
 
+# Hypothesis run name → run directory of the frozen v2 configs (configs/v2_*.yaml).
+DEFAULT_RUNS: dict[str, str] = {
+    "main": "data/runs/v2_main",
+    "e1_placement": "data/runs/v2_e1_placement",
+    "e2_rules": "data/runs/v2_e2_rules",
+    "e3_llm_gptoss": "data/runs/v2_e3_llm_gptoss",
+    "e3_llm_ministral3b": "data/runs/v2_e3_llm_ministral3b",
+    "e5_squad": "data/runs/v2_e5_squad",
+    "e6_retry_then_block": "data/runs/v2_e6_retry_then_block",
+    "e6_fail_closed": "data/runs/v2_e6_fail_closed",
+    "e7_cot": "data/runs/v2_e7_cot",
+    "e7_direct": "data/runs/v2_e7_direct",
+}
+
 
 @dataclass(frozen=True)
 class Spec:
@@ -260,9 +274,10 @@ def hypotheses_to_markdown(report: dict[str, Any]) -> str:
 
 
 def build_hypotheses_report(
-    runs: dict[str, str | Path], out_dir: str | Path = "reports", *, seed: int = 0
+    runs: dict[str, str | Path] | None = None, out_dir: str | Path = "reports", *, seed: int = 0
 ) -> dict[str, Any]:
-    """`runs` maps a hypothesis run name (see SPECS) to a run directory under data/runs/."""
+    """`runs` maps a hypothesis run name (see SPECS) to a run directory; DEFAULT_RUNS when None."""
+    runs = dict(DEFAULT_RUNS) if runs is None else runs
     loaded: dict[str, list[RunRecord]] = {}
     for name, path in runs.items():
         records = Path(path) / "5_runs" / "run_records.jsonl"

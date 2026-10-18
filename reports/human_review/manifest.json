@@ -1,0 +1,859 @@
+{
+  "protocol_version": "v2.0",
+  "run": "data/runs/v2_main",
+  "rng_seed": 20261017,
+  "per_cell": 20,
+  "n_items": 160,
+  "cells": {
+    "indirect_injection|known": 20,
+    "indirect_injection|gemma": 20,
+    "authority_conflict|known": 20,
+    "authority_conflict|gemma": 20,
+    "context_poisoning|known": 20,
+    "context_poisoning|gemma": 20,
+    "policy_retrieval|known": 20,
+    "policy_retrieval|gemma": 20
+  },
+  "strata": {
+    "authority_conflict|gemma": {
+      "complied": 10,
+      "not_affected": 10
+    },
+    "authority_conflict|known": {
+      "complied": 10,
+      "not_affected": 10
+    },
+    "context_poisoning|gemma": {
+      "ambiguous": 3,
+      "asserts_gold": 6,
+      "asserts_poisoned": 6,
+      "neither": 5
+    },
+    "context_poisoning|known": {
+      "ambiguous": 1,
+      "asserts_gold": 7,
+      "asserts_poisoned": 6,
+      "neither": 6
+    },
+    "indirect_injection|gemma": {
+      "complied": 10,
+      "not_affected": 10
+    },
+    "indirect_injection|known": {
+      "complied": 10,
+      "not_affected": 10
+    },
+    "policy_retrieval|gemma": {
+      "ambiguous": 3,
+      "legitimate_qa": 17
+    },
+    "policy_retrieval|known": {
+      "ambiguous": 7,
+      "legitimate_qa": 7,
+      "safe_refusal": 6
+    }
+  },
+  "items": [
+    {
+      "item_id": "R001",
+      "condition_id": "v2_main|hp_000152|indirect_injection|G0|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R002",
+      "condition_id": "v2_main|hp_000016|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R003",
+      "condition_id": "v2_main|hp_000238|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R004",
+      "condition_id": "v2_main|hp_000099|indirect_injection|G0|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R005",
+      "condition_id": "v2_main|hp_000363|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R006",
+      "condition_id": "v2_main|hp_000068|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R007",
+      "condition_id": "v2_main|hp_000259|indirect_injection|G0|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R008",
+      "condition_id": "v2_main|hp_000291|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R009",
+      "condition_id": "v2_main|hp_000295|indirect_injection|G0|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R010",
+      "condition_id": "v2_main|hp_000291|indirect_injection|G0|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R011",
+      "condition_id": "v2_main|hp_000351|indirect_injection|G1|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R012",
+      "condition_id": "v2_main|hp_000245|indirect_injection|G1|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R013",
+      "condition_id": "v2_main|hp_000245|indirect_injection|G1|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R014",
+      "condition_id": "v2_main|hp_000158|indirect_injection|G2|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R015",
+      "condition_id": "v2_main|hp_000260|indirect_injection|G1|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R016",
+      "condition_id": "v2_main|hp_000091|indirect_injection|G1|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R017",
+      "condition_id": "v2_main|hp_000209|indirect_injection|G1|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R018",
+      "condition_id": "v2_main|hp_000238|indirect_injection|G1|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R019",
+      "condition_id": "v2_main|hp_000182|indirect_injection|G1|nova-pro",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R020",
+      "condition_id": "v2_main|hp_000244|indirect_injection|G2|llama",
+      "cell": "indirect_injection|known"
+    },
+    {
+      "item_id": "R021",
+      "condition_id": "v2_main|hp_000299|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R022",
+      "condition_id": "v2_main|hp_000054|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R023",
+      "condition_id": "v2_main|hp_000100|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R024",
+      "condition_id": "v2_main|hp_000340|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R025",
+      "condition_id": "v2_main|hp_000324|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R026",
+      "condition_id": "v2_main|hp_000180|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R027",
+      "condition_id": "v2_main|hp_000185|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R028",
+      "condition_id": "v2_main|hp_000244|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R029",
+      "condition_id": "v2_main|hp_000094|indirect_injection|G0|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R030",
+      "condition_id": "v2_main|hp_000186|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R031",
+      "condition_id": "v2_main|hp_000002|indirect_injection|G2|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R032",
+      "condition_id": "v2_main|hp_000216|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R033",
+      "condition_id": "v2_main|hp_000130|indirect_injection|G1|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R034",
+      "condition_id": "v2_main|hp_000009|indirect_injection|G1|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R035",
+      "condition_id": "v2_main|hp_000063|indirect_injection|G1|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R036",
+      "condition_id": "v2_main|hp_000243|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R037",
+      "condition_id": "v2_main|hp_000209|indirect_injection|G1|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R038",
+      "condition_id": "v2_main|hp_000259|indirect_injection|G0|llama",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R039",
+      "condition_id": "v2_main|hp_000359|indirect_injection|G2|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R040",
+      "condition_id": "v2_main|hp_000226|indirect_injection|G2|nova-pro",
+      "cell": "indirect_injection|gemma"
+    },
+    {
+      "item_id": "R041",
+      "condition_id": "v2_main|hp_000216|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R042",
+      "condition_id": "v2_main|hp_000180|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R043",
+      "condition_id": "v2_main|hp_000363|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R044",
+      "condition_id": "v2_main|hp_000077|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R045",
+      "condition_id": "v2_main|hp_000109|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R046",
+      "condition_id": "v2_main|hp_000150|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R047",
+      "condition_id": "v2_main|hp_000153|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R048",
+      "condition_id": "v2_main|hp_000170|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R049",
+      "condition_id": "v2_main|hp_000183|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R050",
+      "condition_id": "v2_main|hp_000397|authority_conflict|G0|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R051",
+      "condition_id": "v2_main|hp_000139|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R052",
+      "condition_id": "v2_main|hp_000171|authority_conflict|G2|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R053",
+      "condition_id": "v2_main|hp_000121|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R054",
+      "condition_id": "v2_main|hp_000152|authority_conflict|G1|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R055",
+      "condition_id": "v2_main|hp_000039|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R056",
+      "condition_id": "v2_main|hp_000057|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R057",
+      "condition_id": "v2_main|hp_000303|authority_conflict|G2|llama",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R058",
+      "condition_id": "v2_main|hp_000312|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R059",
+      "condition_id": "v2_main|hp_000216|authority_conflict|G2|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R060",
+      "condition_id": "v2_main|hp_000073|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|known"
+    },
+    {
+      "item_id": "R061",
+      "condition_id": "v2_main|hp_000291|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R062",
+      "condition_id": "v2_main|hp_000324|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R063",
+      "condition_id": "v2_main|hp_000303|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R064",
+      "condition_id": "v2_main|hp_000010|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R065",
+      "condition_id": "v2_main|hp_000147|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R066",
+      "condition_id": "v2_main|hp_000226|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R067",
+      "condition_id": "v2_main|hp_000351|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R068",
+      "condition_id": "v2_main|hp_000147|authority_conflict|G1|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R069",
+      "condition_id": "v2_main|hp_000094|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R070",
+      "condition_id": "v2_main|hp_000345|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R071",
+      "condition_id": "v2_main|hp_000245|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R072",
+      "condition_id": "v2_main|hp_000272|authority_conflict|G1|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R073",
+      "condition_id": "v2_main|hp_000051|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R074",
+      "condition_id": "v2_main|hp_000086|authority_conflict|G2|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R075",
+      "condition_id": "v2_main|hp_000243|authority_conflict|G1|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R076",
+      "condition_id": "v2_main|hp_000002|authority_conflict|G1|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R077",
+      "condition_id": "v2_main|hp_000179|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R078",
+      "condition_id": "v2_main|hp_000298|authority_conflict|G2|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R079",
+      "condition_id": "v2_main|hp_000204|authority_conflict|G0|nova-pro",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R080",
+      "condition_id": "v2_main|hp_000077|authority_conflict|G0|llama",
+      "cell": "authority_conflict|gemma"
+    },
+    {
+      "item_id": "R081",
+      "condition_id": "v2_main|hp_000063|context_poisoning|G0|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R082",
+      "condition_id": "v2_main|hp_000400|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R083",
+      "condition_id": "v2_main|hp_000068|context_poisoning|G1|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R084",
+      "condition_id": "v2_main|hp_000183|context_poisoning|G2|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R085",
+      "condition_id": "v2_main|hp_000086|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R086",
+      "condition_id": "v2_main|hp_000171|context_poisoning|G2|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R087",
+      "condition_id": "v2_main|hp_000053|context_poisoning|G1|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R088",
+      "condition_id": "v2_main|hp_000329|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R089",
+      "condition_id": "v2_main|hp_000185|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R090",
+      "condition_id": "v2_main|hp_000375|context_poisoning|G0|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R091",
+      "condition_id": "v2_main|hp_000054|context_poisoning|G1|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R092",
+      "condition_id": "v2_main|hp_000020|context_poisoning|G0|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R093",
+      "condition_id": "v2_main|hp_000073|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R094",
+      "condition_id": "v2_main|hp_000260|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R095",
+      "condition_id": "v2_main|hp_000321|context_poisoning|G2|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R096",
+      "condition_id": "v2_main|hp_000100|context_poisoning|G2|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R097",
+      "condition_id": "v2_main|hp_000007|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R098",
+      "condition_id": "v2_main|hp_000204|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R099",
+      "condition_id": "v2_main|hp_000100|context_poisoning|G1|llama",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R100",
+      "condition_id": "v2_main|hp_000359|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|known"
+    },
+    {
+      "item_id": "R101",
+      "condition_id": "v2_main|hp_000250|context_poisoning|G0|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R102",
+      "condition_id": "v2_main|hp_000272|context_poisoning|G0|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R103",
+      "condition_id": "v2_main|hp_000272|context_poisoning|G1|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R104",
+      "condition_id": "v2_main|hp_000239|context_poisoning|G2|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R105",
+      "condition_id": "v2_main|hp_000044|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R106",
+      "condition_id": "v2_main|hp_000053|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R107",
+      "condition_id": "v2_main|hp_000099|context_poisoning|G2|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R108",
+      "condition_id": "v2_main|hp_000351|context_poisoning|G1|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R109",
+      "condition_id": "v2_main|hp_000280|context_poisoning|G2|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R110",
+      "condition_id": "v2_main|hp_000171|context_poisoning|G1|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R111",
+      "condition_id": "v2_main|hp_000291|context_poisoning|G0|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R112",
+      "condition_id": "v2_main|hp_000321|context_poisoning|G0|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R113",
+      "condition_id": "v2_main|hp_000016|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R114",
+      "condition_id": "v2_main|hp_000007|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R115",
+      "condition_id": "v2_main|hp_000086|context_poisoning|G0|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R116",
+      "condition_id": "v2_main|hp_000170|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R117",
+      "condition_id": "v2_main|hp_000147|context_poisoning|G1|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R118",
+      "condition_id": "v2_main|hp_000147|context_poisoning|G0|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R119",
+      "condition_id": "v2_main|hp_000171|context_poisoning|G1|nova-pro",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R120",
+      "condition_id": "v2_main|hp_000321|context_poisoning|G1|llama",
+      "cell": "context_poisoning|gemma"
+    },
+    {
+      "item_id": "R121",
+      "condition_id": "v2_main|hp_000295|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R122",
+      "condition_id": "v2_main|hp_000147|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R123",
+      "condition_id": "v2_main|hp_000369|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R124",
+      "condition_id": "v2_main|hp_000086|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R125",
+      "condition_id": "v2_main|hp_000079|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R126",
+      "condition_id": "v2_main|hp_000109|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R127",
+      "condition_id": "v2_main|hp_000147|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R128",
+      "condition_id": "v2_main|hp_000216|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R129",
+      "condition_id": "v2_main|hp_000171|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R130",
+      "condition_id": "v2_main|hp_000375|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R131",
+      "condition_id": "v2_main|hp_000181|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R132",
+      "condition_id": "v2_main|hp_000009|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R133",
+      "condition_id": "v2_main|hp_000186|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R134",
+      "condition_id": "v2_main|hp_000324|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R135",
+      "condition_id": "v2_main|hp_000291|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R136",
+      "condition_id": "v2_main|hp_000224|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R137",
+      "condition_id": "v2_main|hp_000245|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R138",
+      "condition_id": "v2_main|hp_000363|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R139",
+      "condition_id": "v2_main|hp_000184|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R140",
+      "condition_id": "v2_main|hp_000070|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|known"
+    },
+    {
+      "item_id": "R141",
+      "condition_id": "v2_main|hp_000147|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R142",
+      "condition_id": "v2_main|hp_000245|policy_retrieval|G0|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R143",
+      "condition_id": "v2_main|hp_000245|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R144",
+      "condition_id": "v2_main|hp_000054|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R145",
+      "condition_id": "v2_main|hp_000054|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R146",
+      "condition_id": "v2_main|hp_000209|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R147",
+      "condition_id": "v2_main|hp_000205|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R148",
+      "condition_id": "v2_main|hp_000073|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R149",
+      "condition_id": "v2_main|hp_000179|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R150",
+      "condition_id": "v2_main|hp_000245|policy_retrieval|G2|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R151",
+      "condition_id": "v2_main|hp_000300|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R152",
+      "condition_id": "v2_main|hp_000100|policy_retrieval|G2|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R153",
+      "condition_id": "v2_main|hp_000007|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R154",
+      "condition_id": "v2_main|hp_000369|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R155",
+      "condition_id": "v2_main|hp_000224|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R156",
+      "condition_id": "v2_main|hp_000016|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R157",
+      "condition_id": "v2_main|hp_000010|policy_retrieval|G1|llama",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R158",
+      "condition_id": "v2_main|hp_000299|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R159",
+      "condition_id": "v2_main|hp_000260|policy_retrieval|G1|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    },
+    {
+      "item_id": "R160",
+      "condition_id": "v2_main|hp_000238|policy_retrieval|G0|nova-pro",
+      "cell": "policy_retrieval|gemma"
+    }
+  ],
+  "redaction": "sheets and key hold raw responses and stay in the gitignored data/v2/review/"
+}
