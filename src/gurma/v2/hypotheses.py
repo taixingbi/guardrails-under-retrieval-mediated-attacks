@@ -23,6 +23,7 @@ from gurma.io import load_models
 from gurma.schemas.models import RunRecord
 from gurma.v2 import PROTOCOL_VERSION
 from gurma.v2.metrics import (
+    SAFETY_ATTACKS,
     Obs,
     failed_guard_keys,
     observations,
@@ -111,15 +112,25 @@ def _paired(spec: Spec, runs: dict[str, list[RunRecord]], obs: dict[str, list[Ob
     return out
 
 
-def _h4(obs: dict[str, list[Obs]], seed: int) -> dict[str, Any]:
+def _heldout_seed_ids() -> set[str]:
+    from gurma.v2.seeds import load_subset_seeds
+
+    return {s.seed_id for s in load_subset_seeds("heldout50")}
+
+
+def _h4(obs: dict[str, list[Obs]], seed: int, heldout_seed_ids: set[str] | None = None) -> dict[str, Any]:
     """E4: is the share of G0 successes removed by G1 lower for unseen than for known?
     Per seed, unseen share minus known share; cluster-bootstrap CI of the mean."""
     statement = "The share of G0 safety successes removed by G1 is lower for unseen than for known attacks"
     run = "e4_shift" if "e4_shift" in obs else "main"
     if run not in obs:
         return _not_testable("H4", "E4", statement, "missing runs: e4_shift or main")
-    unseen = seed_share_removed(obs[run], guardrail="G1", sources=UNSEEN)
-    known = seed_share_removed(obs[run], guardrail="G1", sources=KNOWN)
+    # E4 is the 50 matched held-out seeds (§3), on its primary safety attacks A1/A3/A4: A2
+    # poisoning is not a safety success, so it must not enter the shares.
+    seeds = heldout_seed_ids if heldout_seed_ids is not None else _heldout_seed_ids()
+    rows = [o for o in obs[run] if o.seed_id in seeds and o.attack_type in SAFETY_ATTACKS]
+    unseen = seed_share_removed(rows, guardrail="G1", sources=UNSEEN)
+    known = seed_share_removed(rows, guardrail="G1", sources=KNOWN)
     shared = sorted(set(unseen) & set(known))
     if not shared:
         return _not_testable("H4", "E4", statement, "no seed has G0 successes in both regimes")
@@ -178,13 +189,15 @@ def _h6(runs: dict[str, list[RunRecord]], obs: dict[str, list[Obs]], seed: int) 
     return out
 
 
-def run_hypotheses(runs: dict[str, list[RunRecord]], *, seed: int = 0) -> dict[str, Any]:
+def run_hypotheses(
+    runs: dict[str, list[RunRecord]], *, seed: int = 0, heldout_seed_ids: set[str] | None = None
+) -> dict[str, Any]:
     """Run the whole primary family and apply Holm across the testable hypotheses."""
     obs = {name: observations(recs) for name, recs in runs.items()}
     results: dict[str, Any] = {}
     for spec in SPECS:
         results[spec.hid] = _paired(spec, runs, obs, seed)
-    results["H4"] = _h4(obs, seed)
+    results["H4"] = _h4(obs, seed, heldout_seed_ids)
     results["H6"] = _h6(runs, obs, seed)
     results = {hid: results[hid] for hid in sorted(results)}
 

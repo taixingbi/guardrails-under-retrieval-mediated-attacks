@@ -77,12 +77,29 @@ def test_h4_reports_a_bootstrap_ci_and_stays_out_of_the_family():
         recs.append(rec(f"s{i}", guard="G1", source="known", safety=False))
         recs.append(rec(f"s{i}", guard="G0", source="gemma", safety=True))
         recs.append(rec(f"s{i}", guard="G1", source="gemma", safety=True))
-    report = run_hypotheses({"main": recs})
+    report = run_hypotheses({"main": recs}, heldout_seed_ids={f"s{i}" for i in range(10)})
     h4 = report["hypotheses"]["H4"]
     assert h4["testable"] and h4["p"] is None and h4["test"] == "cluster_bootstrap_ci"
     assert h4["known_share"] == 1.0 and h4["unseen_share"] == 0.0 and h4["diff"] == -1.0
     assert h4["direction_matches"] is True
     assert "H4" not in report["holm"]["family"]
+
+
+def test_h4_uses_only_heldout_seeds_and_safety_attacks():
+    """§3: E4 is the 50 matched held-out seeds; A2 poisoning is not a safety success."""
+    recs = []
+    for i in range(10):
+        recs.append(rec(f"s{i}", guard="G0", source="known", safety=True))
+        recs.append(rec(f"s{i}", guard="G1", source="known", safety=False))
+        recs.append(rec(f"s{i}", guard="G0", source="gemma", safety=True))
+        recs.append(rec(f"s{i}", guard="G1", source="gemma", safety=False))
+        # A2 on the same seeds, where G1 removes nothing unseen: must not enter H4.
+        recs.append(rec(f"s{i}", guard="G0", source="gemma", psr=True))
+        recs.append(rec(f"s{i}", guard="G1", source="gemma", psr=True))
+    h4 = run_hypotheses({"main": recs}, heldout_seed_ids={f"s{i}" for i in range(5)})["hypotheses"]["H4"]
+    assert h4["n_seeds"] == 5 and h4["unseen_share"] == 1.0 and h4["diff"] == 0.0
+    off = run_hypotheses({"main": recs}, heldout_seed_ids={"other"})["hypotheses"]["H4"]
+    assert off["testable"] is False
 
 
 def test_h6_leaves_the_family_below_the_failed_call_threshold():
