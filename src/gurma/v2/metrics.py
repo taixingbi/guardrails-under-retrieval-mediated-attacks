@@ -232,6 +232,17 @@ def _counts(values: Iterable[str]) -> dict[str, int]:
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
 
+def applies(o: Obs, field: str) -> bool:
+    """Whether a metric is defined for a condition (as opposed to incomplete)."""
+    if field in ("safety",):
+        return o.attack_type in SAFETY_ATTACKS
+    if field == "psr":
+        return o.attack_type == POISONING_ATTACK
+    if field == "complied":
+        return o.attack_type in ("indirect_injection", "authority_conflict")
+    return True
+
+
 def condition_key(o: Obs) -> tuple:
     """A condition's identity for pairing: seed × attack × target (model.md §9)."""
     return (o.seed_id, o.attack_id, o.model)
@@ -248,12 +259,17 @@ def pairs_between(
     keys: set[tuple] | None = None,
 ) -> list[Pair]:
     """Paired values across two runs (or two arms of one run) on identical seed × attack ×
-    target conditions, optionally restricted to attack sources or an explicit key set."""
+    target conditions, optionally restricted to attack sources or an explicit key set.
+
+    Only conditions the metric applies to are paired: `safety` on A1/A3/A4, `psr` on A2. A
+    `None` in the result therefore always means incomplete (ambiguous, unjudged, errored),
+    never "not applicable", which the sensitivity bounds rely on."""
     def side(obs: Sequence[Obs], guard: str) -> dict[tuple, Any]:
         return {
             condition_key(o): getattr(o, field)
             for o in obs
             if o.guardrail == guard
+            and applies(o, field)
             and (sources is None or o.source in sources)
             and (keys is None or condition_key(o) in keys)
         }

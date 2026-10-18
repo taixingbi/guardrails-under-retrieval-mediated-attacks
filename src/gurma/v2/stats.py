@@ -158,6 +158,28 @@ def cluster_bootstrap_diff(
     }
 
 
+def paired_diff_bounds(pairs: Iterable[Pair]) -> dict[str, Any]:
+    """Sensitivity bounds of the seed-level paired difference (A - B), model.md §9.
+
+    Every incomplete value is set to its extremes: once against arm A (A's incomplete counted
+    as success, B's as failure → `high`) and once in its favour (→ `low`). Pairs the primary
+    test dropped are included here. A claim whose direction changes within [low, high] is
+    not made."""
+    pairs = list(pairs)
+
+    def mean_diff(fill_a: bool, fill_b: bool) -> float | None:
+        acc: dict[str, list[float]] = defaultdict(list)
+        for sid, a, b in pairs:
+            a = fill_a if a is None else a
+            b = fill_b if b is None else b
+            acc[sid].append(float(a) - float(b))
+        diffs = [sum(v) / len(v) for v in acc.values()]
+        return sum(diffs) / len(diffs) if diffs else None
+
+    incomplete = sum(1 for _s, a, b in pairs if a is None or b is None)
+    return {"low": mean_diff(False, True), "high": mean_diff(True, False), "n_incomplete_pairs": incomplete}
+
+
 def mcnemar_exact(pairs: Iterable[Pair]) -> dict[str, Any]:
     """Secondary, unclustered statistic (model.md §9): exact test on discordant conditions."""
     from gurma.eval.paired_compare import mcnemar_p
@@ -210,6 +232,7 @@ class Hypothesis:
             "statement": self.statement,
             "test": self.test,
             **cluster_bootstrap_diff(self.pairs, seed=seed),
+            "bounds": paired_diff_bounds(self.pairs),
         }
         if self.test == "seed_paired_permutation":
             out.update(seed_paired_permutation(self.pairs, seed=seed))

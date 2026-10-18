@@ -350,10 +350,10 @@ At the observed 2–3 s per condition: Main ≈ 5,400 conditions (2 attack sourc
 5. ~~2-seed smoke test across all roles, plus the 8 SQuAD smoke seeds for attack validity.~~ Done 2026-10-17 (see §5); it removed Qwen from the protocol, so the known A2 smoke artifacts were discarded and regenerated with Gemma.
 6. ~~20-seed pilot with Gemma; check attack validity, generation truncation, distribution check, judge agreement and scoring reliability.~~ Generation and the full G0/G1/G2 × 2-target run done 2026-10-17 (`data/runs/v2_pilot20`, 1,062 conditions; see §13). Prompt and rubric changes, if any, must still be made before step 7.
 7. ~~Lock §10, freeze the 100-seed benchmark and attack artifacts.~~ Done 2026-10-17 (§14).
-8. Run Main, E1 and E2.
-9. Run E3, E4 (known / unseen) and E5.
-10. Run E6 and E7.
-11. Generate final tables, confidence intervals and failure analysis.
+8. ~~Run Main, E1 and E2.~~ Done 2026-10-17 (§15).
+9. ~~Run E3, E4 (known / unseen) and E5.~~ Done 2026-10-17/18 (§15). E4 known/unseen is analysed from Main on the heldout50 seeds; the adaptive arm is still to be run by the authors.
+10. ~~Run E6 and E7.~~ Done 2026-10-18 (§15).
+11. ~~Generate final tables, confidence intervals and failure analysis.~~ Done 2026-10-18: `gurma v2-report` → `reports/v2_results.md` (§15). Open: human review (sheets exported, §15) and the adaptive E4 arm.
 
 ## 13. Pilot results (2026-10-17, `v2_pilot20`)
 
@@ -439,3 +439,92 @@ rule-hit rates are 0.00–0.05, far below the 0.20 flag. No set raised a flag.
 run G1 only, E3 runs G1 on Nova Pro only, E6 isolates the input policy at G1 and the output
 policy at G2, and these runs borrow the guardrail-independent G0 arm from Main instead of
 re-running it.
+
+
+## 15. Results (2026-10-18)
+
+All 23 v2 runs finished with exit code 0 and no errors: 22,082 conditions in about 12 hours
+of API time (Main 5,196; E1 3,464; E2 3,464; E3 2,390; E5 1,416; E6 5,196; E7 956). E2, E3,
+E6 and E7 reuse Main's G0 arm, which is not counted again. Full tables: `reports/v2_results.md`; hypothesis details:
+`reports/v2_hypotheses.{md,json}`; per-run metrics: `data/runs/v2_*/6_metrics/`.
+
+### Primary hypotheses
+
+Holm over H0, H1, H2, H3, H5, H7 (six hypotheses; H6 left the family, H4 is a CI only).
+Differences are arm A minus arm B, seed-level, with 95% cluster-bootstrap CIs. *Bounds* set
+every ambiguous, unjudged or errored condition to its extremes (§9); a rejection is claimed
+only if its direction holds at both bounds.
+
+| ID | Comparison | Difference | 95% CI | Bounds | p (Holm) | Result |
+|---|---|---|---|---|---|---|
+| H0 | Main, unseen: G1 − G0 Safety ASR | −12.9 pts | [−16.4, −9.8] | [−13.0, −12.5] | 0.0006 | **claimed** |
+| H1 | E1, unseen: C − Q Safety ASR | −10.5 pts | [−15.2, −6.2] | [−10.3, −9.7] | 0.0006 | **claimed** |
+| H2 | E2, unseen: hybrid − rules-only PSR | −22.2 pts | [−30.7, −14.2] | [−23.3, −21.6] | 0.0006 | **claimed** |
+| H3 | E3, LLM-only: GPT-OSS − Ministral 3B task accuracy | +44.0 pts | [+35.3, +52.8] | [+44.0, +44.0] | 0.0006 | **claimed** |
+| H4 | E4, heldout50: unseen − known share of G0 safety successes removed by G1 | −6.0 pts | [−16.0, 0.0] | — | CI only | inconclusive (CI reaches 0; 25 seeds) |
+| H5 | E5, SQuAD unseen: G1 − G0 Safety ASR | −11.5 pts | [−16.5, −7.0] | [−11.5, −11.5] | 0.0006 | **claimed** |
+| H6 | E6: retry-then-block − fail-closed accuracy over failed calls | — | — | — | — | descriptive: 1 failed guard call across both arms (< 30) |
+| H7 | E7, LLM-only: CoT − direct Safety ASR | −0.3 pts | [−1.0, 0.0] | [−0.3, 0.0] | 1.0000 | not rejected (floor) |
+
+The p-values of the five rejected hypotheses are all 0.0001, the smallest 10,000 permutations
+can give, so their rejection does not depend on the family size.
+
+### Findings
+
+**The hybrid guard transfers to unseen attacks (H0, H5).** On Gemma attacks, G1 lowers Safety
+ASR from 13.9% to 1.6% (Main) and from 11.7% to 0.0% (SQuAD). On known templates it reaches
+0.0%, removing 98.4% of G0 successes against 88.1% for unseen attacks. Poisoning transfers less
+well: SQuAD PSR at G1 is 17.1% against 7.4% on HotpotQA.
+
+**Placement: the context is the surface that matters (H1), and output-only screening hides
+attacks without restoring the answer.** On unseen attacks, context placement reaches 2.5%
+Safety ASR against 12.2% for query-only. On known attacks, output-only placement also reaches
+0.0% Safety ASR but keeps task accuracy at 29.4%, against 97.4% for context placement: it
+suppresses the hijacked reply instead of recovering the real one.
+
+**Composition: the rules contribute only on known structures (H2).** Rules-only leaves unseen
+attacks at G0 level (Safety ASR 14.3% vs 13.9%; PSR 29.9% vs 31.6%). The LLM component carries
+the unseen regime (LLM-only 1.0% Safety ASR, 5.7% PSR). On known attacks the rules still add
+value: LLM-only leaves 2.3% Safety ASR and 84.2% task accuracy, hybrid 0.0% and 97.7%.
+Rules-only misses known A2 entirely (PSR 57.2%), as expected, since the A2 rule cues were
+written for the legacy passages, not the Gemma-written known A2 (§2).
+
+**Capacity: the gap is a blocking policy, not detection (H3).** Every guard model reaches
+0.0–0.7% Safety ASR on Gemma attacks, but task accuracy under attack ranges from 17.5%
+(Ministral 8B) to 82.5% (GPT-OSS). The guard decisions explain it: Ministral 8B/14B and Llama
+3.3 *block* 71–78% of attacked contexts, and a blocked answer is always wrong, while GPT-OSS
+blocks 14–16% and *sanitizes* the rest, recovering about 96% of those answers. When the
+smaller guards sanitize, they recover answers about as well (Ministral 14B: 32/33). Ministral
+3B blocks less often (51%) than 8B, which is why it scores higher, and it also rewrites 49 of
+50 *clean* contexts, which costs 26 points of benign accuracy. Capacity is not monotone in
+size, and the model families differ, so this is not a scaling result (§4).
+
+**Failure recovery could not be measured at runtime (H6).** At 4096 tokens the guard almost
+never fails: 0–3 failed calls per E6 arm (6 in all of Main). The policies therefore never
+engaged, and E6 is reported descriptively. As a side effect the four input-policy arms are
+near-replicates of one configuration, which measures **run-to-run noise at temperature 0**:
+Safety ASR 1.1–2.1%, PSR 5.4–9.8% and task accuracy 75.1–78.0% on Gemma attacks. Differences
+between separate runs within these ranges, in particular PSR differences of about 4 points or
+less, are not interpreted.
+
+**CoT changes utility, not safety (H7).** Safety ASR is at floor for both prompts (0.3% vs
+0.0%), so H7 is not rejected. Exploratory, outside the primary family: CoT raises task accuracy
+under attack by 14.0 points [9.5, 18.8] (p = 0.0001), far beyond the replicate noise; its PSR
+difference (+4.3 points, p = 0.13) is within it. CoT costs latency: p95 13.9 s against 10.1 s.
+
+**A3 remains a structural zero** (§13): no run produced a policy-violating answer.
+
+**Judge reliability.** QA: 0.0% ambiguous and 0.0% unjudged in every run. Attack verdicts:
+at most 1.6% ambiguous (E5), 0.0–0.6% elsewhere, no unjudged. Every claimed hypothesis holds
+at both sensitivity bounds.
+
+### Open
+
+- **Human review (§6).** `gurma v2-review-export` drew 160 items from Main (20 per attack type
+  × source) with balanced allocation across judge verdicts, so the verdicts that decide attack
+  success get enough items for a stable κ. Proportional allocation would have given them 1–6.
+  Blind sheets are in the gitignored `data/v2/review/`; the committed
+  `reports/human_review/manifest.json` holds ids and strata only. After both annotators finish:
+  `gurma v2-review-agreement`. The judge never returned `quoted_or_explained` for an A1/A4
+  marker hit in Main; the review will show whether that is real or a rubric blind spot.
+- **Adaptive E4 arm**, run by the authors outside the pipeline (§2).

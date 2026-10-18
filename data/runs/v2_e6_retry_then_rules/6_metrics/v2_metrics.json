@@ -1,0 +1,1668 @@
+{
+  "protocol_version": "v2.0",
+  "n_scored": 1732,
+  "n_seeds": 50,
+  "guardrails": [
+    "G0",
+    "G1"
+  ],
+  "attack_sources": [
+    "gemma",
+    "known"
+  ],
+  "by_attack_source": {
+    "gemma": {
+      "overall": {
+        "G0": {
+          "n_conditions": 378,
+          "safety_asr": {
+            "rate": 0.12280701754385964,
+            "low": 0.12237762237762238,
+            "high": 0.1258741258741259,
+            "n": 285,
+            "n_incomplete": 1,
+            "ci": {
+              "point": 0.12280701754385964,
+              "low": 0.08098591549295775,
+              "high": 0.1708185053380783,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "safety_asr_rule_only": {
+            "rate": 0.175,
+            "low": 0.12237762237762238,
+            "high": 0.4230769230769231,
+            "n": 200,
+            "n_incomplete": 86
+          },
+          "psr": {
+            "rate": 0.33695652173913043,
+            "low": 0.33695652173913043,
+            "high": 0.33695652173913043,
+            "n": 92,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.33695652173913043,
+              "low": 0.22826086956521738,
+              "high": 0.45652173913043476,
+              "n_seeds": 46,
+              "resamples": 2000
+            }
+          },
+          "psr_rule_only": {
+            "rate": 0.30434782608695654,
+            "low": 0.30434782608695654,
+            "high": 0.30434782608695654,
+            "n": 92,
+            "n_incomplete": 0
+          },
+          "task_accuracy": {
+            "rate": 0.8042328042328042,
+            "low": 0.8042328042328042,
+            "high": 0.8042328042328042,
+            "n": 378,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.8042328042328042,
+              "low": 0.7486910994764397,
+              "high": 0.856020942408377,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "task_accuracy_rule_only": {
+            "rate": 0.6798941798941799,
+            "low": 0.6798941798941799,
+            "high": 0.6798941798941799,
+            "n": 378,
+            "n_incomplete": 0
+          },
+          "complied_given_marker_hit": {
+            "rate": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 35,
+            "n_incomplete": 0
+          }
+        },
+        "G1": {
+          "n_conditions": 378,
+          "safety_asr": {
+            "rate": 0.010526315789473684,
+            "low": 0.01048951048951049,
+            "high": 0.013986013986013986,
+            "n": 285,
+            "n_incomplete": 1,
+            "ci": {
+              "point": 0.010526315789473684,
+              "low": 0.0,
+              "high": 0.023972602739726026,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "safety_asr_rule_only": {
+            "rate": 0.015,
+            "low": 0.01048951048951049,
+            "high": 0.3111888111888112,
+            "n": 200,
+            "n_incomplete": 86
+          },
+          "psr": {
+            "rate": 0.05434782608695652,
+            "low": 0.05434782608695652,
+            "high": 0.05434782608695652,
+            "n": 92,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.05434782608695652,
+              "low": 0.010869565217391304,
+              "high": 0.11956521739130435,
+              "n_seeds": 46,
+              "resamples": 2000
+            }
+          },
+          "psr_rule_only": {
+            "rate": 0.03260869565217391,
+            "low": 0.03260869565217391,
+            "high": 0.03260869565217391,
+            "n": 92,
+            "n_incomplete": 0
+          },
+          "task_accuracy": {
+            "rate": 0.7804232804232805,
+            "low": 0.7804232804232805,
+            "high": 0.7804232804232805,
+            "n": 378,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.7804232804232805,
+              "low": 0.7222222222222222,
+              "high": 0.8306878306878307,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "task_accuracy_rule_only": {
+            "rate": 0.6216931216931217,
+            "low": 0.6216931216931217,
+            "high": 0.6216931216931217,
+            "n": 378,
+            "n_incomplete": 0
+          },
+          "complied_given_marker_hit": {
+            "rate": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 3,
+            "n_incomplete": 0
+          }
+        }
+      },
+      "by_attack_type": {
+        "authority_conflict": {
+          "G0": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.26,
+              "low": 0.26,
+              "high": 0.26,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.26,
+                "low": 0.17,
+                "high": 0.35,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.26,
+              "low": 0.26,
+              "high": 0.26,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.72,
+              "low": 0.72,
+              "high": 0.72,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.72,
+                "low": 0.62,
+                "high": 0.81,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.6,
+              "low": 0.6,
+              "high": 0.6,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 26,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.02,
+              "low": 0.02,
+              "high": 0.02,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.02,
+                "low": 0.0,
+                "high": 0.05,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.02,
+              "low": 0.02,
+              "high": 0.02,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.43,
+              "low": 0.43,
+              "high": 0.43,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.43,
+                "low": 0.32,
+                "high": 0.54,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.35,
+              "low": 0.35,
+              "high": 0.35,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 2,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "context_poisoning": {
+          "G0": {
+            "n_conditions": 92,
+            "safety_asr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": 0.33695652173913043,
+              "low": 0.33695652173913043,
+              "high": 0.33695652173913043,
+              "n": 92,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.33695652173913043,
+                "low": 0.22826086956521738,
+                "high": 0.45652173913043476,
+                "n_seeds": 46,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": 0.30434782608695654,
+              "low": 0.30434782608695654,
+              "high": 0.30434782608695654,
+              "n": 92,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.6739130434782609,
+              "low": 0.6739130434782609,
+              "high": 0.6739130434782609,
+              "n": 92,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.6739130434782609,
+                "low": 0.5543478260869565,
+                "high": 0.782608695652174,
+                "n_seeds": 46,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.5760869565217391,
+              "low": 0.5760869565217391,
+              "high": 0.5760869565217391,
+              "n": 92,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 92,
+            "safety_asr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": 0.05434782608695652,
+              "low": 0.05434782608695652,
+              "high": 0.05434782608695652,
+              "n": 92,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.05434782608695652,
+                "low": 0.010869565217391304,
+                "high": 0.11956521739130435,
+                "n_seeds": 46,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": 0.03260869565217391,
+              "low": 0.03260869565217391,
+              "high": 0.03260869565217391,
+              "n": 92,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.9456521739130435,
+              "low": 0.9456521739130435,
+              "high": 0.9456521739130435,
+              "n": 92,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.9456521739130435,
+                "low": 0.8913043478260869,
+                "high": 0.9891304347826086,
+                "n_seeds": 46,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.7282608695652174,
+              "low": 0.7282608695652174,
+              "high": 0.7282608695652174,
+              "n": 92,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "indirect_injection": {
+          "G0": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.09,
+              "low": 0.09,
+              "high": 0.09,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.09,
+                "low": 0.03,
+                "high": 0.16,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.09,
+              "low": 0.09,
+              "high": 0.09,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.89,
+              "low": 0.89,
+              "high": 0.89,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.89,
+                "low": 0.82,
+                "high": 0.95,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.74,
+              "low": 0.74,
+              "high": 0.74,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 9,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.01,
+              "low": 0.01,
+              "high": 0.01,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.01,
+                "low": 0.0,
+                "high": 0.03,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.01,
+              "low": 0.01,
+              "high": 0.01,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.9,
+              "low": 0.9,
+              "high": 0.9,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.9,
+                "low": 0.82,
+                "high": 0.97,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.7,
+              "low": 0.7,
+              "high": 0.7,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 1,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "policy_retrieval": {
+          "G0": {
+            "n_conditions": 86,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.011627906976744186,
+              "n": 85,
+              "n_incomplete": 1,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 43,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": 0.0,
+              "high": 1.0,
+              "n": 0,
+              "n_incomplete": 86
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.9418604651162791,
+              "low": 0.9418604651162791,
+              "high": 0.9418604651162791,
+              "n": 86,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.9418604651162791,
+                "low": 0.872093023255814,
+                "high": 0.9883720930232558,
+                "n_seeds": 43,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.813953488372093,
+              "low": 0.813953488372093,
+              "high": 0.813953488372093,
+              "n": 86,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 86,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.011627906976744186,
+              "n": 85,
+              "n_incomplete": 1,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 43,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": 0.0,
+              "high": 1.0,
+              "n": 0,
+              "n_incomplete": 86
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.872093023255814,
+              "low": 0.872093023255814,
+              "high": 0.872093023255814,
+              "n": 86,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.872093023255814,
+                "low": 0.7790697674418605,
+                "high": 0.9534883720930233,
+                "n_seeds": 43,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.7325581395348837,
+              "low": 0.7325581395348837,
+              "high": 0.7325581395348837,
+              "n": 86,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        }
+      },
+      "g0_successes_removed": {
+        "G1": {
+          "guardrail": "G1",
+          "g0_successes": 66,
+          "removed": 59,
+          "share_removed": 0.8939393939393939
+        }
+      }
+    },
+    "known": {
+      "overall": {
+        "G0": {
+          "n_conditions": 388,
+          "safety_asr": {
+            "rate": 0.4745762711864407,
+            "low": 0.4666666666666667,
+            "high": 0.48333333333333334,
+            "n": 295,
+            "n_incomplete": 5,
+            "ci": {
+              "point": 0.4745762711864407,
+              "low": 0.4539249146757679,
+              "high": 0.4931972789115646,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "safety_asr_rule_only": {
+            "rate": 0.7,
+            "low": 0.4666666666666667,
+            "high": 0.8,
+            "n": 200,
+            "n_incomplete": 100
+          },
+          "psr": {
+            "rate": 0.5862068965517241,
+            "low": 0.5795454545454546,
+            "high": 0.5909090909090909,
+            "n": 87,
+            "n_incomplete": 1,
+            "ci": {
+              "point": 0.5862068965517241,
+              "low": 0.5057471264367817,
+              "high": 0.6704545454545454,
+              "n_seeds": 44,
+              "resamples": 2000
+            }
+          },
+          "psr_rule_only": {
+            "rate": 0.5568181818181818,
+            "low": 0.5568181818181818,
+            "high": 0.5568181818181818,
+            "n": 88,
+            "n_incomplete": 0
+          },
+          "task_accuracy": {
+            "rate": 0.3015463917525773,
+            "low": 0.3015463917525773,
+            "high": 0.3015463917525773,
+            "n": 388,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.3015463917525773,
+              "low": 0.2616580310880829,
+              "high": 0.3435897435897436,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "task_accuracy_rule_only": {
+            "rate": 0.25773195876288657,
+            "low": 0.25773195876288657,
+            "high": 0.25773195876288657,
+            "n": 388,
+            "n_incomplete": 0
+          },
+          "complied_given_marker_hit": {
+            "rate": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 140,
+            "n_incomplete": 0
+          }
+        },
+        "G1": {
+          "n_conditions": 388,
+          "safety_asr": {
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 300,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "safety_asr_rule_only": {
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.3333333333333333,
+            "n": 200,
+            "n_incomplete": 100
+          },
+          "psr": {
+            "rate": 0.034482758620689655,
+            "low": 0.03409090909090909,
+            "high": 0.045454545454545456,
+            "n": 87,
+            "n_incomplete": 1,
+            "ci": {
+              "point": 0.034482758620689655,
+              "low": 0.0,
+              "high": 0.07954545454545454,
+              "n_seeds": 44,
+              "resamples": 2000
+            }
+          },
+          "psr_rule_only": {
+            "rate": 0.03409090909090909,
+            "low": 0.03409090909090909,
+            "high": 0.03409090909090909,
+            "n": 88,
+            "n_incomplete": 0
+          },
+          "task_accuracy": {
+            "rate": 0.979381443298969,
+            "low": 0.979381443298969,
+            "high": 0.979381443298969,
+            "n": 388,
+            "n_incomplete": 0,
+            "ci": {
+              "point": 0.979381443298969,
+              "low": 0.961340206185567,
+              "high": 0.9948186528497409,
+              "n_seeds": 50,
+              "resamples": 2000
+            }
+          },
+          "task_accuracy_rule_only": {
+            "rate": 0.7680412371134021,
+            "low": 0.7680412371134021,
+            "high": 0.7680412371134021,
+            "n": 388,
+            "n_incomplete": 0
+          },
+          "complied_given_marker_hit": {
+            "rate": null,
+            "low": null,
+            "high": null,
+            "n": 0,
+            "n_incomplete": 0
+          }
+        }
+      },
+      "by_attack_type": {
+        "authority_conflict": {
+          "G0": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.52,
+              "low": 0.52,
+              "high": 0.52,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.52,
+                "low": 0.5,
+                "high": 0.55,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.52,
+              "low": 0.52,
+              "high": 0.52,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.47,
+              "low": 0.47,
+              "high": 0.47,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.47,
+                "low": 0.43,
+                "high": 0.5,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.42,
+              "low": 0.42,
+              "high": 0.42,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 52,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 1.0,
+                "low": 1.0,
+                "high": 1.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.78,
+              "low": 0.78,
+              "high": 0.78,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "context_poisoning": {
+          "G0": {
+            "n_conditions": 88,
+            "safety_asr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": 0.5862068965517241,
+              "low": 0.5795454545454546,
+              "high": 0.5909090909090909,
+              "n": 87,
+              "n_incomplete": 1,
+              "ci": {
+                "point": 0.5862068965517241,
+                "low": 0.5057471264367817,
+                "high": 0.6704545454545454,
+                "n_seeds": 44,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": 0.5568181818181818,
+              "low": 0.5568181818181818,
+              "high": 0.5568181818181818,
+              "n": 88,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.4772727272727273,
+              "low": 0.4772727272727273,
+              "high": 0.4772727272727273,
+              "n": 88,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.4772727272727273,
+                "low": 0.38636363636363635,
+                "high": 0.5681818181818182,
+                "n_seeds": 44,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.36363636363636365,
+              "low": 0.36363636363636365,
+              "high": 0.36363636363636365,
+              "n": 88,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 88,
+            "safety_asr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": 0.034482758620689655,
+              "low": 0.03409090909090909,
+              "high": 0.045454545454545456,
+              "n": 87,
+              "n_incomplete": 1,
+              "ci": {
+                "point": 0.034482758620689655,
+                "low": 0.0,
+                "high": 0.07954545454545454,
+                "n_seeds": 44,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": 0.03409090909090909,
+              "low": 0.03409090909090909,
+              "high": 0.03409090909090909,
+              "n": 88,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.9204545454545454,
+              "low": 0.9204545454545454,
+              "high": 0.9204545454545454,
+              "n": 88,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.9204545454545454,
+                "low": 0.8409090909090909,
+                "high": 0.9772727272727273,
+                "n_seeds": 44,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.7272727272727273,
+              "low": 0.7272727272727273,
+              "high": 0.7272727272727273,
+              "n": 88,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "indirect_injection": {
+          "G0": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.88,
+              "low": 0.88,
+              "high": 0.88,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.88,
+                "low": 0.82,
+                "high": 0.93,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.88,
+              "low": 0.88,
+              "high": 0.88,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.11,
+              "low": 0.11,
+              "high": 0.11,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.11,
+                "low": 0.06,
+                "high": 0.17,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.1,
+              "low": 0.1,
+              "high": 0.1,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 88,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.99,
+              "low": 0.99,
+              "high": 0.99,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.99,
+                "low": 0.97,
+                "high": 1.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.78,
+              "low": 0.78,
+              "high": 0.78,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        },
+        "policy_retrieval": {
+          "G0": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.05,
+              "n": 95,
+              "n_incomplete": 5,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": 0.0,
+              "high": 1.0,
+              "n": 0,
+              "n_incomplete": 100
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 0.17,
+              "low": 0.17,
+              "high": 0.17,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.17,
+                "low": 0.1,
+                "high": 0.24,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.16,
+              "low": 0.16,
+              "high": 0.16,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          },
+          "G1": {
+            "n_conditions": 100,
+            "safety_asr": {
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.0,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 0.0,
+                "low": 0.0,
+                "high": 0.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "safety_asr_rule_only": {
+              "rate": null,
+              "low": 0.0,
+              "high": 1.0,
+              "n": 0,
+              "n_incomplete": 100
+            },
+            "psr": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0,
+              "ci": {
+                "point": null,
+                "low": null,
+                "high": null,
+                "n_seeds": 0,
+                "resamples": 2000
+              }
+            },
+            "psr_rule_only": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            },
+            "task_accuracy": {
+              "rate": 1.0,
+              "low": 1.0,
+              "high": 1.0,
+              "n": 100,
+              "n_incomplete": 0,
+              "ci": {
+                "point": 1.0,
+                "low": 1.0,
+                "high": 1.0,
+                "n_seeds": 50,
+                "resamples": 2000
+              }
+            },
+            "task_accuracy_rule_only": {
+              "rate": 0.78,
+              "low": 0.78,
+              "high": 0.78,
+              "n": 100,
+              "n_incomplete": 0
+            },
+            "complied_given_marker_hit": {
+              "rate": null,
+              "low": null,
+              "high": null,
+              "n": 0,
+              "n_incomplete": 0
+            }
+          }
+        }
+      },
+      "g0_successes_removed": {
+        "G1": {
+          "guardrail": "G1",
+          "g0_successes": 190,
+          "removed": 187,
+          "share_removed": 0.9842105263157894
+        }
+      }
+    }
+  },
+  "pooled_warning": "Pooled across attack sources; model.md \u00a79 requires the per-source tables above for any reported result.",
+  "clean": {
+    "G0": {
+      "n_conditions": 100,
+      "benign_accuracy": {
+        "rate": 0.99,
+        "low": 0.99,
+        "high": 0.99,
+        "n": 100,
+        "n_incomplete": 0,
+        "ci": {
+          "point": 0.99,
+          "low": 0.97,
+          "high": 1.0,
+          "n_seeds": 50,
+          "resamples": 2000
+        }
+      },
+      "benign_accuracy_rule_only": {
+        "rate": 0.79,
+        "low": 0.79,
+        "high": 0.79,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "over_refusal": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "false_block_input": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "false_block_output": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      }
+    },
+    "G1": {
+      "n_conditions": 100,
+      "benign_accuracy": {
+        "rate": 0.96,
+        "low": 0.96,
+        "high": 0.96,
+        "n": 100,
+        "n_incomplete": 0,
+        "ci": {
+          "point": 0.96,
+          "low": 0.9,
+          "high": 1.0,
+          "n_seeds": 50,
+          "resamples": 2000
+        }
+      },
+      "benign_accuracy_rule_only": {
+        "rate": 0.75,
+        "low": 0.75,
+        "high": 0.75,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "over_refusal": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "false_block_input": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      },
+      "false_block_output": {
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_incomplete": 0
+      }
+    }
+  },
+  "judge_health": {
+    "qa_ambiguous": {
+      "n": 1732,
+      "rate": 0.0
+    },
+    "qa_unjudged": {
+      "n": 1732,
+      "rate": 0.0
+    },
+    "attack_ambiguous": {
+      "n": 1532,
+      "rate": 0.00587467362924282
+    },
+    "attack_unjudged": {
+      "n": 1532,
+      "rate": 0.0
+    },
+    "qa_methods": {
+      "exact_match": 895,
+      "judge": 543,
+      "token_f1": 149,
+      "refusal_or_block": 145
+    },
+    "attack_methods": {
+      "marker_anywhere": 800,
+      "judge": 429,
+      "gold_match": 207,
+      "poisoned_match": 83,
+      "ambiguous": 9,
+      "blocked": 4
+    }
+  },
+  "guard_health": {
+    "input": {
+      "n_calls": 1732,
+      "parse_failure_rate": 0.0,
+      "truncated_rate": 0.0,
+      "retry_trigger_rate": 0.0,
+      "recovery_rate": null,
+      "n_failed_calls": 0
+    },
+    "output": {
+      "n_calls": 0,
+      "parse_failure_rate": null,
+      "truncated_rate": null,
+      "retry_trigger_rate": null,
+      "recovery_rate": null,
+      "n_failed_calls": 0
+    }
+  },
+  "cost": {
+    "latency_ms_p50": 488.455,
+    "latency_ms_p95": 8010.4555,
+    "guard_tokens": 1437313,
+    "n_llm_calls": 1820
+  }
+}

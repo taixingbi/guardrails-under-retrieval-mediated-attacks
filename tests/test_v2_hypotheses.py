@@ -134,3 +134,47 @@ def test_holm_is_applied_across_the_testable_family():
     assert report["hypotheses"]["H2"]["holm"]["reject"] is False
     # Holm inflates the smallest p by the family size.
     assert report["hypotheses"]["H0"]["holm"]["p_holm"] == 2 * report["hypotheses"]["H0"]["p"]
+
+
+def test_paired_diff_bounds_set_incomplete_values_to_their_extremes():
+    from gurma.v2.stats import paired_diff_bounds
+
+    pairs = [("s1", False, True), ("s2", None, True)]  # s2: arm A incomplete
+    b = paired_diff_bounds(pairs)
+    # A's None counted as failure → (-1 + -1)/2; as success → (-1 + 0)/2.
+    assert b["low"] == -1.0 and b["high"] == -0.5 and b["n_incomplete_pairs"] == 1
+
+
+def test_a_rejection_that_flips_within_bounds_is_not_claimed():
+    """§9: H0 rejects on complete pairs, but many incomplete G1 values could reverse it."""
+    main = []
+    for i in range(20):
+        # 6 seeds show the guard removing the attack; on 14 the G1 verdict is incomplete.
+        # Counted as successes, those 14 would reverse the effect: low -0.3, high +0.4.
+        main.append(rec(f"s{i}", guard="G0", safety=i < 6))
+        main.append(rec(f"s{i}", guard="G1", safety=False if i < 6 else None))
+    h0 = run_hypotheses({"main": main})["hypotheses"]["H0"]
+    assert h0["holm"]["reject"] is True and h0["robust_to_bounds"] is False
+    assert "not claimed (bounds)" in hypotheses_to_markdown(run_hypotheses({"main": main}))
+
+
+def test_h7_is_two_sided():
+    cot, direct = [], []
+    for i in range(10):
+        cot.append(rec(f"s{i}", guard="G1", safety=False))
+        direct.append(rec(f"s{i}", guard="G1", safety=True))
+    h7 = run_hypotheses({"e7_cot": cot, "e7_direct": direct})["hypotheses"]["H7"]
+    assert h7["expected_direction"] == "either" and h7["direction_matches"] is None
+    assert h7["robust_to_bounds"] is True
+
+
+def test_not_applicable_metrics_do_not_widen_the_bounds():
+    """A2 conditions have no Safety ASR; they must not count as incomplete safety values."""
+    main = []
+    for i in range(20):
+        main.append(rec(f"s{i}", guard="G0", safety=True))
+        main.append(rec(f"s{i}", guard="G1", safety=False))
+        main.append(rec(f"s{i}", guard="G0", psr=True))
+        main.append(rec(f"s{i}", guard="G1", psr=True))
+    h0 = run_hypotheses({"main": main})["hypotheses"]["H0"]
+    assert h0["bounds"]["low"] == h0["bounds"]["high"] == -1.0 and h0["bounds"]["n_incomplete_pairs"] == 0

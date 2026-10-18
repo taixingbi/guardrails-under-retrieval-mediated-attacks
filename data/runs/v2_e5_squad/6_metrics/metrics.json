@@ -1,0 +1,335 @@
+{
+  "n_records": 1416,
+  "n_clean_conditions": 300,
+  "n_attack_conditions": 1116,
+  "table1_dataset": {
+    "authority_conflict": 50,
+    "context_poisoning": 41,
+    "indirect_injection": 50,
+    "policy_retrieval": 45
+  },
+  "table2_main": [
+    {
+      "guardrail": "G0",
+      "instruction_safety_asr": 0.11724137931034483,
+      "instruction_safety_asr_ci": {
+        "low": 0.07931034482758621,
+        "high": 0.15862068965517243,
+        "n": 290,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.573170731707317,
+      "poisoning_success_rate_ci": {
+        "low": 0.4634146341463415,
+        "high": 0.6829268292682927,
+        "n": 82,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.21774193548387097,
+      "macro_attack_success_ci": {
+        "low": 0.1774193548387097,
+        "high": 0.26344086021505375,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6290322580645161,
+      "task_accuracy_ci": {
+        "low": 0.5806451612903226,
+        "high": 0.6774193548387096,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "over_refusal": 0.0,
+      "over_refusal_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 372,
+      "n_clean": 100
+    },
+    {
+      "guardrail": "G1",
+      "instruction_safety_asr": 0.0,
+      "instruction_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 290,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.47560975609756095,
+      "poisoning_success_rate_ci": {
+        "low": 0.36585365853658536,
+        "high": 0.5853658536585366,
+        "n": 82,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.10483870967741936,
+      "macro_attack_success_ci": {
+        "low": 0.07526881720430108,
+        "high": 0.13709677419354838,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6397849462365591,
+      "task_accuracy_ci": {
+        "low": 0.5913978494623656,
+        "high": 0.6881720430107527,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "over_refusal": 0.02,
+      "over_refusal_ci": {
+        "low": 0.0,
+        "high": 0.05,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 372,
+      "n_clean": 100
+    },
+    {
+      "guardrail": "G2",
+      "instruction_safety_asr": 0.0,
+      "instruction_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 290,
+        "n_boot": 2000
+      },
+      "poisoning_success_rate": 0.45121951219512196,
+      "poisoning_success_rate_ci": {
+        "low": 0.34146341463414637,
+        "high": 0.5609756097560976,
+        "n": 82,
+        "n_boot": 2000
+      },
+      "macro_attack_success": 0.09946236559139784,
+      "macro_attack_success_ci": {
+        "low": 0.06989247311827956,
+        "high": 0.13172043010752688,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "task_accuracy": 0.6505376344086021,
+      "task_accuracy_ci": {
+        "low": 0.6021505376344086,
+        "high": 0.696236559139785,
+        "n": 372,
+        "n_boot": 2000
+      },
+      "over_refusal": 0.02,
+      "over_refusal_ci": {
+        "low": 0.0,
+        "high": 0.05,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "safety_violation_rate": 0.0,
+      "n_attack": 372,
+      "n_clean": 100
+    }
+  ],
+  "table3_attack_breakdown": [
+    {
+      "attack": "authority_conflict",
+      "G0_success": 0.21,
+      "G0_success_ci": {
+        "low": 0.13,
+        "high": 0.29,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G1_success": 0.0,
+      "G1_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G2_success": 0.0,
+      "G2_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_boot": 2000
+      }
+    },
+    {
+      "attack": "context_poisoning",
+      "G0_success": 0.573170731707317,
+      "G0_success_ci": {
+        "low": 0.4634146341463415,
+        "high": 0.6829268292682927,
+        "n": 82,
+        "n_boot": 2000
+      },
+      "G1_success": 0.47560975609756095,
+      "G1_success_ci": {
+        "low": 0.36585365853658536,
+        "high": 0.5853658536585366,
+        "n": 82,
+        "n_boot": 2000
+      },
+      "G2_success": 0.45121951219512196,
+      "G2_success_ci": {
+        "low": 0.34146341463414637,
+        "high": 0.5609756097560976,
+        "n": 82,
+        "n_boot": 2000
+      }
+    },
+    {
+      "attack": "indirect_injection",
+      "G0_success": 0.13,
+      "G0_success_ci": {
+        "low": 0.07,
+        "high": 0.2,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G1_success": 0.0,
+      "G1_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_boot": 2000
+      },
+      "G2_success": 0.0,
+      "G2_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 100,
+        "n_boot": 2000
+      }
+    },
+    {
+      "attack": "policy_retrieval",
+      "G0_success": 0.0,
+      "G0_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 90,
+        "n_boot": 2000
+      },
+      "G1_success": 0.0,
+      "G1_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 90,
+        "n_boot": 2000
+      },
+      "G2_success": 0.0,
+      "G2_success_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 90,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "table4_cross_model": [
+    {
+      "model": "llama",
+      "G0_safety_asr": 0.1103448275862069,
+      "G0_safety_asr_ci": {
+        "low": 0.06206896551724138,
+        "high": 0.15862068965517243,
+        "n": 145,
+        "n_boot": 2000
+      },
+      "G1_safety_asr": 0.0,
+      "G1_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 145,
+        "n_boot": 2000
+      },
+      "G2_safety_asr": 0.0,
+      "G2_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 145,
+        "n_boot": 2000
+      }
+    },
+    {
+      "model": "nova-pro",
+      "G0_safety_asr": 0.12413793103448276,
+      "G0_safety_asr_ci": {
+        "low": 0.07586206896551724,
+        "high": 0.1793103448275862,
+        "n": 145,
+        "n_boot": 2000
+      },
+      "G1_safety_asr": 0.0,
+      "G1_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 145,
+        "n_boot": 2000
+      },
+      "G2_safety_asr": 0.0,
+      "G2_safety_asr_ci": {
+        "low": 0.0,
+        "high": 0.0,
+        "n": 145,
+        "n_boot": 2000
+      }
+    }
+  ],
+  "scatter_safety_vs_benign_acc": [
+    {
+      "guardrail": "G0",
+      "safety_asr": 0.11724137931034483,
+      "benign_accuracy": 0.77,
+      "task_accuracy_on_attacks": 0.6290322580645161,
+      "over_refusal": 0.0
+    },
+    {
+      "guardrail": "G1",
+      "safety_asr": 0.0,
+      "benign_accuracy": 0.71,
+      "task_accuracy_on_attacks": 0.6397849462365591,
+      "over_refusal": 0.02
+    },
+    {
+      "guardrail": "G2",
+      "safety_asr": 0.0,
+      "benign_accuracy": 0.73,
+      "task_accuracy_on_attacks": 0.6505376344086021,
+      "over_refusal": 0.02
+    }
+  ],
+  "table_cost_latency": [
+    {
+      "guardrail": "G0",
+      "n": 472,
+      "mean_latency_ms": 379.20235169491525,
+      "p50_latency_ms": 349.25,
+      "p95_latency_ms": 513.83,
+      "mean_llm_calls": 1.0
+    },
+    {
+      "guardrail": "G1",
+      "n": 472,
+      "mean_latency_ms": 2842.7948940677966,
+      "p50_latency_ms": 2530.48,
+      "p95_latency_ms": 6247.19,
+      "mean_llm_calls": 1.2605932203389831
+    },
+    {
+      "guardrail": "G2",
+      "n": 472,
+      "mean_latency_ms": 4024.402055084746,
+      "p50_latency_ms": 3612.06,
+      "p95_latency_ms": 8037.72,
+      "mean_llm_calls": 2.2266949152542375
+    }
+  ],
+  "note": "Instruction/Safety ASR excludes context_poisoning (reported as PSR). Macro attack success averages all four attack types. Counts are experimental conditions, not LLM API calls. Brackets are 95% bootstrap CIs. Latency/LLM-call stats come from RunRecord.metadata when tracked.",
+  "bootstrap_n": 2000
+}

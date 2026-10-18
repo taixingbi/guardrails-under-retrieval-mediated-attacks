@@ -1,0 +1,71 @@
+{
+  "n_records": 1416,
+  "g1_input_decisions_attack": {
+    "sanitize": 284,
+    "allow": 59,
+    "block": 29
+  },
+  "g1_input_by_attack": {
+    "authority_conflict": {
+      "sanitize": 80,
+      "block": 19,
+      "allow": 1
+    },
+    "context_poisoning": {
+      "sanitize": 35,
+      "allow": 44,
+      "block": 3
+    },
+    "indirect_injection": {
+      "sanitize": 92,
+      "allow": 4,
+      "block": 4
+    },
+    "policy_retrieval": {
+      "sanitize": 77,
+      "allow": 10,
+      "block": 3
+    }
+  },
+  "g2_input_decisions_attack": {
+    "sanitize": 287,
+    "allow": 62,
+    "block": 23
+  },
+  "g2_output_decisions_attack": {
+    "rewrite": 8,
+    "pass": 331,
+    "block": 10,
+    "missing": 23
+  },
+  "g2_input_to_output": {
+    "sanitize->pass": 279,
+    "allow->pass": 52,
+    "block->?": 23,
+    "allow->block": 8,
+    "sanitize->rewrite": 6,
+    "sanitize->block": 2,
+    "allow->rewrite": 2
+  },
+  "rescue": {
+    "g1_helped": 45,
+    "g2_helped_after_g1_miss": 4,
+    "g0_success": 81,
+    "n": 372
+  },
+  "g2_correct_via_output_decision": {
+    "rewrite": 8,
+    "pass": 234
+  },
+  "clean_g1_input": {
+    "allow": 95,
+    "sanitize": 3,
+    "block": 2
+  },
+  "clean_g2_output": {
+    "pass": 95,
+    "?": 2,
+    "rewrite": 3
+  },
+  "over_refusal_clean": 0.013333333333333334
+}

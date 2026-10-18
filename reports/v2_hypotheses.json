@@ -3,6 +3,13 @@
   "runs": [
     "e1_placement",
     "e2_rules",
+    "e3_llm_gptoss",
+    "e3_llm_ministral3b",
+    "e5_squad",
+    "e6_fail_closed",
+    "e6_retry_then_block",
+    "e7_cot",
+    "e7_direct",
     "main"
   ],
   "hypotheses": {
@@ -16,9 +23,14 @@
       "high": -0.09783333333333333,
       "n_seeds": 100,
       "resamples": 2000,
+      "bounds": {
+        "low": -0.13,
+        "high": -0.125,
+        "n_incomplete_pairs": 2
+      },
       "p": 9.999000099990002e-05,
       "n_pairs": 574,
-      "n_pairs_dropped": 178,
+      "n_pairs_dropped": 2,
       "permutations": 10000,
       "mcnemar": {
         "b": 1,
@@ -33,9 +45,10 @@
       ],
       "expected_direction": "lower",
       "direction_matches": true,
+      "robust_to_bounds": true,
       "holm": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
       }
     },
@@ -49,9 +62,14 @@
       "high": -0.06166666666666666,
       "n_seeds": 50,
       "resamples": 2000,
+      "bounds": {
+        "low": -0.10333333333333332,
+        "high": -0.09666666666666666,
+        "n_incomplete_pairs": 2
+      },
       "p": 9.999000099990002e-05,
       "n_pairs": 284,
-      "n_pairs_dropped": 94,
+      "n_pairs_dropped": 2,
       "permutations": 10000,
       "mcnemar": {
         "b": 0,
@@ -66,9 +84,10 @@
       ],
       "expected_direction": "lower",
       "direction_matches": true,
+      "robust_to_bounds": true,
       "holm": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
       }
     },
@@ -82,9 +101,14 @@
       "high": -0.14204545454545456,
       "n_seeds": 88,
       "resamples": 2000,
+      "bounds": {
+        "low": -0.23295454545454544,
+        "high": -0.2159090909090909,
+        "n_incomplete_pairs": 2
+      },
       "p": 9.999000099990002e-05,
       "n_pairs": 174,
-      "n_pairs_dropped": 578,
+      "n_pairs_dropped": 2,
       "permutations": 10000,
       "mcnemar": {
         "b": 5,
@@ -99,9 +123,10 @@
       ],
       "expected_direction": "lower",
       "direction_matches": true,
+      "robust_to_bounds": true,
       "holm": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
       }
     },
@@ -109,10 +134,40 @@
       "id": "H3",
       "experiment": "E3",
       "statement": "In LLM-only mode, GPT-OSS 120B has higher task accuracy than Ministral 3B",
-      "testable": false,
-      "reason": "missing runs: e3_llm_gptoss, e3_llm_ministral3b",
-      "p": null,
-      "holm": null
+      "test": "seed_paired_permutation",
+      "diff": 0.44,
+      "low": 0.35333333333333333,
+      "high": 0.5283333333333333,
+      "n_seeds": 50,
+      "resamples": 2000,
+      "bounds": {
+        "low": 0.44,
+        "high": 0.44,
+        "n_incomplete_pairs": 0
+      },
+      "p": 9.999000099990002e-05,
+      "n_pairs": 189,
+      "n_pairs_dropped": 0,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 85,
+        "c": 3,
+        "p": 7.344652981131973e-22
+      },
+      "testable": true,
+      "metric": "accuracy",
+      "arms": "e3_llm_gptoss:G1 - e3_llm_ministral3b:G1",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "higher",
+      "direction_matches": true,
+      "robust_to_bounds": true,
+      "holm": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0005999400059994001,
+        "reject": true
+      }
     },
     "H4": {
       "id": "H4",
@@ -138,17 +193,47 @@
       "id": "H5",
       "experiment": "E5",
       "statement": "On SQuAD unseen attacks, G1 has lower Safety ASR than G0",
-      "testable": false,
-      "reason": "missing runs: e5_squad",
-      "p": null,
-      "holm": null
+      "test": "seed_paired_permutation",
+      "diff": -0.115,
+      "low": -0.165,
+      "high": -0.07,
+      "n_seeds": 50,
+      "resamples": 2000,
+      "bounds": {
+        "low": -0.115,
+        "high": -0.115,
+        "n_incomplete_pairs": 0
+      },
+      "p": 9.999000099990002e-05,
+      "n_pairs": 290,
+      "n_pairs_dropped": 0,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 0,
+        "c": 34,
+        "p": 1.1641532182693481e-10
+      },
+      "testable": true,
+      "metric": "safety",
+      "arms": "e5_squad:G1 - e5_squad:G0",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "lower",
+      "direction_matches": true,
+      "robust_to_bounds": true,
+      "holm": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0005999400059994001,
+        "reject": true
+      }
     },
     "H6": {
       "id": "H6",
       "experiment": "E6",
       "statement": "Over guard calls that fail, retry-then-block has higher task accuracy than fail-closed at no higher Safety ASR",
       "testable": false,
-      "reason": "missing runs: e6_retry_then_block, e6_fail_closed",
+      "reason": "1 failed guard calls < 30: H6 leaves the primary family and is reported as descriptive (model.md \u00a79)",
       "p": null,
       "holm": null
     },
@@ -156,41 +241,86 @@
       "id": "H7",
       "experiment": "E7",
       "statement": "CoT and direct prompts differ in LLM-only Safety ASR",
-      "testable": false,
-      "reason": "missing runs: e7_cot, e7_direct",
-      "p": null,
-      "holm": null
+      "test": "seed_paired_permutation",
+      "diff": -0.003333333333333333,
+      "low": -0.01,
+      "high": 0.0,
+      "n_seeds": 50,
+      "resamples": 2000,
+      "bounds": {
+        "low": -0.003333333333333333,
+        "high": 0.0,
+        "n_incomplete_pairs": 1
+      },
+      "p": 1.0,
+      "n_pairs": 285,
+      "n_pairs_dropped": 1,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 0,
+        "c": 1,
+        "p": 1.0
+      },
+      "testable": true,
+      "metric": "safety",
+      "arms": "e7_cot:G1 - e7_direct:G1",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "either",
+      "direction_matches": null,
+      "robust_to_bounds": false,
+      "holm": {
+        "p": 1.0,
+        "p_holm": 1.0,
+        "reject": false
+      }
     }
   },
   "holm": {
     "family": [
       "H0",
       "H1",
-      "H2"
-    ],
-    "family_size": 3,
-    "alpha": 0.05,
-    "excluded": [
+      "H2",
       "H3",
       "H5",
-      "H6",
       "H7"
+    ],
+    "family_size": 6,
+    "alpha": 0.05,
+    "excluded": [
+      "H6"
     ],
     "results": {
       "H0": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
       },
       "H1": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
       },
       "H2": {
         "p": 9.999000099990002e-05,
-        "p_holm": 0.00029997000299970003,
+        "p_holm": 0.0005999400059994001,
         "reject": true
+      },
+      "H3": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0005999400059994001,
+        "reject": true
+      },
+      "H5": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0005999400059994001,
+        "reject": true
+      },
+      "H7": {
+        "p": 1.0,
+        "p_holm": 1.0,
+        "reject": false
       }
     }
   }

@@ -59,8 +59,8 @@ DEFAULT_RUNS: dict[str, str] = {
 
 @dataclass(frozen=True)
 class Spec:
-    """One paired hypothesis. `lower_is_expected` records the direction the statement
-    claims; the test itself stays two-sided (§9)."""
+    """One paired hypothesis. `expected` is the direction the statement claims ("lower",
+    "higher", or "either" for a non-directional statement); the test is always two-sided (§9)."""
 
     hid: str
     experiment: str
@@ -71,7 +71,7 @@ class Spec:
     arm_b: str
     metric: str
     sources: tuple[str, ...] | None = UNSEEN
-    lower_is_expected: bool = True
+    expected: str = "lower"
 
 
 SPECS: tuple[Spec, ...] = (
@@ -82,11 +82,11 @@ SPECS: tuple[Spec, ...] = (
     Spec("H2", "E2", "On unseen attacks, hybrid has lower PSR than rules-only",
          "main", "G1", "e2_rules", "G1", "psr"),
     Spec("H3", "E3", "In LLM-only mode, GPT-OSS 120B has higher task accuracy than Ministral 3B",
-         "e3_llm_gptoss", "G1", "e3_llm_ministral3b", "G1", "accuracy", lower_is_expected=False),
+         "e3_llm_gptoss", "G1", "e3_llm_ministral3b", "G1", "accuracy", expected="higher"),
     Spec("H5", "E5", "On SQuAD unseen attacks, G1 has lower Safety ASR than G0",
          "e5_squad", "G1", "e5_squad", "G0", "safety"),
     Spec("H7", "E7", "CoT and direct prompts differ in LLM-only Safety ASR",
-         "e7_cot", "G1", "e7_direct", "G1", "safety"),
+         "e7_cot", "G1", "e7_direct", "G1", "safety", expected="either"),
 )
 
 
@@ -118,12 +118,29 @@ def _paired(spec: Spec, runs: dict[str, list[RunRecord]], obs: dict[str, list[Ob
         "metric": spec.metric,
         "arms": f"{spec.run_a}:{spec.arm_a} - {spec.run_b}:{spec.arm_b}",
         "sources": list(spec.sources) if spec.sources else None,
-        "expected_direction": "lower" if spec.lower_is_expected else "higher",
-        "direction_matches": None if out["diff"] is None else (
-            (out["diff"] < 0) if spec.lower_is_expected else (out["diff"] > 0)
-        ),
+        "expected_direction": spec.expected,
+        "direction_matches": _matches(spec.expected, out["diff"]),
+        "robust_to_bounds": _robust(spec.expected, out["bounds"]),
     })
     return out
+
+
+def _matches(expected: str, diff: float | None) -> bool | None:
+    if diff is None or expected == "either":
+        return None
+    return diff < 0 if expected == "lower" else diff > 0
+
+
+def _robust(expected: str, bounds: dict[str, Any]) -> bool | None:
+    """§9: the direction must hold at both sensitivity bounds for a claim to be made."""
+    lo, hi = bounds.get("low"), bounds.get("high")
+    if lo is None or hi is None:
+        return None
+    if expected == "lower":
+        return hi < 0
+    if expected == "higher":
+        return lo > 0
+    return lo > 0 or hi < 0
 
 
 def _heldout_seed_ids() -> set[str]:
@@ -198,7 +215,8 @@ def _h6(runs: dict[str, list[RunRecord]], obs: dict[str, list[Obs]], seed: int) 
         "safety_asr_difference": cluster_bootstrap_diff(safety, seed=seed),
         "safety_asr_mcnemar": mcnemar_exact(safety),
         "expected_direction": "higher",
-        "direction_matches": None if out["diff"] is None else out["diff"] > 0,
+        "direction_matches": _matches("higher", out["diff"]),
+        "robust_to_bounds": _robust("higher", out["bounds"]),
     })
     return out
 
@@ -239,20 +257,31 @@ def hypotheses_to_markdown(report: dict[str, Any]) -> str:
         "(10,000 permutations, two-sided) with Holm correction at family-wise alpha 0.05; "
         "differences are arm A minus arm B with 95% cluster-bootstrap CIs over seeds.",
         "",
-        "| ID | Exp | Metric | Diff | 95% CI | p | p (Holm) | Reject | Direction | Seeds |",
-        "|---|---|---|---|---|---|---|---|---|---:|",
+        "| ID | Exp | Metric | Diff | 95% CI | Bounds | p | p (Holm) | Reject | Direction | Claim | Seeds |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---:|",
     ]
     for hid, r in report["hypotheses"].items():
         if not r.get("testable"):
-            L.append(f"| {hid} | {r['experiment']} | — | — | — | — | — | not testable | — | — |")
+            L.append(f"| {hid} | {r['experiment']} | — | — | — | — | — | — | not testable | — | — | — |")
             continue
         holm_r = r.get("holm") or {}
-        direction = {True: "as stated", False: "opposite", None: "—"}[r.get("direction_matches")]
+        direction = ("two-sided" if r.get("expected_direction") == "either"
+                     else {True: "as stated", False: "opposite", None: "—"}[r.get("direction_matches")])
+        b = r.get("bounds") or {}
+        bounds = f"[{_f(b.get('low'))}, {_f(b.get('high'))}]" if b else "—"
+        if not holm_r.get("reject"):
+            claim = "—"
+        elif r.get("robust_to_bounds") is False:
+            claim = "not claimed (bounds)"
+        elif r.get("direction_matches") is False:
+            claim = "opposite direction"
+        else:
+            claim = "claimed"
         L.append(
             f"| {hid} | {r['experiment']} | {r.get('metric','—')} | {_f(r.get('diff'))} "
-            f"| [{_f(r.get('low'))}, {_f(r.get('high'))}] | {_f(r.get('p'), 4)} "
+            f"| [{_f(r.get('low'))}, {_f(r.get('high'))}] | {bounds} | {_f(r.get('p'), 4)} "
             f"| {_f(holm_r.get('p_holm'), 4)} | {holm_r.get('reject', '—')} "
-            f"| {direction} | {r.get('n_seeds','—')} |"
+            f"| {direction} | {claim} | {r.get('n_seeds','—')} |"
         )
     L += ["", "## Statements", ""]
     for hid, r in report["hypotheses"].items():
