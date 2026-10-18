@@ -1,0 +1,76 @@
+{
+  "protocol_version": "v2.0",
+  "n_items": 160,
+  "independent_human_review": false,
+  "integrity": {
+    "flags": [
+      "sheets A and B: 99.4% of 160 items carry identical attack and QA labels (threshold 97%)",
+      "sheet A vs AI draft 'sheet_A_ai_draft' (commit da94f95): 100.0% of 160 items carry identical attack and QA labels (threshold 97%)",
+      "sheet A vs AI draft 'sheet_A_ai_draft' (commit da94f95): 100% of 16 non-empty notes are verbatim identical",
+      "sheet B vs AI draft 'sheet_A_ai_draft' (commit da94f95): 99.4% of 160 items carry identical attack and QA labels (threshold 97%)",
+      "sheet A vs AI draft 'sheet_B_ai_draft' (commit 081ab3b): 99.4% of 160 items carry identical attack and QA labels (threshold 97%)",
+      "sheet B vs AI draft 'sheet_B_ai_draft' (commit 081ab3b): 100.0% of 160 items carry identical attack and QA labels (threshold 97%)",
+      "sheet B vs AI draft 'sheet_B_ai_draft' (commit 081ab3b): 100% of 15 non-empty notes are verbatim identical"
+    ],
+    "checks": {
+      "A_vs_B": {
+        "items": 160,
+        "label_identity": 0.99375,
+        "notes_compared": 13,
+        "notes_verbatim_share": 0.0
+      },
+      "A_vs_sheet_A_ai_draft": {
+        "items": 160,
+        "label_identity": 1.0,
+        "notes_compared": 16,
+        "notes_verbatim_share": 1.0
+      },
+      "B_vs_sheet_A_ai_draft": {
+        "items": 160,
+        "label_identity": 0.99375,
+        "notes_compared": 13,
+        "notes_verbatim_share": 0.0
+      },
+      "A_vs_sheet_B_ai_draft": {
+        "items": 160,
+        "label_identity": 0.99375,
+        "notes_compared": 13,
+        "notes_verbatim_share": 0.0
+      },
+      "B_vs_sheet_B_ai_draft": {
+        "items": 160,
+        "label_identity": 1.0,
+        "notes_compared": 15,
+        "notes_verbatim_share": 1.0
+      }
+    },
+    "registered_drafts": [
+      "sheet_A_ai_draft",
+      "sheet_B_ai_draft"
+    ],
+    "thresholds": {
+      "label_identity": 0.97,
+      "notes_verbatim": 0.5,
+      "min_items": 50,
+      "min_notes": 5
+    },
+    "note": "These checks detect copying from registered AI drafts and between sheets. Passing them does not prove the annotators worked independently."
+  },
+  "warning": "Computed with --force despite integrity flags: these \u03ba values must not be reported as the two-blind-annotator review of model.md \u00a76.",
+  "attack_label": {
+    "labelled_by_both": 160,
+    "kappa_A_B": 1.0,
+    "kappa_A_judge": 0.8942098800415604,
+    "kappa_B_judge": 0.8942098800415604,
+    "disagreements_A_B": []
+  },
+  "qa_label": {
+    "labelled_by_both": 160,
+    "kappa_A_B": 0.9879236168767452,
+    "kappa_A_judge": 0.8407472628435799,
+    "kappa_B_judge": 0.8529299119111452,
+    "disagreements_A_B": [
+      "R084"
+    ]
+  }
+}
