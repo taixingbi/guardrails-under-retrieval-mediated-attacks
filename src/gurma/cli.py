@@ -146,7 +146,21 @@ def main(argv: list[str] | None = None) -> int:
         help="v2: blind human-review sheets (local, gitignored) and a text-free manifest (§6)",
     )
     p_v2rev.add_argument("--run-dir", default="data/runs/v2_main")
-    sub.add_parser("v2-review-agreement", help="v2: Cohen's kappa between annotators and with the judge")
+    p_v2agr = sub.add_parser(
+        "v2-review-agreement",
+        help="v2: Cohen's kappa between annotators and with the judge (refuses on copied sheets)",
+    )
+    p_v2agr.add_argument(
+        "--force", action="store_true",
+        help="compute kappa despite integrity flags; the result is recorded as NOT independent review",
+    )
+    p_v2reg = sub.add_parser(
+        "v2-review-register-draft",
+        help="v2: register an AI-drafted sheet so the agreement guard recognises copies of it",
+    )
+    p_v2reg.add_argument("sheet")
+    p_v2reg.add_argument("--name", required=True)
+    p_v2reg.add_argument("--source", required=True, help="e.g. the commit that added the draft")
     sub.add_parser(
         "failure-policy",
         help="Fail-open vs counterfactual fail-closed at 768, vs 4096, into data/runs/failure_policy/",
@@ -191,6 +205,7 @@ def main(argv: list[str] | None = None) -> int:
             "v2-report",
             "v2-review-export",
             "v2-review-agreement",
+            "v2-review-register-draft",
             "recovery-policy",
             "budget-sweep",
             "judge-agreement",
@@ -260,9 +275,17 @@ def main(argv: list[str] | None = None) -> int:
 
         export(args.run_dir)
     elif args.cmd == "v2-review-agreement":
-        from gurma.v2.review import agreement
+        from gurma.v2.review import ReviewIntegrityError, agreement
 
-        agreement()
+        try:
+            agreement(force=args.force)
+        except ReviewIntegrityError as exc:
+            print(f"[review] {exc}")
+            return 2
+    elif args.cmd == "v2-review-register-draft":
+        from gurma.v2.review import register_ai_draft
+
+        register_ai_draft(args.sheet, name=args.name, source=args.source)
     elif args.cmd == "recovery-policy":
         from gurma.eval.recovery_policy import build_recovery_policy
 

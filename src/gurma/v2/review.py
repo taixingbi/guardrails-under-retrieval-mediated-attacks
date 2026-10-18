@@ -182,15 +182,144 @@ def cohen_kappa(a: list[str], b: list[str]) -> float | None:
     return 1.0 if pe == 1 else (po - pe) / (1 - pe)
 
 
-def agreement() -> dict[str, Any]:
-    """Cohen's κ between the annotators and of each annotator with the judge, per label kind."""
-    sheets = {}
-    for who in ANNOTATORS:
-        with (LOCAL_DIR / f"sheet_{who}.csv").open() as f:
-            sheets[who] = {row["item_id"]: row for row in csv.DictReader(f)}
-    key = {k["item_id"]: k for k in map(json.loads, (LOCAL_DIR / "key.jsonl").open())}
+# --- Integrity guard ----------------------------------------------------------------------
+#
+# κ between "two annotators" is only meaningful if each sheet is one person's independent
+# work. These checks catch the two failure modes seen in this repo: a sheet that is (or is
+# derived from) a registered AI draft, and two sheets that share one source. They cannot
+# prove independence; passing them only means no copying was detected.
+
+DRAFT_REGISTRY = LOCAL_DIR / "ai_draft_registry.json"
+COPY_LABEL_SHARE = 0.97  # joint (attack, QA) label identity at or above this → flagged
+COPY_NOTES_SHARE = 0.5  # share of non-empty notes reproduced verbatim → flagged
+COPY_NOTES_MIN = 5  # notes-based check needs at least this many non-empty notes
+COPY_MIN_ITEMS = 50  # label-identity checks need at least this many labelled items
+
+
+def _labels(row: dict[str, str]) -> tuple[str, str]:
+    return row.get("attack_label", "").strip(), row.get("qa_label", "").strip()
+
+
+def _notes_hash(note: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(note.strip().encode()).hexdigest()[:12] if note.strip() else ""
+
+
+def _read_sheet(text: str) -> dict[str, dict[str, str]]:
+    import io
+
+    return {r["item_id"]: r for r in csv.DictReader(io.StringIO(text.lstrip("\ufeff")))}
+
+
+def register_ai_draft(sheet: str | Path, *, name: str, source: str,
+                      registry: Path = DRAFT_REGISTRY) -> dict[str, Any]:
+    """Record an AI-drafted sheet so the agreement guard recognises copies of it. Stores the
+    labels and a hash of each note, never the response text."""
+    rows = _read_sheet(Path(sheet).read_text(encoding="utf-8"))
+    data = json.loads(registry.read_text()) if registry.exists() else {"drafts": []}
+    data["drafts"] = [d for d in data["drafts"] if d["name"] != name]
+    data["drafts"].append({
+        "name": name,
+        "source": source,
+        "items": {i: [*_labels(r), _notes_hash(r.get("notes", ""))] for i, r in sorted(rows.items())},
+    })
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(json.dumps(data, indent=1) + "\n")
+    print(f"[review] registered AI draft {name!r} ({len(rows)} items) → {registry}")
+    return data
+
+
+def _similarity(a: dict[str, tuple], b: dict[str, tuple]) -> dict[str, Any]:
+    """Label identity and verbatim-note overlap between two labelled sheets (or a sheet and
+    a draft), over items labelled in both."""
+    both = [i for i in a if i in b and a[i][0] and b[i][0]]
+    same = sum(1 for i in both if a[i][:2] == b[i][:2])
+    noted = [i for i in a if i in b and a[i][2] and b[i][2]]
+    same_notes = sum(1 for i in noted if a[i][2] == b[i][2])
+    return {
+        "items": len(both),
+        "label_identity": same / len(both) if both else None,
+        "notes_compared": len(noted),
+        "notes_verbatim_share": same_notes / len(noted) if noted else None,
+    }
+
+
+def _copy_flags(sim: dict[str, Any], what: str) -> list[str]:
+    flags = []
+    if sim["items"] >= COPY_MIN_ITEMS and (sim["label_identity"] or 0) >= COPY_LABEL_SHARE:
+        flags.append(f"{what}: {100 * sim['label_identity']:.1f}% of {sim['items']} items carry identical "
+                     f"attack and QA labels (threshold {100 * COPY_LABEL_SHARE:.0f}%)")
+    if sim["notes_compared"] >= COPY_NOTES_MIN and (sim["notes_verbatim_share"] or 0) >= COPY_NOTES_SHARE:
+        flags.append(f"{what}: {100 * sim['notes_verbatim_share']:.0f}% of {sim['notes_compared']} "
+                     "non-empty notes are verbatim identical")
+    return flags
+
+
+def integrity_checks(sheets: dict[str, dict[str, dict[str, str]]],
+                     registry: Path = DRAFT_REGISTRY) -> dict[str, Any]:
+    """Flags that make the sheets unfit to be reported as independent human review."""
+    as_tuples = {who: {i: (*_labels(r), _notes_hash(r.get("notes", ""))) for i, r in rows.items()}
+                 for who, rows in sheets.items()}
+    flags: list[str] = []
+    checks: dict[str, Any] = {}
+    for who, rows in as_tuples.items():
+        if not any(t[0] for t in rows.values()):
+            flags.append(f"sheet {who} has no labels")
+    sim = _similarity(as_tuples["A"], as_tuples["B"])
+    checks["A_vs_B"] = sim
+    flags += _copy_flags(sim, "sheets A and B")
+    drafts = json.loads(registry.read_text())["drafts"] if registry.exists() else []
+    for d in drafts:
+        draft = {i: tuple(v) for i, v in d["items"].items()}
+        for who, rows in as_tuples.items():
+            sim = _similarity(rows, draft)
+            checks[f"{who}_vs_{d['name']}"] = sim
+            flags += _copy_flags(sim, f"sheet {who} vs AI draft {d['name']!r} ({d['source']})")
+    return {
+        "flags": flags,
+        "checks": checks,
+        "registered_drafts": [d["name"] for d in drafts],
+        "thresholds": {"label_identity": COPY_LABEL_SHARE, "notes_verbatim": COPY_NOTES_SHARE,
+                       "min_items": COPY_MIN_ITEMS, "min_notes": COPY_NOTES_MIN},
+        "note": "These checks detect copying from registered AI drafts and between sheets. "
+                "Passing them does not prove the annotators worked independently.",
+    }
+
+
+class ReviewIntegrityError(RuntimeError):
+    """The sheets fail the integrity checks; κ would not measure independent human review."""
+
+
+def agreement(*, force: bool = False, local_dir: Path = LOCAL_DIR, report_dir: Path = REPORT_DIR,
+              registry: Path | None = None) -> dict[str, Any]:
+    """Cohen's κ between the annotators and of each annotator with the judge, per label kind.
+
+    Refuses (raises ReviewIntegrityError, writes nothing) when the integrity checks flag the
+    sheets. `force=True` computes κ anyway and records the flags, marking the result as not
+    an independent human review."""
+    registry = registry if registry is not None else local_dir / DRAFT_REGISTRY.name
+    sheets = {who: _read_sheet((local_dir / f"sheet_{who}.csv").read_text(encoding="utf-8"))
+              for who in ANNOTATORS}
+    integrity = integrity_checks(sheets, registry)
+    if integrity["flags"] and not force:
+        raise ReviewIntegrityError(
+            "refusing to report kappa: the sheets do not look like two independent human reviews.\n  - "
+            + "\n  - ".join(integrity["flags"])
+            + "\nHave each annotator label their own sheet independently. To compute kappa anyway "
+              "(recorded as NOT an independent human review), pass --force."
+        )
+    key = {k["item_id"]: k for k in map(json.loads, (local_dir / "key.jsonl").open())}
     ids = sorted(key)
-    out: dict[str, Any] = {"protocol_version": PROTOCOL_VERSION, "n_items": len(ids)}
+    out: dict[str, Any] = {
+        "protocol_version": PROTOCOL_VERSION,
+        "n_items": len(ids),
+        "independent_human_review": not integrity["flags"],
+        "integrity": integrity,
+    }
+    if integrity["flags"]:
+        out["warning"] = ("Computed with --force despite integrity flags: these κ values must not be "
+                          "reported as the two-blind-annotator review of model.md §6.")
     for kind, judge_field in (("attack_label", "judge_attack"), ("qa_label", "judge_qa")):
         a = [sheets["A"][i][kind].strip() for i in ids]
         b = [sheets["B"][i][kind].strip() for i in ids]
@@ -202,7 +331,9 @@ def agreement() -> dict[str, Any]:
             "kappa_B_judge": cohen_kappa(b, j),
             "disagreements_A_B": [i for i, x, y in zip(ids, a, b) if x and y and x != y],
         }
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    (REPORT_DIR / "agreement.json").write_text(json.dumps(out, indent=2) + "\n")
-    print(json.dumps({k: v for k, v in out.items() if k != "n_items"}, indent=2))
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "agreement.json").write_text(json.dumps(out, indent=2) + "\n")
+    if integrity["flags"]:
+        print("WARNING: " + out["warning"])
+    print(json.dumps({k: v for k, v in out.items() if k not in ("n_items", "integrity")}, indent=2))
     return out

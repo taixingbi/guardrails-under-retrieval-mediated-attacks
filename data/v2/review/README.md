@@ -135,3 +135,16 @@ gurma v2-review-agreement
 This writes `reports/human_review/agreement.json`, with Cohen's κ between the two annotators
 and between each annotator and the judge, for both the attack label and the QA label, plus
 the list of items where the annotators disagree.
+
+The command first checks that the sheets look like two independent reviews, and **refuses**
+if they do not:
+
+- the two sheets carry identical attack and QA labels on 97% of items or more, or share most
+  of their non-empty notes word for word;
+- a sheet matches a registered AI-drafted sheet (`ai_draft_registry.json`) at the same level.
+  This also catches a draft that was "verified" with only a few changes.
+
+So don't start from another annotator's sheet or from an AI draft. `--force` computes κ
+anyway, but the result is then stored as *not* an independent human review and must not be
+reported as one. Passing the checks does not prove independence; it only means no copying
+was detected.

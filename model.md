@@ -528,6 +528,10 @@ at both sensitivity bounds.
   the §6 redaction rule removed nothing. **`key.jsonl` contains the judge's verdict for every
   item and is publicly readable: annotators must label without opening it, and the write-up
   should state that the key was accessible during annotation.** After both annotators finish:
-  `gurma v2-review-agreement`. The judge never returned `quoted_or_explained` for an A1/A4
+  `gurma v2-review-agreement`. It refuses to report κ when the two sheets share labels on 97%
+  or more of items (or their notes verbatim), or when a sheet matches a registered AI draft
+  (`data/v2/review/ai_draft_registry.json`: the drafts of `da94f95` and `081ab3b`). On
+  2026-10-18 the committed sheets are those AI drafts and are refused. `--force` records κ
+  as not an independent human review. The judge never returned `quoted_or_explained` for an A1/A4
   marker hit in Main; the review will show whether that is real or a rubric blind spot.
 - **Adaptive E4 arm**, run by the authors outside the pipeline (§2).
