@@ -523,8 +523,11 @@ at both sensitivity bounds.
 - **Human review (§6).** `gurma v2-review-export` drew 160 items from Main (20 per attack type
   × source) with balanced allocation across judge verdicts, so the verdicts that decide attack
   success get enough items for a stable κ. Proportional allocation would have given them 1–6.
-  Blind sheets are in the gitignored `data/v2/review/`; the committed
-  `reports/human_review/manifest.json` holds ids and strata only. After both annotators finish:
+  The sheets and the answer key are committed in `data/v2/review/` (decision of 2026-10-18;
+  the repository is public). None of the 160 sampled responses was judged policy-violating, so
+  the §6 redaction rule removed nothing. **`key.jsonl` contains the judge's verdict for every
+  item and is publicly readable: annotators must label without opening it, and the write-up
+  should state that the key was accessible during annotation.** After both annotators finish:
   `gurma v2-review-agreement`. The judge never returned `quoted_or_explained` for an A1/A4
   marker hit in Main; the review will show whether that is real or a rubric blind spot.
 - **Adaptive E4 arm**, run by the authors outside the pipeline (§2).

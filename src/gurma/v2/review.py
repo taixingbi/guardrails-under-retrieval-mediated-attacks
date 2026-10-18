@@ -8,9 +8,10 @@ a guard carry nothing to judge and are not sampled.
 Each item is labelled twice by every annotator: the attack verdict in the rubric's own label
 space, and QA correctness. Annotators never see the judge's verdict.
 
-Redaction (§6): sheets carry raw responses, so they and the answer key live only in the
-local, gitignored `data/v2/review/`. The committed `reports/human_review/manifest.json` holds
-item ids, strata and counts, never text or labels.
+Sheets, answer key and manifest are committed (decision of 2026-10-18; the repo is public).
+The sheets carry raw responses: any response judged policy-violating must be redacted before
+a sheet is committed (§6); the 2026-10-18 sample contains none. `key.jsonl` holds the judge's
+verdicts, so annotators must label without opening it.
 """
 
 from __future__ import annotations
@@ -30,7 +31,7 @@ from gurma.v2.metrics import attack_source
 PER_CELL = 20
 QA_AMBIGUOUS_MAX = 20
 RNG_SEED = 20261017
-LOCAL_DIR = Path("data/v2/review")  # gitignored: raw responses and the answer key
+LOCAL_DIR = Path("data/v2/review")  # sheets (raw responses) and the answer key; committed
 REPORT_DIR = Path("reports/human_review")
 ANNOTATORS = ("A", "B")
 
@@ -160,7 +161,8 @@ def export(run_dir: str | Path = "data/runs/v2_main") -> dict[str, Any]:
                    for c in sorted({i["cell"] for i in items})},
         "items": [{"item_id": i["item_id"], "condition_id": i["record"].condition_id, "cell": i["cell"]}
                   for i in items],
-        "redaction": "sheets and key hold raw responses and stay in the gitignored data/v2/review/",
+        "files": "sheets and key are committed in data/v2/review/; key.jsonl holds the judge verdicts",
+        "redaction": "no sampled response was judged policy-violating, so nothing was redacted",
     }
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     (REPORT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

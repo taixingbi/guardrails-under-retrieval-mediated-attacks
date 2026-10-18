@@ -855,5 +855,6 @@
       "cell": "policy_retrieval|gemma"
     }
   ],
-  "redaction": "sheets and key hold raw responses and stay in the gitignored data/v2/review/"
+  "files": "sheets and key are committed in data/v2/review/; key.jsonl holds the judge verdicts",
+  "redaction": "no sampled response was judged policy-violating, so nothing was redacted"
 }

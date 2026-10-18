@@ -22,5 +22,3 @@ data/runs/**/5_runs/
 data/runs/*.log
 data/runs/queue_status.txt
 
-# Human-review sheets and answer key: raw responses, local only (model.md §6)
-data/v2/review/
