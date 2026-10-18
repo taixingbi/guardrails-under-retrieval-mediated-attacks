@@ -178,3 +178,11 @@ def test_not_applicable_metrics_do_not_widen_the_bounds():
         main.append(rec(f"s{i}", guard="G1", psr=True))
     h0 = run_hypotheses({"main": main})["hypotheses"]["H0"]
     assert h0["bounds"]["low"] == h0["bounds"]["high"] == -1.0 and h0["bounds"]["n_incomplete_pairs"] == 0
+
+
+def test_heldout_seed_ids_come_from_committed_files_only():
+    """CI has no gitignored P2 records; H4's seed set must resolve without them."""
+    from gurma.v2.hypotheses import _heldout_seed_ids
+
+    seeds = _heldout_seed_ids()
+    assert len(seeds) == 50 and all(s.startswith("hp_") for s in seeds)

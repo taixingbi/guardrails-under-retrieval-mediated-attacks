@@ -144,9 +144,15 @@ def _robust(expected: str, bounds: dict[str, Any]) -> bool | None:
 
 
 def _heldout_seed_ids() -> set[str]:
-    from gurma.v2.seeds import load_subset_seeds
+    """Run seed ids of the heldout50 subset, from committed files only: the subset lists
+    HotpotQA ids, and the frozen seed pool maps each to the seed id the runs use. (Loading the
+    seeds themselves needs the gitignored P2 records, which CI does not have.)"""
+    from gurma.v2.seeds import OUT_DIR, SUBSET_DIR
 
-    return {s.seed_id for s in load_subset_seeds("heldout50")}
+    ids = set(json.loads((SUBSET_DIR / "heldout50.json").read_text())["ids"])
+    with (OUT_DIR / "hotpot_pool.jsonl").open() as f:
+        pool = {row["id"]: row["legacy_seed_id"] for row in map(json.loads, f)}
+    return {pool[i] for i in ids}
 
 
 def _h4(obs: dict[str, list[Obs]], seed: int, heldout_seed_ids: set[str] | None = None) -> dict[str, Any]:
