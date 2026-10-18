@@ -1,0 +1,197 @@
+{
+  "protocol_version": "v2.0",
+  "runs": [
+    "e1_placement",
+    "e2_rules",
+    "main"
+  ],
+  "hypotheses": {
+    "H0": {
+      "id": "H0",
+      "experiment": "Main",
+      "statement": "On unseen attacks, hybrid G1 has lower Safety ASR than G0",
+      "test": "seed_paired_permutation",
+      "diff": -0.12866666666666665,
+      "low": -0.16416666666666666,
+      "high": -0.09783333333333333,
+      "n_seeds": 100,
+      "resamples": 2000,
+      "p": 9.999000099990002e-05,
+      "n_pairs": 574,
+      "n_pairs_dropped": 178,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 1,
+        "c": 72,
+        "p": 1.5670109524204556e-20
+      },
+      "testable": true,
+      "metric": "safety",
+      "arms": "main:G1 - main:G0",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "lower",
+      "direction_matches": true,
+      "holm": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      }
+    },
+    "H1": {
+      "id": "H1",
+      "experiment": "E1",
+      "statement": "On unseen attacks, context placement (C) has lower Safety ASR than query placement (Q)",
+      "test": "seed_paired_permutation",
+      "diff": -0.10466666666666667,
+      "low": -0.15233333333333332,
+      "high": -0.06166666666666666,
+      "n_seeds": 50,
+      "resamples": 2000,
+      "p": 9.999000099990002e-05,
+      "n_pairs": 284,
+      "n_pairs_dropped": 94,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 0,
+        "c": 28,
+        "p": 7.450580596923828e-09
+      },
+      "testable": true,
+      "metric": "safety",
+      "arms": "e1_placement:C - e1_placement:Q",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "lower",
+      "direction_matches": true,
+      "holm": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      }
+    },
+    "H2": {
+      "id": "H2",
+      "experiment": "E2",
+      "statement": "On unseen attacks, hybrid has lower PSR than rules-only",
+      "test": "seed_paired_permutation",
+      "diff": -0.2215909090909091,
+      "low": -0.3068181818181818,
+      "high": -0.14204545454545456,
+      "n_seeds": 88,
+      "resamples": 2000,
+      "p": 9.999000099990002e-05,
+      "n_pairs": 174,
+      "n_pairs_dropped": 578,
+      "permutations": 10000,
+      "mcnemar": {
+        "b": 5,
+        "c": 44,
+        "p": 7.59715845788378e-09
+      },
+      "testable": true,
+      "metric": "psr",
+      "arms": "main:G1 - e2_rules:G1",
+      "sources": [
+        "gemma"
+      ],
+      "expected_direction": "lower",
+      "direction_matches": true,
+      "holm": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      }
+    },
+    "H3": {
+      "id": "H3",
+      "experiment": "E3",
+      "statement": "In LLM-only mode, GPT-OSS 120B has higher task accuracy than Ministral 3B",
+      "testable": false,
+      "reason": "missing runs: e3_llm_gptoss, e3_llm_ministral3b",
+      "p": null,
+      "holm": null
+    },
+    "H4": {
+      "id": "H4",
+      "experiment": "E4",
+      "statement": "The share of G0 safety successes removed by G1 is lower for unseen than for known attacks",
+      "testable": true,
+      "test": "cluster_bootstrap_ci",
+      "metric": "share_of_g0_successes_removed",
+      "arms": "main:G1 unseen - main:G1 known",
+      "diff": -0.06,
+      "p": null,
+      "n_seeds": 25,
+      "unseen_share": 0.94,
+      "known_share": 1.0,
+      "low": -0.16,
+      "high": 0.0,
+      "resamples": 2000,
+      "expected_direction": "lower",
+      "direction_matches": true,
+      "holm": null
+    },
+    "H5": {
+      "id": "H5",
+      "experiment": "E5",
+      "statement": "On SQuAD unseen attacks, G1 has lower Safety ASR than G0",
+      "testable": false,
+      "reason": "missing runs: e5_squad",
+      "p": null,
+      "holm": null
+    },
+    "H6": {
+      "id": "H6",
+      "experiment": "E6",
+      "statement": "Over guard calls that fail, retry-then-block has higher task accuracy than fail-closed at no higher Safety ASR",
+      "testable": false,
+      "reason": "missing runs: e6_retry_then_block, e6_fail_closed",
+      "p": null,
+      "holm": null
+    },
+    "H7": {
+      "id": "H7",
+      "experiment": "E7",
+      "statement": "CoT and direct prompts differ in LLM-only Safety ASR",
+      "testable": false,
+      "reason": "missing runs: e7_cot, e7_direct",
+      "p": null,
+      "holm": null
+    }
+  },
+  "holm": {
+    "family": [
+      "H0",
+      "H1",
+      "H2"
+    ],
+    "family_size": 3,
+    "alpha": 0.05,
+    "excluded": [
+      "H3",
+      "H5",
+      "H6",
+      "H7"
+    ],
+    "results": {
+      "H0": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      },
+      "H1": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      },
+      "H2": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.00029997000299970003,
+        "reject": true
+      }
+    }
+  }
+}
