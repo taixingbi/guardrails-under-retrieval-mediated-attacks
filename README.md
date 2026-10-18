@@ -63,10 +63,10 @@ gurma -c configs/main.yaml run
 ## Results report
 
 ```bash
-gurma report
+gurma v2-report
 ```
 
-Writes [reports/main-e1-e7-results.md](reports/main-e1-e7-results.md) from saved `metrics.json` (no LLM).
+Writes [reports/v2_results.md](reports/v2_results.md) and [reports/v2_hypotheses.md](reports/v2_hypotheses.md) from each v2 run's saved `6_metrics/v2_metrics.json` (no LLM). The legacy report (`gurma report`) is no longer kept in the repository.
 
 ## Experiment 4 — unseen attack transfer
 
